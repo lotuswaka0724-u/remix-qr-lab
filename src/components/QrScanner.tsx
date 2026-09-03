@@ -67,6 +67,7 @@ export default function QrScanner({ active, onDetected }: Props) {
           if (!cams?.length) throw new Error("no-camera");
           const back =
             cams.find((c) => /back|rear|environment|背面/i.test(c.label)) ?? cams[cams.length - 1];
+          if (!back) throw new Error("no-camera");
           await scanner.start(back.id, config, onScan, () => {});
         }
 
