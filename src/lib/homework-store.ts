@@ -70,14 +70,17 @@ export function setState(updater: (prev: AppState) => AppState) {
 export function useAppState(): AppState {
   return useSyncExternalStore(
     (cb) => {
-      load();
       listeners.add(cb);
+      // 保存データの読み込みはハイドレーション後に行う（SSRとの不一致を防ぐ）
+      if (!loaded) {
+        queueMicrotask(() => {
+          load();
+          listeners.forEach((l) => l());
+        });
+      }
       return () => listeners.delete(cb);
     },
-    () => {
-      load();
-      return state;
-    },
+    () => state,
     () => state,
   );
 }
