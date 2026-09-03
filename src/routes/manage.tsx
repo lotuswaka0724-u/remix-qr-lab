@@ -149,6 +149,8 @@ function ManagePage() {
         </form>
       </section>
 
+      <QrMaker />
+
       <p className="text-xs text-muted-foreground">
         データはこの端末のブラウザに保存されます。別の端末とは共有されません。
       </p>
