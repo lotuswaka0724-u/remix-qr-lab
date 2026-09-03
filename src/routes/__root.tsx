@@ -77,21 +77,23 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { title: "宿題チェッカー | QRで宿題提出をかんたん記録" },
+      {
+        name: "description",
+        content: "QRコードを読み取るだけで宿題の提出状況を記録・集計できる、先生のための宿題チェックアプリ。",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
       {
         rel: "stylesheet",
-        href: appCss,
+        href: "https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@500;700;900&display=swap",
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
     ],
   }),
   shellComponent: RootShell,
@@ -102,7 +104,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="ja">
       <head>
         <HeadContent />
       </head>
@@ -114,13 +116,46 @@ function RootShell({ children }: { children: ReactNode }) {
   );
 }
 
+const NAV = [
+  { to: "/", label: "スキャン" },
+  { to: "/board", label: "未提出ボード" },
+  { to: "/manage", label: "管理" },
+] as const;
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <div className="min-h-screen">
+        <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
+            <Link to="/" className="flex items-center gap-2">
+              <span className="grid h-9 w-9 place-content-center rounded-xl bg-primary font-display text-lg font-bold text-primary-foreground">
+                宿
+              </span>
+              <span className="font-display text-lg font-bold tracking-tight">宿題チェッカー</span>
+            </Link>
+            <nav className="ml-auto flex items-center gap-1 rounded-full bg-muted p-1 text-sm font-bold">
+              {NAV.map((n) => (
+                <Link
+                  key={n.to}
+                  to={n.to}
+                  activeOptions={{ exact: n.to === "/" }}
+                  className="rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+                  activeProps={{ className: "bg-card text-primary shadow-[var(--shadow-card)]" }}
+                >
+                  {n.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </header>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </div>
+      <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
 }
+
