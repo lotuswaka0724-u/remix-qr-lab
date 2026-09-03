@@ -7,6 +7,21 @@ type Props = {
 
 const REGION_ID = "qr-scan-region";
 
+// iPad/iOS Safari 対応：
+// - HTTPS 必須（プレビュー/公開URLはHTTPS）
+// - ユーザー操作（ボタン）起点でのみカメラ起動
+// - video に playsinline / muted を付与しないと再生されない
+// - 背面カメラが無い機種もあるためカメラ一覧からフォールバック
+function patchVideoForIOS(root: HTMLElement | null) {
+  const video = root?.querySelector("video");
+  if (!video) return;
+  video.setAttribute("playsinline", "true");
+  video.setAttribute("webkit-playsinline", "true");
+  video.setAttribute("muted", "true");
+  video.muted = true;
+  video.play().catch(() => {});
+}
+
 export default function QrScanner({ active, onDetected }: Props) {
   const [error, setError] = useState<string | null>(null);
   const detectedRef = useRef(onDetected);
@@ -20,19 +35,61 @@ export default function QrScanner({ active, onDetected }: Props) {
 
     (async () => {
       try {
+        if (!navigator.mediaDevices?.getUserMedia) {
+          throw new Error("no-camera-api");
+        }
+
         const { Html5Qrcode } = await import("html5-qrcode");
         if (stopped) return;
+
+        // 先に許可ダイアログを出しておく（iPadOS Safari で安定する）
+        const probe = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false,
+        });
+        probe.getTracks().forEach((t) => t.stop());
+        if (stopped) return;
+
         scanner = new Html5Qrcode(REGION_ID, { verbose: false });
-        await scanner.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 220, height: 220 } },
-          (text: string) => detectedRef.current(text),
-          () => {},
-        );
-        if (stopped) await scanner.stop();
-        else setError(null);
-      } catch {
-        if (!stopped) setError("カメラを起動できませんでした。ブラウザのカメラ許可をご確認ください。");
+        const config = {
+          fps: 10,
+          qrbox: { width: 220, height: 220 },
+          aspectRatio: 1.3333,
+          disableFlip: false,
+        };
+        const onScan = (text: string) => detectedRef.current(text);
+
+        try {
+          await scanner.start({ facingMode: { exact: "environment" } }, config, onScan, () => {});
+        } catch {
+          // 背面カメラが使えない場合はカメラ一覧から選択
+          const cams = await Html5Qrcode.getCameras();
+          if (!cams?.length) throw new Error("no-camera");
+          const back =
+            cams.find((c) => /back|rear|environment|背面/i.test(c.label)) ?? cams[cams.length - 1];
+          if (!back) throw new Error("no-camera");
+          await scanner.start(back.id, config, onScan, () => {});
+        }
+
+        if (stopped) {
+          await scanner.stop();
+          return;
+        }
+        setError(null);
+        // iOS で video が再生されないケースの保険
+        setTimeout(() => patchVideoForIOS(document.getElementById(REGION_ID)), 200);
+      } catch (e) {
+        if (stopped) return;
+        const name = (e as { name?: string })?.name;
+        if (name === "NotAllowedError") {
+          setError(
+            "カメラの使用が許可されていません。iPad の「設定 > Safari > カメラ」または画面左上の「ぁあ」→ Webサイトの設定 から許可してください。",
+          );
+        } else if (!window.isSecureContext) {
+          setError("安全な接続（HTTPS）でないためカメラを使用できません。");
+        } else {
+          setError("カメラを起動できませんでした。他のアプリでカメラを使用していないかご確認ください。");
+        }
       }
     })();
 
