@@ -234,10 +234,10 @@ function ScanPage() {
             </Button>
           </div>
 
-          <div className="overflow-x-auto">
+          <div className="min-h-0 flex-1 overflow-auto">
             <table className="w-full min-w-[520px] text-sm">
-              <thead>
-                <tr className="bg-muted/70 text-left text-xs text-muted-foreground">
+              <thead className="sticky top-0 z-10">
+                <tr className="bg-primary-soft text-left text-xs text-secondary-foreground">
                   <th className="px-3 py-2 font-bold">番号</th>
                   <th className="px-3 py-2 font-bold">氏名</th>
                   {todayAssignments.map((a) => (
