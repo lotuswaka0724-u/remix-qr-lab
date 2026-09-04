@@ -98,13 +98,18 @@ function ScanPage() {
     toast.success(`${student.name} → ${target.name}`, { description: "提出を記録しました" });
   };
 
+  const missingRows = students
+    .map((s) => ({ student: s, missing: todayAssignments.filter((a) => !day[s.id]?.[a.id]) }))
+    .filter((r) => r.missing.length > 0);
+
   return (
-    <main className="mx-auto max-w-6xl px-4 py-6">
+    <main className="mx-auto w-full max-w-[1400px] px-3 py-3 lg:h-[calc(100svh-4rem)] lg:overflow-hidden">
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_1fr]">
+      <div className="grid h-full min-h-0 gap-3 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)_minmax(0,300px)]">
         {/* Scanner column */}
-        <div className="space-y-4">
+        <div className="flex min-h-0 flex-col gap-3 lg:overflow-y-auto">
+
           <section className="paper-card p-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-base font-bold">QRスキャナー</h2>
