@@ -202,8 +202,8 @@ function ScanPage() {
         </div>
 
         {/* Table column */}
-        <section className="paper-card flex flex-col overflow-hidden">
-          <div className="flex flex-wrap items-center gap-2 border-b border-border p-4">
+        <section className="paper-card flex min-h-0 flex-col overflow-hidden">
+          <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
             <h2 className="mr-auto font-display text-base font-bold">提出一覧</h2>
             <select
               className="rounded-lg border border-input bg-background px-2 py-1.5 text-sm"
