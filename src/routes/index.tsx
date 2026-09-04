@@ -285,6 +285,46 @@ function ScanPage() {
             </table>
           </div>
         </section>
+
+        {/* Missing column */}
+        <section className="paper-card flex min-h-0 flex-col overflow-hidden">
+          <div className="flex items-center justify-between gap-2 border-b border-border bg-accent-soft px-3 py-3">
+            <h2 className="font-display text-base font-bold text-accent-foreground/90">未提出者</h2>
+            <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
+              {missingRows.length} 人
+            </span>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto p-3">
+            {missingRows.length === 0 ? (
+              <p className="grid h-full place-content-center text-center font-display text-lg font-bold text-success">
+                全員そろいました！
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {missingRows.map((r) => (
+                  <li key={r.student.id} className="rounded-xl border border-border bg-muted/50 p-2.5">
+                    <p className="font-display text-sm font-bold">
+                      {r.student.name}
+                      <span className="ml-1.5 text-xs font-medium text-muted-foreground">
+                        {r.student.className} / {r.student.number}番
+                      </span>
+                    </p>
+                    <ul className="mt-1 flex flex-wrap gap-1">
+                      {r.missing.map((m) => (
+                        <li
+                          key={m.id}
+                          className="rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-bold text-destructive"
+                        >
+                          {m.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
       </div>
     </main>
   );
