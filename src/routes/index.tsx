@@ -98,18 +98,13 @@ function ScanPage() {
     toast.success(`${student.name} → ${target.name}`, { description: "提出を記録しました" });
   };
 
-  const missingRows = students
-    .map((s) => ({ student: s, missing: todayAssignments.filter((a) => !day[s.id]?.[a.id]) }))
-    .filter((r) => r.missing.length > 0);
-
   return (
-    <main className="mx-auto w-full max-w-[1400px] px-3 py-3 lg:h-[calc(100svh-4rem)] lg:overflow-hidden">
+    <main className="mx-auto max-w-6xl px-4 py-6">
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
 
-      <div className="grid h-full min-h-0 gap-3 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)_minmax(0,300px)]">
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,380px)_1fr]">
         {/* Scanner column */}
-        <div className="flex min-h-0 flex-col gap-3 lg:overflow-y-auto">
-
+        <div className="space-y-4">
           <section className="paper-card p-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-display text-base font-bold">QRスキャナー</h2>
@@ -202,8 +197,8 @@ function ScanPage() {
         </div>
 
         {/* Table column */}
-        <section className="paper-card flex min-h-0 flex-col overflow-hidden">
-          <div className="flex flex-wrap items-center gap-2 border-b border-border p-3">
+        <section className="paper-card flex flex-col overflow-hidden">
+          <div className="flex flex-wrap items-center gap-2 border-b border-border p-4">
             <h2 className="mr-auto font-display text-base font-bold">提出一覧</h2>
             <select
               className="rounded-lg border border-input bg-background px-2 py-1.5 text-sm"
@@ -234,10 +229,10 @@ function ScanPage() {
             </Button>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto">
+          <div className="overflow-x-auto">
             <table className="w-full min-w-[520px] text-sm">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-primary-soft text-left text-xs text-secondary-foreground">
+              <thead>
+                <tr className="bg-muted/70 text-left text-xs text-muted-foreground">
                   <th className="px-3 py-2 font-bold">番号</th>
                   <th className="px-3 py-2 font-bold">氏名</th>
                   {todayAssignments.map((a) => (
@@ -283,46 +278,6 @@ function ScanPage() {
                 )}
               </tbody>
             </table>
-          </div>
-        </section>
-
-        {/* Missing column */}
-        <section className="paper-card flex min-h-0 flex-col overflow-hidden">
-          <div className="flex items-center justify-between gap-2 border-b border-border bg-accent-soft px-3 py-3">
-            <h2 className="font-display text-base font-bold text-accent-foreground/90">未提出者</h2>
-            <span className="rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
-              {missingRows.length} 人
-            </span>
-          </div>
-          <div className="min-h-0 flex-1 overflow-y-auto p-3">
-            {missingRows.length === 0 ? (
-              <p className="grid h-full place-content-center text-center font-display text-lg font-bold text-success">
-                全員そろいました！
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {missingRows.map((r) => (
-                  <li key={r.student.id} className="rounded-xl border border-border bg-muted/50 p-2.5">
-                    <p className="font-display text-sm font-bold">
-                      {r.student.name}
-                      <span className="ml-1.5 text-xs font-medium text-muted-foreground">
-                        {r.student.className} / {r.student.number}番
-                      </span>
-                    </p>
-                    <ul className="mt-1 flex flex-wrap gap-1">
-                      {r.missing.map((m) => (
-                        <li
-                          key={m.id}
-                          className="rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-bold text-destructive"
-                        >
-                          {m.name}
-                        </li>
-                      ))}
-                    </ul>
-                  </li>
-                ))}
-              </ul>
-            )}
           </div>
         </section>
       </div>
