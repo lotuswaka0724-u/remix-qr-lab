@@ -189,45 +189,7 @@ function ScanPage() {
             )}
           </section>
 
-          {/* 今日の提出状況 */}
-          <section className="glass-panel shrink-0 p-3">
-            <div className="flex items-center gap-3">
-              <div className="relative grid h-[86px] w-[86px] shrink-0 place-items-center">
-                <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
-                  <circle cx="40" cy="40" r="34" className="fill-none stroke-muted" strokeWidth="9" />
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="34"
-                    className="fill-none stroke-success transition-[stroke-dashoffset] duration-500"
-                    strokeWidth="9"
-                    strokeLinecap="round"
-                    strokeDasharray={dash}
-                    strokeDashoffset={dash * (1 - pct / 100)}
-                  />
-                </svg>
-                <span className="absolute font-display text-lg font-bold">{pct}%</span>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-muted-foreground">今日の提出状況</p>
-                <p className="font-display text-2xl font-bold leading-tight">
-                  {done}
-                  <span className="text-sm text-muted-foreground"> / {total} 件</span>
-                </p>
-                <p className="text-xs font-bold text-destructive">未提出 {total - done} 件</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mt-1 w-full text-xs text-destructive"
-              onClick={() => {
-                if (confirm("今日の記録をすべてリセットしますか？")) clearToday();
-              }}
-            >
-              今日の記録をリセット
-            </Button>
-          </section>
+
         </div>
 
         {/* ---- 中央：提出一覧 ---- */}
