@@ -120,6 +120,7 @@ function RootShell({ children }: { children: ReactNode }) {
 const NAV = [
   { to: "/", label: "スキャン" },
   { to: "/board", label: "未提出ボード" },
+  { to: "/history", label: "履歴" },
   { to: "/manage", label: "管理" },
 ] as const;
 

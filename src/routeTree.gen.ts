@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoardRouteImport } from './routes/board'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ManageRouteImport } from './routes/manage'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const BoardRoute = BoardRouteImport.update({
   path: '/board',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManageRoute = ManageRouteImport.update({
   id: '/manage',
   path: '/manage',
@@ -32,30 +38,34 @@ const ManageRoute = ManageRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
+  '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
+  '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
+  '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/board' | '/manage'
+  fullPaths: '/' | '/board' | '/history' | '/manage'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/board' | '/manage'
-  id: '__root__' | '/' | '/board' | '/manage'
+  to: '/' | '/board' | '/history' | '/manage'
+  id: '__root__' | '/' | '/board' | '/history' | '/manage'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoardRoute: typeof BoardRoute
+  HistoryRoute: typeof HistoryRoute
   ManageRoute: typeof ManageRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BoardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manage': {
       id: '/manage'
       path: '/manage'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoardRoute: BoardRoute,
+  HistoryRoute: HistoryRoute,
   ManageRoute: ManageRoute,
 }
 export const routeTree = rootRouteImport

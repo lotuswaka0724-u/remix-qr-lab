@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
+import CsvPanel from "@/components/CsvPanel";
 import QrMaker from "@/components/QrMaker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -148,6 +149,8 @@ function ManagePage() {
           <Button type="submit">追加</Button>
         </form>
       </section>
+
+      <CsvPanel />
 
       <QrMaker />
 
