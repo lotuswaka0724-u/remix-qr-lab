@@ -116,14 +116,55 @@ function ScanPage() {
     celebrate(student.name, target.name, student.id);
   };
 
-  const dash = 2 * Math.PI * 34;
+  const doneStudents = students.filter(
+    (s) => todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]),
+  ).length;
 
   return (
     <main className="mx-auto w-full max-w-[1600px] px-3 pb-3 pt-2 lg:h-[calc(100svh-62px)] lg:overflow-hidden">
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
 
-      <div className="grid h-full gap-3 lg:grid-cols-[300px_minmax(0,1fr)]">
+      {/* ---- 今日の提出状況（横長バー） ---- */}
+      <section className="glass-panel mb-3 px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <p className="font-display text-sm font-bold">今日の提出状況</p>
+          <p className="font-display text-xl font-bold leading-none">
+            {done}
+            <span className="text-xs font-bold text-muted-foreground"> / {total} 件</span>
+          </p>
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
+            全部そろった人 {doneStudents} / {students.length} 人
+          </span>
+          <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-bold text-destructive">
+            未提出 {total - done} 件・{pendingCount} 人
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto text-xs text-destructive"
+            onClick={() => {
+              if (confirm("今日の記録をすべてリセットしますか？")) clearToday();
+            }}
+          >
+            今日の記録をリセット
+          </Button>
+        </div>
+        <div className="mt-2 flex items-center gap-3">
+          <div className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-[linear-gradient(90deg,hsl(var(--primary)),hsl(var(--accent)))] transition-[width] duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="w-14 shrink-0 text-right font-display text-lg font-bold text-primary">
+            {pct}%
+          </span>
+        </div>
+      </section>
+
+      <div className="grid gap-3 lg:h-[calc(100%-84px)] lg:grid-cols-[300px_minmax(0,1fr)]">
+
         {/* ---- 左：スキャナー ---- */}
         <div className="flex min-h-0 flex-col gap-3">
           <section className="glass-panel flex min-h-0 flex-col overflow-hidden p-3">
