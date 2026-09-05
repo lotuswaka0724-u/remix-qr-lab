@@ -326,7 +326,9 @@ function ScanPage() {
                       );
                     })}
                   </tr>
-                ))}
+                  );
+                })}
+
                 {students.length === 0 && (
                   <tr>
                     <td
