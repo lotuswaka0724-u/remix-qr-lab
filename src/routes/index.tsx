@@ -75,12 +75,10 @@ function ScanPage() {
   );
   const pct = total ? Math.round((done / total) * 100) : 0;
 
-  const pending = students
-    .map((s) => ({
-      student: s,
-      missing: todayAssignments.filter((a) => !day[s.id]?.[a.id]),
-    }))
-    .filter((p) => p.missing.length > 0);
+  const pendingCount = students.filter((s) =>
+    todayAssignments.some((a) => !day[s.id]?.[a.id]),
+  ).length;
+
 
   const celebrate = (student: string, assignment: string, studentId: string) => {
     setHit({ id: Date.now(), student, assignment });
@@ -118,14 +116,55 @@ function ScanPage() {
     celebrate(student.name, target.name, student.id);
   };
 
-  const dash = 2 * Math.PI * 34;
+  const doneStudents = students.filter(
+    (s) => todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]),
+  ).length;
 
   return (
     <main className="mx-auto w-full max-w-[1600px] px-3 pb-3 pt-2 lg:h-[calc(100svh-62px)] lg:overflow-hidden">
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
 
-      <div className="grid h-full gap-3 lg:grid-cols-[300px_minmax(0,1fr)_270px]">
+      {/* ---- 今日の提出状況（横長バー） ---- */}
+      <section className="glass-panel mb-3 px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <p className="font-display text-sm font-bold">今日の提出状況</p>
+          <p className="font-display text-xl font-bold leading-none">
+            {done}
+            <span className="text-xs font-bold text-muted-foreground"> / {total} 件</span>
+          </p>
+          <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
+            全部そろった人 {doneStudents} / {students.length} 人
+          </span>
+          <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-bold text-destructive">
+            未提出 {total - done} 件・{pendingCount} 人
+          </span>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="ml-auto text-xs text-destructive"
+            onClick={() => {
+              if (confirm("今日の記録をすべてリセットしますか？")) clearToday();
+            }}
+          >
+            今日の記録をリセット
+          </Button>
+        </div>
+        <div className="mt-2 flex items-center gap-3">
+          <div className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))] transition-[width] duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="w-14 shrink-0 text-right font-display text-lg font-bold text-primary">
+            {pct}%
+          </span>
+        </div>
+      </section>
+
+      <div className="grid gap-3 lg:h-[calc(100%-84px)] lg:grid-cols-[300px_minmax(0,1fr)]">
+
         {/* ---- 左：スキャナー ---- */}
         <div className="flex min-h-0 flex-col gap-3">
           <section className="glass-panel flex min-h-0 flex-col overflow-hidden p-3">
@@ -191,45 +230,7 @@ function ScanPage() {
             )}
           </section>
 
-          {/* 今日の提出状況 */}
-          <section className="glass-panel shrink-0 p-3">
-            <div className="flex items-center gap-3">
-              <div className="relative grid h-[86px] w-[86px] shrink-0 place-items-center">
-                <svg viewBox="0 0 80 80" className="h-full w-full -rotate-90">
-                  <circle cx="40" cy="40" r="34" className="fill-none stroke-muted" strokeWidth="9" />
-                  <circle
-                    cx="40"
-                    cy="40"
-                    r="34"
-                    className="fill-none stroke-success transition-[stroke-dashoffset] duration-500"
-                    strokeWidth="9"
-                    strokeLinecap="round"
-                    strokeDasharray={dash}
-                    strokeDashoffset={dash * (1 - pct / 100)}
-                  />
-                </svg>
-                <span className="absolute font-display text-lg font-bold">{pct}%</span>
-              </div>
-              <div className="min-w-0">
-                <p className="text-xs font-bold text-muted-foreground">今日の提出状況</p>
-                <p className="font-display text-2xl font-bold leading-tight">
-                  {done}
-                  <span className="text-sm text-muted-foreground"> / {total} 件</span>
-                </p>
-                <p className="text-xs font-bold text-destructive">未提出 {total - done} 件</p>
-              </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="mt-1 w-full text-xs text-destructive"
-              onClick={() => {
-                if (confirm("今日の記録をすべてリセットしますか？")) clearToday();
-              }}
-            >
-              今日の記録をリセット
-            </Button>
-          </section>
+
         </div>
 
         {/* ---- 中央：提出一覧 ---- */}
@@ -284,15 +285,26 @@ function ScanPage() {
                 </tr>
               </thead>
               <tbody>
-                {students.map((s) => (
+                {students.map((s) => {
+                  const allDone =
+                    todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]);
+                  return (
                   <tr
                     key={s.id}
                     className={`border-t border-border/60 odd:bg-muted/30 ${
-                      flashRow === s.id ? "fx-row-hit" : ""
-                    }`}
+                      allDone ? "bg-primary/5 odd:bg-primary/10" : ""
+                    } ${flashRow === s.id ? "fx-row-hit" : ""}`}
                   >
                     <td className="px-3 py-1.5 tabular-nums text-muted-foreground">{s.number}</td>
-                    <td className="px-3 py-1.5 font-bold">{s.name}</td>
+                    <td
+                      className={`px-3 py-1.5 font-bold ${
+                        allDone ? "text-primary" : ""
+                      }`}
+                    >
+                      {s.name}
+                      {allDone && <span className="ml-1 text-xs font-bold text-primary">✓完了</span>}
+                    </td>
+
                     {todayAssignments.map((a) => {
                       const ok = !!day[s.id]?.[a.id];
                       return (
@@ -314,7 +326,9 @@ function ScanPage() {
                       );
                     })}
                   </tr>
-                ))}
+                  );
+                })}
+
                 {students.length === 0 && (
                   <tr>
                     <td
@@ -330,40 +344,6 @@ function ScanPage() {
           </div>
         </section>
 
-        {/* ---- 右：未提出者 ---- */}
-        <section className="glass-panel flex min-h-0 flex-col overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border/70 px-3 py-2">
-            <h2 className="font-display text-sm font-bold">未提出者</h2>
-            <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs font-bold text-destructive">
-              {pending.length} 人
-            </span>
-          </div>
-          <div className="min-h-0 flex-1 space-y-2 overflow-auto p-3">
-            {pending.map(({ student, missing }) => (
-              <div key={student.id} className="rounded-2xl bg-muted/60 p-2">
-                <p className="text-sm font-bold">
-                  <span className="mr-1 tabular-nums text-muted-foreground">{student.number}</span>
-                  {student.name}
-                </p>
-                <div className="mt-1 flex flex-wrap gap-1">
-                  {missing.map((a) => (
-                    <span
-                      key={a.id}
-                      className="rounded-full bg-destructive/10 px-2 py-0.5 text-[11px] font-bold text-destructive"
-                    >
-                      {a.name}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
-            {pending.length === 0 && total > 0 && (
-              <p className="rounded-2xl bg-success-soft p-4 text-center text-sm font-bold text-success">
-                全員そろいました！
-              </p>
-            )}
-          </div>
-        </section>
       </div>
     </main>
   );
