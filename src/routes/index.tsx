@@ -75,12 +75,10 @@ function ScanPage() {
   );
   const pct = total ? Math.round((done / total) * 100) : 0;
 
-  const pending = students
-    .map((s) => ({
-      student: s,
-      missing: todayAssignments.filter((a) => !day[s.id]?.[a.id]),
-    }))
-    .filter((p) => p.missing.length > 0);
+  const pendingCount = students.filter((s) =>
+    todayAssignments.some((a) => !day[s.id]?.[a.id]),
+  ).length;
+
 
   const celebrate = (student: string, assignment: string, studentId: string) => {
     setHit({ id: Date.now(), student, assignment });
