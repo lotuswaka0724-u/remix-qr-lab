@@ -153,7 +153,7 @@ function ScanPage() {
         <div className="mt-2 flex items-center gap-3">
           <div className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-[linear-gradient(90deg,hsl(var(--primary)),hsl(var(--accent)))] transition-[width] duration-500"
+              className="h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))] transition-[width] duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>
