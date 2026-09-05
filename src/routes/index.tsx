@@ -123,7 +123,7 @@ function ScanPage() {
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
 
-      <div className="grid h-full gap-3 lg:grid-cols-[300px_minmax(0,1fr)_270px]">
+      <div className="grid h-full gap-3 lg:grid-cols-[300px_minmax(0,1fr)]">
         {/* ---- 左：スキャナー ---- */}
         <div className="flex min-h-0 flex-col gap-3">
           <section className="glass-panel flex min-h-0 flex-col overflow-hidden p-3">
