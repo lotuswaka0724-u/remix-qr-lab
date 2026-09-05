@@ -285,15 +285,26 @@ function ScanPage() {
                 </tr>
               </thead>
               <tbody>
-                {students.map((s) => (
+                {students.map((s) => {
+                  const allDone =
+                    todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]);
+                  return (
                   <tr
                     key={s.id}
                     className={`border-t border-border/60 odd:bg-muted/30 ${
-                      flashRow === s.id ? "fx-row-hit" : ""
-                    }`}
+                      allDone ? "bg-primary/5 odd:bg-primary/10" : ""
+                    } ${flashRow === s.id ? "fx-row-hit" : ""}`}
                   >
                     <td className="px-3 py-1.5 tabular-nums text-muted-foreground">{s.number}</td>
-                    <td className="px-3 py-1.5 font-bold">{s.name}</td>
+                    <td
+                      className={`px-3 py-1.5 font-bold ${
+                        allDone ? "text-primary" : ""
+                      }`}
+                    >
+                      {s.name}
+                      {allDone && <span className="ml-1 text-xs font-bold text-primary">✓完了</span>}
+                    </td>
+
                     {todayAssignments.map((a) => {
                       const ok = !!day[s.id]?.[a.id];
                       return (
