@@ -8,11 +8,18 @@ import { Switch } from "@/components/ui/switch";
 import { playError, playSuccess, SOUND_PRESETS, speak, vibrate } from "@/lib/feedback";
 import {
   clearToday,
+  cycleRecord,
+  isSubmitted,
   parseQr,
-  toggleRecord,
+  ranking,
+  setRecord,
+  STATUS_META,
+  STATUS_ORDER,
+  toStatus,
   todayKey,
   updateSettings,
   useAppState,
+  type Status,
 } from "@/lib/homework-store";
 
 const QrScanner = lazy(() => import("@/components/QrScanner"));
@@ -70,13 +77,13 @@ function ScanPage() {
 
   const total = students.length * todayAssignments.length;
   const done = students.reduce(
-    (acc, s) => acc + todayAssignments.filter((a) => day[s.id]?.[a.id]).length,
+    (acc, s) => acc + todayAssignments.filter((a) => isSubmitted(day[s.id]?.[a.id])).length,
     0,
   );
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   const pendingCount = students.filter((s) =>
-    todayAssignments.some((a) => !day[s.id]?.[a.id]),
+    todayAssignments.some((a) => !isSubmitted(day[s.id]?.[a.id])),
   ).length;
 
 
@@ -109,7 +116,7 @@ function ScanPage() {
       toast.info(`${student.name} さんは提出済みです`, { description: target.name });
       return;
     }
-    toggleRecord(student.id, target.id, true);
+    setRecord(student.id, target.id, state.settings.scanStatus);
     playSuccess(state.settings.sound);
     if (state.settings.vibe) vibrate(60);
     if (state.settings.speak) speak(`${student.name}さん、${target.name}`);
@@ -117,7 +124,7 @@ function ScanPage() {
   };
 
   const doneStudents = students.filter(
-    (s) => todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]),
+    (s) => todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id])),
   ).length;
 
   return (
@@ -287,7 +294,7 @@ function ScanPage() {
               <tbody>
                 {students.map((s) => {
                   const allDone =
-                    todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]);
+                    todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id]));
                   return (
                   <tr
                     key={s.id}
@@ -306,21 +313,20 @@ function ScanPage() {
                     </td>
 
                     {todayAssignments.map((a) => {
-                      const ok = !!day[s.id]?.[a.id];
+                      const ok = !!isSubmitted(day[s.id]?.[a.id]);
                       return (
                         <td key={a.id} className="px-3 py-1.5 text-center">
                           <button
                             type="button"
                             disabled={locked}
-                            onClick={() => toggleRecord(s.id, a.id)}
-                            className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${
-                              ok
-                                ? "bg-success text-success-foreground shadow-[var(--shadow-lift)]"
-                                : "bg-muted text-muted-foreground hover:bg-secondary"
+                            onClick={() => cycleRecord(s.id, a.id)}
+                            title={meta.label}
+                            className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
+                              st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
                             } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
-                            aria-label={`${s.name} ${a.name} ${ok ? "提出済み" : "未提出"}`}
+                            aria-label={`${s.name} ${a.name} ${meta.label}`}
                           >
-                            {ok ? "✓" : "—"}
+                            {meta.short}
                           </button>
                         </td>
                       );
