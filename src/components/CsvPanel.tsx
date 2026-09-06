@@ -3,7 +3,9 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { downloadCsv, parseCsv } from "@/lib/csv";
-import { setState, todayKey, useAppState } from "@/lib/homework-store";
+import { setState, todayKey, useAppState
+  isSubmitted,
+} from "@/lib/homework-store";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -64,7 +66,7 @@ export default function CsvPanel() {
       ...[...state.students]
         .sort((x, y) => x.className.localeCompare(y.className) || x.number - y.number)
         .map((s) => {
-          const cells = todays.map((a) => (day[s.id]?.[a.id] ? "○" : "×"));
+          const cells = todays.map((a) => (isSubmitted(day[s.id]?.[a.id]) ? "○" : "×"));
           return [
             todayKey(),
             s.className,
@@ -86,7 +88,7 @@ export default function CsvPanel() {
         const day = state.records[date] ?? {};
         state.students.forEach((s) => {
           state.assignments.forEach((a) => {
-            if (day[s.id]?.[a.id])
+            if (isSubmitted(day[s.id]?.[a.id]))
               rows.push([date, s.className, s.number, s.name, a.name, "○"]);
           });
         });

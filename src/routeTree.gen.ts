@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoardRouteImport } from './routes/board'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ManageRouteImport } from './routes/manage'
+import { Route as PointsRouteImport } from './routes/points'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,18 +35,25 @@ const ManageRoute = ManageRouteImport.update({
   path: '/manage',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PointsRoute = PointsRouteImport.update({
+  id: '/points',
+  path: '/points',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
+  '/points': typeof PointsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
+  '/points': typeof PointsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -53,13 +61,14 @@ export interface FileRoutesById {
   '/board': typeof BoardRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
+  '/points': typeof PointsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/board' | '/history' | '/manage'
+  fullPaths: '/' | '/board' | '/history' | '/manage' | '/points'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/board' | '/history' | '/manage'
-  id: '__root__' | '/' | '/board' | '/history' | '/manage'
+  to: '/' | '/board' | '/history' | '/manage' | '/points'
+  id: '__root__' | '/' | '/board' | '/history' | '/manage' | '/points'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -67,6 +76,7 @@ export interface RootRouteChildren {
   BoardRoute: typeof BoardRoute
   HistoryRoute: typeof HistoryRoute
   ManageRoute: typeof ManageRoute
+  PointsRoute: typeof PointsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -99,6 +109,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManageRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/points': {
+      id: '/points'
+      path: '/points'
+      fullPath: '/points'
+      preLoaderRoute: typeof PointsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -107,6 +124,7 @@ const rootRouteChildren: RootRouteChildren = {
   BoardRoute: BoardRoute,
   HistoryRoute: HistoryRoute,
   ManageRoute: ManageRoute,
+  PointsRoute: PointsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
