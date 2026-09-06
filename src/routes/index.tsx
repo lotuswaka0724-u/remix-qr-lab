@@ -313,7 +313,8 @@ function ScanPage() {
                     </td>
 
                     {todayAssignments.map((a) => {
-                      const ok = !!isSubmitted(day[s.id]?.[a.id]);
+                      const st = toStatus(day[s.id]?.[a.id]);
+                      const meta = STATUS_META[st];
                       return (
                         <td key={a.id} className="px-3 py-1.5 text-center">
                           <button
