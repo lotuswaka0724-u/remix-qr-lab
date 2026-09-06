@@ -191,6 +191,22 @@ function ScanPage() {
               <QrScanner active={scanning} onDetected={handleDetected} />
             </Suspense>
 
+            <label className="mt-2 block rounded-2xl bg-primary/5 p-2 text-xs font-bold">
+              読み取ったときの記録
+              <select
+                className="mt-1 w-full rounded-lg border border-input bg-background px-2 py-1.5 text-xs font-medium"
+                value={state.settings.scanStatus}
+                onChange={(e) => updateSettings({ scanStatus: e.target.value as Status })}
+              >
+                {STATUS_ORDER.filter((s) => s !== "none").map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_META[s].label}（{state.pointRules[s]}pt）
+                  </option>
+                ))}
+              </select>
+            </label>
+
+
             <button
               type="button"
               onClick={() => setShowTools((v) => !v)}
