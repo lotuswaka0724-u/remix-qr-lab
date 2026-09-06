@@ -146,7 +146,7 @@ function PointsPage() {
           )}
 
           {result && !spinning && (
-            <p className="fx-pop mt-4 rounded-2xl bg-primary/10 px-4 py-3 font-display text-xl font-bold text-primary">
+            <p className="mt-4 rounded-2xl bg-primary/10 px-4 py-3 font-display text-xl font-bold text-primary">
               {result.prize} が出ました！
             </p>
           )}
