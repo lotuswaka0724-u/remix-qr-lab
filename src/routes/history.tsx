@@ -3,7 +3,9 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { downloadCsv } from "@/lib/csv";
-import { useAppState } from "@/lib/homework-store";
+import { useAppState
+  isSubmitted,
+} from "@/lib/homework-store";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
@@ -45,7 +47,7 @@ function HistoryPage() {
         let done = 0;
         const perStudent = students.map((s) => {
           const items = Object.entries(day[s.id] ?? {})
-            .filter(([, v]) => v)
+            .filter(([, v]) => isSubmitted(v))
             .map(([id]) => names.get(id) ?? "（削除済み）");
           done += items.length;
           return { student: s, items };

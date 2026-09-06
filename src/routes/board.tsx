@@ -2,7 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { todayKey, useAppState } from "@/lib/homework-store";
+import { todayKey, useAppState
+  isSubmitted,
+} from "@/lib/homework-store";
 
 export const Route = createFileRoute("/board")({
   head: () => ({
@@ -37,7 +39,7 @@ function BoardPage() {
   const rows = state.students
     .filter((s) => classFilter === "all" || s.className === classFilter)
     .sort((a, b) => a.className.localeCompare(b.className) || a.number - b.number)
-    .map((s) => ({ student: s, missing: todayAssignments.filter((a) => !day[s.id]?.[a.id]) }))
+    .map((s) => ({ student: s, missing: todayAssignments.filter((a) => !isSubmitted(day[s.id]?.[a.id])) }))
     .filter((r) => r.missing.length > 0);
 
   return (

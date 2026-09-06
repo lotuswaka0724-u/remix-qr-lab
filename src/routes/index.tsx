@@ -8,11 +8,18 @@ import { Switch } from "@/components/ui/switch";
 import { playError, playSuccess, SOUND_PRESETS, speak, vibrate } from "@/lib/feedback";
 import {
   clearToday,
+  cycleRecord,
+  isSubmitted,
   parseQr,
-  toggleRecord,
+  ranking,
+  setRecord,
+  STATUS_META,
+  STATUS_ORDER,
+  toStatus,
   todayKey,
   updateSettings,
   useAppState,
+  type Status,
 } from "@/lib/homework-store";
 
 const QrScanner = lazy(() => import("@/components/QrScanner"));
@@ -67,16 +74,17 @@ function ScanPage() {
     [state.students, classFilter],
   );
   const day = state.records[todayKey()] ?? {};
+  const rank = useMemo(() => ranking(state, classFilter), [state, classFilter]);
 
   const total = students.length * todayAssignments.length;
   const done = students.reduce(
-    (acc, s) => acc + todayAssignments.filter((a) => day[s.id]?.[a.id]).length,
+    (acc, s) => acc + todayAssignments.filter((a) => isSubmitted(day[s.id]?.[a.id])).length,
     0,
   );
   const pct = total ? Math.round((done / total) * 100) : 0;
 
   const pendingCount = students.filter((s) =>
-    todayAssignments.some((a) => !day[s.id]?.[a.id]),
+    todayAssignments.some((a) => !isSubmitted(day[s.id]?.[a.id])),
   ).length;
 
 
@@ -109,7 +117,7 @@ function ScanPage() {
       toast.info(`${student.name} さんは提出済みです`, { description: target.name });
       return;
     }
-    toggleRecord(student.id, target.id, true);
+    setRecord(student.id, target.id, state.settings.scanStatus);
     playSuccess(state.settings.sound);
     if (state.settings.vibe) vibrate(60);
     if (state.settings.speak) speak(`${student.name}さん、${target.name}`);
@@ -117,7 +125,7 @@ function ScanPage() {
   };
 
   const doneStudents = students.filter(
-    (s) => todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]),
+    (s) => todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id])),
   ).length;
 
   return (
@@ -184,6 +192,22 @@ function ScanPage() {
               <QrScanner active={scanning} onDetected={handleDetected} />
             </Suspense>
 
+            <label className="mt-2 block rounded-2xl bg-primary/5 p-2 text-xs font-bold">
+              読み取ったときの記録
+              <select
+                className="mt-1 w-full rounded-lg border border-input bg-background px-2 py-1.5 text-xs font-medium"
+                value={state.settings.scanStatus}
+                onChange={(e) => updateSettings({ scanStatus: e.target.value as Status })}
+              >
+                {STATUS_ORDER.filter((s) => s !== "none").map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_META[s].label}（{state.pointRules[s]}pt）
+                  </option>
+                ))}
+              </select>
+            </label>
+
+
             <button
               type="button"
               onClick={() => setShowTools((v) => !v)}
@@ -230,7 +254,35 @@ function ScanPage() {
             )}
           </section>
 
-
+          {/* ---- ポイントランキング ---- */}
+          <section className="glass-panel flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="font-display text-sm font-bold">ポイントランキング</h2>
+              <a
+                href="/points"
+                className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary"
+              >
+                ガチャ
+              </a>
+            </div>
+            <ol className="min-h-0 flex-1 space-y-1 overflow-auto">
+              {rank.map((r, i) => (
+                <li
+                  key={r.student.id}
+                  className={`flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm ${
+                    i < 3 ? "bg-primary/10 font-bold text-primary" : "bg-muted/50"
+                  }`}
+                >
+                  <span className="w-5 shrink-0 text-center tabular-nums">{i + 1}</span>
+                  <span className="min-w-0 flex-1 truncate">{r.student.name}</span>
+                  <span className="shrink-0 tabular-nums">{r.points}pt</span>
+                </li>
+              ))}
+              {rank.length === 0 && (
+                <li className="py-4 text-center text-xs text-muted-foreground">名簿がありません</li>
+              )}
+            </ol>
+          </section>
         </div>
 
         {/* ---- 中央：提出一覧 ---- */}
@@ -287,7 +339,7 @@ function ScanPage() {
               <tbody>
                 {students.map((s) => {
                   const allDone =
-                    todayAssignments.length > 0 && todayAssignments.every((a) => day[s.id]?.[a.id]);
+                    todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id]));
                   return (
                   <tr
                     key={s.id}
@@ -306,21 +358,21 @@ function ScanPage() {
                     </td>
 
                     {todayAssignments.map((a) => {
-                      const ok = !!day[s.id]?.[a.id];
+                      const st = toStatus(day[s.id]?.[a.id]);
+                      const meta = STATUS_META[st];
                       return (
                         <td key={a.id} className="px-3 py-1.5 text-center">
                           <button
                             type="button"
                             disabled={locked}
-                            onClick={() => toggleRecord(s.id, a.id)}
-                            className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${
-                              ok
-                                ? "bg-success text-success-foreground shadow-[var(--shadow-lift)]"
-                                : "bg-muted text-muted-foreground hover:bg-secondary"
+                            onClick={() => cycleRecord(s.id, a.id)}
+                            title={meta.label}
+                            className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
+                              st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
                             } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
-                            aria-label={`${s.name} ${a.name} ${ok ? "提出済み" : "未提出"}`}
+                            aria-label={`${s.name} ${a.name} ${meta.label}`}
                           >
-                            {ok ? "✓" : "—"}
+                            {meta.short}
                           </button>
                         </td>
                       );
