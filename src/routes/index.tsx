@@ -74,6 +74,7 @@ function ScanPage() {
     [state.students, classFilter],
   );
   const day = state.records[todayKey()] ?? {};
+  const rank = useMemo(() => ranking(state, classFilter), [state, classFilter]);
 
   const total = students.length * todayAssignments.length;
   const done = students.reduce(
