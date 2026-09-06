@@ -253,7 +253,35 @@ function ScanPage() {
             )}
           </section>
 
-
+          {/* ---- ポイントランキング ---- */}
+          <section className="glass-panel flex min-h-0 flex-1 flex-col overflow-hidden p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <h2 className="font-display text-sm font-bold">ポイントランキング</h2>
+              <a
+                href="/points"
+                className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary"
+              >
+                ガチャ
+              </a>
+            </div>
+            <ol className="min-h-0 flex-1 space-y-1 overflow-auto">
+              {rank.map((r, i) => (
+                <li
+                  key={r.student.id}
+                  className={`flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm ${
+                    i < 3 ? "bg-primary/10 font-bold text-primary" : "bg-muted/50"
+                  }`}
+                >
+                  <span className="w-5 shrink-0 text-center tabular-nums">{i + 1}</span>
+                  <span className="min-w-0 flex-1 truncate">{r.student.name}</span>
+                  <span className="shrink-0 tabular-nums">{r.points}pt</span>
+                </li>
+              ))}
+              {rank.length === 0 && (
+                <li className="py-4 text-center text-xs text-muted-foreground">名簿がありません</li>
+              )}
+            </ol>
+          </section>
         </div>
 
         {/* ---- 中央：提出一覧 ---- */}
