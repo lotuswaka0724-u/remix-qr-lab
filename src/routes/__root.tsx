@@ -121,6 +121,7 @@ const NAV = [
   { to: "/", label: "スキャン" },
   { to: "/board", label: "未提出ボード" },
   { to: "/history", label: "履歴" },
+  { to: "/points", label: "ポイント・ガチャ" },
   { to: "/manage", label: "管理" },
 ] as const;
 
