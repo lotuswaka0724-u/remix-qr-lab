@@ -3,9 +3,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { downloadCsv, parseCsv } from "@/lib/csv";
-import { setState, todayKey, useAppState
-  isSubmitted,
-} from "@/lib/homework-store";
+import { isSubmitted, setState, todayKey, useAppState } from "@/lib/homework-store";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
