@@ -150,6 +150,99 @@ function ManagePage() {
         </form>
       </section>
 
+      <section className="paper-card p-4">
+        <h2 className="mb-1 font-display text-base font-bold">ポイントの点数</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          記録のようすごとに、もらえるポイントを決められます。
+        </p>
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {STATUS_ORDER.map((st) => (
+            <li key={st} className="flex items-center gap-2 rounded-xl bg-muted/60 p-2">
+              <span
+                className={`grid h-8 w-8 shrink-0 place-content-center rounded-lg font-bold ${STATUS_META[st].tone}`}
+              >
+                {STATUS_META[st].short}
+              </span>
+              <span className="min-w-0 flex-1 text-sm">{STATUS_META[st].label}</span>
+              <Input
+                type="number"
+                value={state.pointRules[st]}
+                onChange={(e) => updatePointRules({ [st]: Number(e.target.value) })}
+                className="w-20 bg-card"
+              />
+              <span className="text-xs text-muted-foreground">pt</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="paper-card p-4">
+        <h2 className="mb-1 font-display text-base font-bold">ガチャの設定</h2>
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-sm">1回にひつようなポイント</span>
+          <Input
+            type="number"
+            value={state.gachaCost}
+            onChange={(e) => setGachaCost(Number(e.target.value))}
+            className="w-24 bg-card"
+          />
+          <span className="text-xs text-muted-foreground">pt</span>
+        </div>
+
+        <p className="mb-2 text-xs text-muted-foreground">
+          「当たりやすさ」の数字が大きいほど、よく出ます。
+        </p>
+        <ul className="space-y-2">
+          {state.prizes.map((p) => (
+            <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/60 p-2">
+              <Input
+                value={p.name}
+                onChange={(e) => updatePrize(p.id, { name: e.target.value })}
+                className="min-w-[9rem] flex-1 bg-card"
+              />
+              <Input
+                type="number"
+                value={p.weight}
+                onChange={(e) => updatePrize(p.id, { weight: Number(e.target.value) })}
+                className="w-24 bg-card"
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-destructive"
+                onClick={() => removePrize(p.id)}
+              >
+                削除
+              </Button>
+            </li>
+          ))}
+        </ul>
+        <form
+          className="mt-3 flex flex-wrap gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!prizeName.trim()) return;
+            addPrize(prizeName.trim(), Number(prizeWeight) || 1);
+            setPrizeName("");
+            setPrizeWeight("1");
+          }}
+        >
+          <Input
+            value={prizeName}
+            onChange={(e) => setPrizeName(e.target.value)}
+            placeholder="景品名"
+            className="min-w-[10rem] flex-1"
+          />
+          <Input
+            value={prizeWeight}
+            onChange={(e) => setPrizeWeight(e.target.value)}
+            placeholder="当たりやすさ"
+            className="w-32"
+          />
+          <Button type="submit">追加</Button>
+        </form>
+      </section>
+
       <CsvPanel />
 
       <QrMaker />
