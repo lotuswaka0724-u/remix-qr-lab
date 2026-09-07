@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import CsvPanel from "@/components/CsvPanel";
+import MyPageLinks from "@/components/MyPageLinks";
 import QrMaker from "@/components/QrMaker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
