@@ -46,6 +46,8 @@ function ManagePage() {
   const [hwName, setHwName] = useState("");
   const [stName, setStName] = useState("");
   const [stClass, setStClass] = useState(state.students[0]?.className ?? "1年1組");
+  const [prizeName, setPrizeName] = useState("");
+  const [prizeWeight, setPrizeWeight] = useState("1");
 
   return (
     <main className="mx-auto max-w-5xl space-y-5 px-4 py-6">
