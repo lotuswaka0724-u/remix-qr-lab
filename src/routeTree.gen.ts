@@ -14,6 +14,7 @@ import { Route as BoardRouteImport } from './routes/board'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ManageRouteImport } from './routes/manage'
 import { Route as PointsRouteImport } from './routes/points'
+import { Route as MeStudentIdRouteImport } from './routes/me.$studentId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -40,6 +41,11 @@ const PointsRoute = PointsRouteImport.update({
   path: '/points',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeStudentIdRoute = MeStudentIdRouteImport.update({
+  id: '/me/$studentId',
+  path: '/me/$studentId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -47,6 +53,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/points': typeof PointsRoute
+  '/me/$studentId': typeof MeStudentIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -54,6 +61,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/points': typeof PointsRoute
+  '/me/$studentId': typeof MeStudentIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -62,13 +70,22 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/points': typeof PointsRoute
+  '/me/$studentId': typeof MeStudentIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/board' | '/history' | '/manage' | '/points'
+  fullPaths:
+    '/' | '/board' | '/history' | '/manage' | '/points' | '/me/$studentId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/board' | '/history' | '/manage' | '/points'
-  id: '__root__' | '/' | '/board' | '/history' | '/manage' | '/points'
+  to: '/' | '/board' | '/history' | '/manage' | '/points' | '/me/$studentId'
+  id:
+    | '__root__'
+    | '/'
+    | '/board'
+    | '/history'
+    | '/manage'
+    | '/points'
+    | '/me/$studentId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -77,6 +94,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   ManageRoute: typeof ManageRoute
   PointsRoute: typeof PointsRoute
+  MeStudentIdRoute: typeof MeStudentIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -116,6 +134,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PointsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/me/$studentId': {
+      id: '/me/$studentId'
+      path: '/me/$studentId'
+      fullPath: '/me/$studentId'
+      preLoaderRoute: typeof MeStudentIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,6 +150,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   ManageRoute: ManageRoute,
   PointsRoute: PointsRoute,
+  MeStudentIdRoute: MeStudentIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
