@@ -8,10 +8,17 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
   addAssignment,
+  addPrize,
   addStudent,
   removeAssignment,
+  removePrize,
   removeStudent,
+  setGachaCost,
+  STATUS_META,
+  STATUS_ORDER,
   updateAssignment,
+  updatePointRules,
+  updatePrize,
   updateStudent,
   useAppState,
 } from "@/lib/homework-store";
