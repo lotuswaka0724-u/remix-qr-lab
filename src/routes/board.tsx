@@ -2,9 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { todayKey, useAppState
-  isSubmitted,
-} from "@/lib/homework-store";
+import { isSubmitted, todayKey, useAppState } from "@/lib/homework-store";
 
 export const Route = createFileRoute("/board")({
   head: () => ({
