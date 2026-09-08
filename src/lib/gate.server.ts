@@ -38,7 +38,7 @@ async function admin() {
 export async function readClassState(): Promise<Partial<AppState>> {
   const db = await admin();
   const { data } = await db.from("class_state").select("data").eq("id", ROW_ID).maybeSingle();
-  return ((data?.data ?? {}) as Partial<AppState>) ?? {};
+  return (data?.data ?? {}) as Partial<AppState>;
 }
 
 export async function writeClassState(state: Partial<AppState>) {
