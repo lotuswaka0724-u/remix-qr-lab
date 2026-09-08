@@ -187,7 +187,11 @@ async function pushToCloud() {
     const { supabase } = await import("@/integrations/supabase/client");
     await supabase
       .from("class_state")
-      .upsert({ id: ROW_ID, data: state as unknown as Record<string, unknown>, updated_at: new Date().toISOString() });
+      .upsert({
+        id: ROW_ID,
+        data: JSON.parse(JSON.stringify(state)),
+        updated_at: new Date().toISOString(),
+      });
   } catch {
     /* 通信できないときは端末内保存のみ */
   }
