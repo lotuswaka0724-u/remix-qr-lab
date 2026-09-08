@@ -108,27 +108,111 @@ const defaultState = (): AppState => ({
 let state: AppState = defaultState();
 let loaded = false;
 const listeners = new Set<() => void>();
+const emit = () => listeners.forEach((l) => l());
+
+/* ---------- クラウド同期（先生の端末と児童タブレットで共有） ---------- */
+
+const ROW_ID = "default";
+let cloudReady = false;
+let pushTimer: ReturnType<typeof setTimeout> | undefined;
+let applyingRemote = false;
+
+const merge = (parsed: Partial<AppState>): AppState => {
+  const base = defaultState();
+  return {
+    ...base,
+    ...parsed,
+    settings: { ...base.settings, ...(parsed.settings ?? {}) },
+    pointRules: { ...base.pointRules, ...(parsed.pointRules ?? {}) },
+    prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
+    gachaLog: parsed.gachaLog ?? [],
+  };
+};
+
+async function startCloudSync() {
+  if (cloudReady) return;
+  cloudReady = true;
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+
+    const { data } = await supabase
+      .from("class_state")
+      .select("data")
+      .eq("id", ROW_ID)
+      .maybeSingle();
+
+    const remote = (data?.data ?? null) as Partial<AppState> | null;
+    if (remote && Object.keys(remote).length > 0) {
+      applyingRemote = true;
+      state = merge(remote);
+      applyingRemote = false;
+      try {
+        window.localStorage.setItem(KEY, JSON.stringify(state));
+      } catch {
+        /* ignore */
+      }
+      emit();
+    } else {
+      // クラウドが空なら、この端末のデータを初期データとして共有する
+      void pushToCloud();
+    }
+
+    supabase
+      .channel("class_state_sync")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "class_state", filter: `id=eq.${ROW_ID}` },
+        (payload) => {
+          const next = (payload.new as { data?: Partial<AppState> } | null)?.data;
+          if (!next) return;
+          applyingRemote = true;
+          state = merge(next);
+          applyingRemote = false;
+          try {
+            window.localStorage.setItem(KEY, JSON.stringify(state));
+          } catch {
+            /* ignore */
+          }
+          emit();
+        },
+      )
+      .subscribe();
+  } catch {
+    /* オフラインでも端末内データで動く */
+  }
+}
+
+async function pushToCloud() {
+  try {
+    const { supabase } = await import("@/integrations/supabase/client");
+    await supabase
+      .from("class_state")
+      .upsert({
+        id: ROW_ID,
+        data: JSON.parse(JSON.stringify(state)),
+        updated_at: new Date().toISOString(),
+      });
+  } catch {
+    /* 通信できないときは端末内保存のみ */
+  }
+}
+
+function schedulePush() {
+  if (typeof window === "undefined" || applyingRemote) return;
+  if (pushTimer) clearTimeout(pushTimer);
+  pushTimer = setTimeout(() => void pushToCloud(), 300);
+}
 
 function load() {
   if (loaded || typeof window === "undefined") return;
   loaded = true;
   try {
     const raw = window.localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as Partial<AppState>;
-      const base = defaultState();
-      state = {
-        ...base,
-        ...parsed,
-        settings: { ...base.settings, ...(parsed.settings ?? {}) },
-        pointRules: { ...base.pointRules, ...(parsed.pointRules ?? {}) },
-        prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
-        gachaLog: parsed.gachaLog ?? [],
-      };
-    }
+    if (raw) state = merge(JSON.parse(raw) as Partial<AppState>);
   } catch {
     /* ignore corrupt storage */
   }
+  void startCloudSync();
 }
 
 function persist() {
@@ -137,7 +221,8 @@ function persist() {
   } catch {
     /* quota / private mode */
   }
-  listeners.forEach((l) => l());
+  schedulePush();
+  emit();
 }
 
 export function setState(updater: (prev: AppState) => AppState) {
@@ -153,7 +238,7 @@ export function useAppState(): AppState {
       if (!loaded) {
         queueMicrotask(() => {
           load();
-          listeners.forEach((l) => l());
+          emit();
         });
       }
       return () => listeners.delete(cb);
@@ -162,6 +247,7 @@ export function useAppState(): AppState {
     () => state,
   );
 }
+
 
 /* ---------- status helpers ---------- */
 
