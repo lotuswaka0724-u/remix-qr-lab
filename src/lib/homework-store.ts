@@ -68,6 +68,8 @@ export type AppState = {
   gachaCost: number;
   prizes: GachaPrize[];
   gachaLog: GachaResult[];
+  /** 児童ごとの合言葉（先生だけが見られる） */
+  codes?: Record<string, string>;
 };
 
 const KEY = "shukudai-checker-v1";
