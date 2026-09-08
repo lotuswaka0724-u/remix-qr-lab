@@ -18,7 +18,8 @@ export const teacherLogin = createServerFn({ method: "POST" })
     if (!expected) return { ok: false as const };
     if (!safeEqual(data.password, expected)) return { ok: false as const };
     const gate = await getGate();
-    await gate.update({ role: "teacher", studentId: undefined });
+    await gate.clear();
+    await gate.update({ role: "teacher" });
     return { ok: true as const };
   });
 
