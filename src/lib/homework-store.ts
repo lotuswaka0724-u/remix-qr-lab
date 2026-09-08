@@ -68,6 +68,8 @@ export type AppState = {
   gachaCost: number;
   prizes: GachaPrize[];
   gachaLog: GachaResult[];
+  /** 児童ごとの合言葉（先生だけが見られる） */
+  codes?: Record<string, string>;
 };
 
 const KEY = "shukudai-checker-v1";
@@ -112,12 +114,11 @@ const emit = () => listeners.forEach((l) => l());
 
 /* ---------- クラウド同期（先生の端末と児童タブレットで共有） ---------- */
 
-const ROW_ID = "default";
 let cloudReady = false;
 let pushTimer: ReturnType<typeof setTimeout> | undefined;
 let applyingRemote = false;
 
-const merge = (parsed: Partial<AppState>): AppState => {
+export const mergeState = (parsed: Partial<AppState>): AppState => {
   const base = defaultState();
   return {
     ...base,
@@ -129,54 +130,41 @@ const merge = (parsed: Partial<AppState>): AppState => {
   };
 };
 
+const merge = mergeState;
+
+const cache = () => {
+  try {
+    window.localStorage.setItem(KEY, JSON.stringify(state));
+  } catch {
+    /* ignore */
+  }
+};
+
+async function pullFromCloud() {
+  const remote = await getClassState();
+  if (!remote) return false; // 先生としてログインしていない
+  if (Object.keys(remote).length === 0) {
+    void pushToCloud();
+    return true;
+  }
+  applyingRemote = true;
+  state = merge(remote);
+  applyingRemote = false;
+  cache();
+  emit();
+  return true;
+}
+
 async function startCloudSync() {
   if (cloudReady) return;
   cloudReady = true;
   try {
-    const { supabase } = await import("@/integrations/supabase/client");
-
-    const { data } = await supabase
-      .from("class_state")
-      .select("data")
-      .eq("id", ROW_ID)
-      .maybeSingle();
-
-    const remote = (data?.data ?? null) as Partial<AppState> | null;
-    if (remote && Object.keys(remote).length > 0) {
-      applyingRemote = true;
-      state = merge(remote);
-      applyingRemote = false;
-      try {
-        window.localStorage.setItem(KEY, JSON.stringify(state));
-      } catch {
-        /* ignore */
-      }
-      emit();
-    } else {
-      // クラウドが空なら、この端末のデータを初期データとして共有する
-      void pushToCloud();
-    }
-
-    supabase
-      .channel("class_state_sync")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "class_state", filter: `id=eq.${ROW_ID}` },
-        (payload) => {
-          const next = (payload.new as { data?: Partial<AppState> } | null)?.data;
-          if (!next) return;
-          applyingRemote = true;
-          state = merge(next);
-          applyingRemote = false;
-          try {
-            window.localStorage.setItem(KEY, JSON.stringify(state));
-          } catch {
-            /* ignore */
-          }
-          emit();
-        },
-      )
-      .subscribe();
+    const ok = await pullFromCloud();
+    if (!ok) return;
+    // ほかの端末の変更を取り込む
+    setInterval(() => {
+      if (document.visibilityState === "visible") void pullFromCloud();
+    }, 6000);
   } catch {
     /* オフラインでも端末内データで動く */
   }
@@ -184,14 +172,7 @@ async function startCloudSync() {
 
 async function pushToCloud() {
   try {
-    const { supabase } = await import("@/integrations/supabase/client");
-    await supabase
-      .from("class_state")
-      .upsert({
-        id: ROW_ID,
-        data: JSON.parse(JSON.stringify(state)),
-        updated_at: new Date().toISOString(),
-      });
+    await saveClassState({ data: { state: JSON.parse(JSON.stringify(state)) as AppState } });
   } catch {
     /* 通信できないときは端末内保存のみ */
   }
@@ -200,7 +181,7 @@ async function pushToCloud() {
 function schedulePush() {
   if (typeof window === "undefined" || applyingRemote) return;
   if (pushTimer) clearTimeout(pushTimer);
-  pushTimer = setTimeout(() => void pushToCloud(), 300);
+  pushTimer = setTimeout(() => void pushToCloud(), 400);
 }
 
 function load() {
@@ -216,6 +197,7 @@ function load() {
 }
 
 function persist() {
+
   try {
     window.localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
