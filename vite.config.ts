@@ -13,13 +13,17 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    // CommonJS/UMD の QR ライブラリだけを明示的に事前変換する。
-    // TanStack の依存グラフは分割せず、Vite に一貫して最適化させる。
+    // 初回表示後の追加最適化でブラウザが参照中の module URL が
+    // 差し替わらないよう、遅れて検出される依存も起動時にまとめて準備する。
     optimizeDeps: {
       holdUntilCrawlEnd: true,
       include: [
         "qrcode",
         "html5-qrcode",
+        "@tanstack/router-core",
+        "@tanstack/router-core/isServer",
+        "@tanstack/router-core/ssr/client",
+        "seroval",
       ],
     },
   },
