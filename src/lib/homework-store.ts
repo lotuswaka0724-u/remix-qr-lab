@@ -141,6 +141,7 @@ const defaultState = (): AppState => ({
     { id: "pz_5", name: "★レア★ 大きなメダル", weight: 1 },
   ],
   gachaLog: [],
+  rankRules: { ...DEFAULT_RANK_RULES },
 });
 
 let state: AppState = defaultState();
