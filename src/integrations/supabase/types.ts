@@ -110,6 +110,24 @@ export type Database = {
         }
         Relationships: []
       }
+      student_game: {
+        Row: {
+          data: Json
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          data?: Json
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          data?: Json
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
