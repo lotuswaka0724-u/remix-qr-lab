@@ -27,7 +27,6 @@ export default defineConfig({
         "@tanstack/router-core/ssr/client",
         "seroval",
       ],
-      ignoreOutdatedRequests: true,
     },
   },
 });
