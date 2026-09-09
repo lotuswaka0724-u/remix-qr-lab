@@ -13,19 +13,13 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    // CommonJS/UMD の QR ライブラリだけを事前変換する。TanStack と seroval は
-    // ESM のまま配信し、初回表示後の再最適化で module URL が変わるのを防ぐ。
+    // CommonJS/UMD の QR ライブラリだけを明示的に事前変換する。
+    // TanStack の依存グラフは分割せず、Vite に一貫して最適化させる。
     optimizeDeps: {
       holdUntilCrawlEnd: true,
       include: [
         "qrcode",
         "html5-qrcode",
-      ],
-      exclude: [
-        "@tanstack/router-core",
-        "@tanstack/router-core/isServer",
-        "@tanstack/router-core/ssr/client",
-        "seroval",
       ],
     },
   },
