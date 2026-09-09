@@ -9,6 +9,8 @@ export type Student = {
   number: number;
   name: string;
   className: string;
+  /** カードに出すローマ字表記（姓→名）。入っていればこれを優先して使う */
+  romaji?: string;
   /** ログイン番号のもと（年度＋学年＋クラス＋出席番号） */
   fiscalYear?: number;
   grade?: number;
