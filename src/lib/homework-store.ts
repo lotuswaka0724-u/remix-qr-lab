@@ -201,10 +201,13 @@ export type HwEvent = {
 export const hwStateQrText = (s: HwState) => `HW:${s}`;
 
 export function parseHwStateQr(text: string): HwState | null {
-  const t = text.trim().toUpperCase().replace(/^HW[:：]/, "");
-  return (HW_STATE_ORDER as HwState[]).concat("NO_REPORT").includes(t as HwState)
-    ? (t as HwState)
-    : null;
+  const raw = text.trim();
+  const id = raw.toUpperCase().replace(/^HW[:：]/, "");
+  const all = [...HW_STATE_ORDER, "NO_REPORT" as HwState];
+  if (all.includes(id as HwState)) return id as HwState;
+  // 児童向けのことばでも判定できるようにする
+  const plain = raw.replace(/[\s　]/g, "");
+  return all.find((s) => HW_STATE_META[s].label.replace(/[\s　]/g, "") === plain) ?? null;
 }
 
 
