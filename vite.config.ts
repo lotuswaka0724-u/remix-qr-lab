@@ -16,7 +16,17 @@ export default defineConfig({
     // これらは実行中に動的 import されるため、事前に取り込んでおかないと
     // 画面表示中に再バンドル→リロードが起き "Importing a module script failed" になる
     optimizeDeps: {
-      include: ["qrcode", "html5-qrcode"],
+      // 初回の依存確認が終わるまで配信結果を確定せず、表示後にファイルが
+      // 差し替わって白画面になるのを防ぐ。自動確認自体は互換性のため残す。
+      holdUntilCrawlEnd: true,
+      include: [
+        "@tanstack/router-core",
+        "@tanstack/router-core/isServer",
+        "@tanstack/router-core/ssr/client",
+        "seroval",
+        "qrcode",
+        "html5-qrcode",
+      ],
       // 初回の依存関係解析中に生成物が更新されても、表示中の iPad が
       // 直前の module URL を読み切れるようにして白画面を防ぐ。
       ignoreOutdatedRequests: true,
