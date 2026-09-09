@@ -353,6 +353,9 @@ export const updatePointRules = (patch: Partial<PointRules>) =>
 
 export const setGachaCost = (cost: number) => setState((s) => ({ ...s, gachaCost: cost }));
 
+export const updateRankRules = (patch: Partial<RankRules>) =>
+  setState((s) => ({ ...s, rankRules: { ...s.rankRules, ...patch } }));
+
 export const addPrize = (name: string, weight: number) =>
   setState((s) => ({ ...s, prizes: [...s.prizes, { id: `pz_${uid()}`, name, weight }] }));
 
