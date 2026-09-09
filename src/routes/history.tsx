@@ -90,6 +90,39 @@ function HistoryPage() {
         </Button>
       </div>
 
+      <section className="paper-card p-4">
+        <h2 className="mb-1 font-display text-base font-bold">よみとりの記録</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          しゅくだいカードを読み取った記録です。あたらしい順にならびます。
+        </p>
+        {hwLog.length === 0 ? (
+          <p className="text-sm text-muted-foreground">まだ記録がありません。</p>
+        ) : (
+          <ul className="space-y-1.5">
+            {hwLog.map((e) => (
+              <li
+                key={e.id}
+                className="flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl bg-muted/60 px-3 py-2 text-sm"
+              >
+                <span className="tabular-nums text-muted-foreground">{e.when}</span>
+                <span className="font-bold">{e.studentName}</span>
+                <span className="text-muted-foreground">{e.className}</span>
+                <span>{e.assignmentName}</span>
+                <span className="font-bold">
+                  {e.icon} {e.label}
+                </span>
+                <span className="ml-auto font-bold tabular-nums">
+                  {e.delta >= 0 ? `＋${e.delta}` : e.delta}ポイント
+                </span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  ぜんぶで {e.total}ポイント
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
       {days.length === 0 ? (
         <div className="paper-card grid place-content-center gap-2 p-16 text-center">
           <p className="font-display text-xl font-bold">まだ記録がありません</p>
