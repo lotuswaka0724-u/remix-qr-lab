@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 import { getClassState, saveClassState } from "@/lib/class-sync.functions";
+import { DEFAULT_GAME_SETTINGS, type GameSettings } from "@/lib/game-settings";
 
 export type Assignment = { id: string; name: string; inToday: boolean };
 export type Student = {
@@ -229,6 +230,8 @@ export type AppState = {
   hwPointRules: HwPointRules;
   /** 宿題じょうたいQRの記録 */
   hwEvents: HwEvent[];
+  /** アバター・ガチャ・ペット・マイルームの設定（先生が変えられる） */
+  gameSettings: GameSettings;
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
 };
@@ -269,6 +272,7 @@ const defaultState = (): AppState => ({
   rankRules: { ...DEFAULT_RANK_RULES },
   hwPointRules: { ...DEFAULT_HW_POINT_RULES },
   hwEvents: [],
+  gameSettings: { ...DEFAULT_GAME_SETTINGS },
 });
 
 let state: AppState = defaultState();
@@ -291,6 +295,7 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     pointRules: { ...base.pointRules, ...(parsed.pointRules ?? {}) },
     rankRules: { ...base.rankRules, ...(parsed.rankRules ?? {}) },
     hwPointRules: { ...base.hwPointRules, ...(parsed.hwPointRules ?? {}) },
+    gameSettings: { ...base.gameSettings, ...(parsed.gameSettings ?? {}) },
     hwEvents: parsed.hwEvents ?? [],
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
@@ -603,6 +608,9 @@ export function applyHwState(
 
   return { ok: true, delta, total, state: hw };
 }
+
+export const updateGameSettings = (patch: Partial<GameSettings>) =>
+  setState((p) => ({ ...p, gameSettings: { ...p.gameSettings, ...patch } }));
 
 export const updateHwPointRules = (patch: Partial<HwPointRules>) =>
   setState((s) => ({ ...s, hwPointRules: { ...s.hwPointRules, ...patch } }));
