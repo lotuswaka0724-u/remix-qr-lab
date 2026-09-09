@@ -20,6 +20,10 @@ export default defineConfig({
       // 差し替わって白画面になるのを防ぐ。自動確認自体は互換性のため残す。
       holdUntilCrawlEnd: true,
       include: [
+        "@tanstack/router-core",
+        "@tanstack/router-core/isServer",
+        "@tanstack/router-core/ssr/client",
+        "seroval",
         "qrcode",
         "html5-qrcode",
       ],
