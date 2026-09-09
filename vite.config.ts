@@ -17,6 +17,9 @@ export default defineConfig({
     // 画面表示中に再バンドル→リロードが起き "Importing a module script failed" になる
     optimizeDeps: {
       include: ["qrcode", "html5-qrcode"],
+      // 初回の依存関係解析中に生成物が更新されても、表示中の iPad が
+      // 直前の module URL を読み切れるようにして白画面を防ぐ。
+      ignoreOutdatedRequests: true,
     },
   },
 });
