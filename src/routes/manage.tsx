@@ -12,19 +12,20 @@ import {
   addAssignment,
   addPrize,
   addStudent,
+  HW_STATE_META,
+  HW_STATE_ORDER,
   removeAssignment,
   removePrize,
   RANK_ORDER,
   removeStudent,
   setGachaCost,
-  STATUS_META,
-  STATUS_ORDER,
   updateAssignment,
-  updatePointRules,
+  updateHwPointRules,
   updateRankRules,
   updatePrize,
   updateStudent,
   useAppState,
+  type HwState,
 } from "@/lib/homework-store";
 import { RANK_STYLE } from "@/lib/rank-style";
 
