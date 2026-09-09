@@ -63,6 +63,24 @@ export const STATUS_META: Record<
 
 export type PointRules = Record<Status, number>;
 
+/* ---------- カードのランク ---------- */
+
+export type Rank = "NORMAL" | "GOLD" | "BLACK";
+/** 下位から上位の順（あとからランクを増やしやすいように配列で管理） */
+export const RANK_ORDER: Rank[] = ["NORMAL", "GOLD", "BLACK"];
+/** ランクごとの「必要な通算ポイント」。先生があとから変更できる */
+export type RankRules = Record<Rank, number>;
+export const DEFAULT_RANK_RULES: RankRules = { NORMAL: 0, GOLD: 100, BLACK: 300 };
+
+/** 通算ポイントからランクを求める（ランクは保存せず、いつも計算で出す） */
+export function rankOfPoints(rules: RankRules, points: number): Rank {
+  let current: Rank = RANK_ORDER[0]!;
+  for (const r of RANK_ORDER) {
+    if (points >= (rules[r] ?? 0)) current = r;
+  }
+  return current;
+}
+
 export type GachaPrize = { id: string; name: string; weight: number };
 export type GachaResult = {
   id: string;
