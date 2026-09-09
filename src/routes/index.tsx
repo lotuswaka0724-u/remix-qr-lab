@@ -2,15 +2,26 @@ import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import SuccessFx from "@/components/SuccessFx";
+import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { playError, playSuccess, SOUND_PRESETS, speak, vibrate } from "@/lib/feedback";
+import {
+  playError,
+  playRankSuccess,
+  playRankUp,
+  playSuccess,
+  SOUND_PRESETS,
+  speak,
+  vibrate,
+} from "@/lib/feedback";
 import {
   clearToday,
   cycleRecord,
+  earnedPoints,
   isSubmitted,
   parseQr,
+  rankOf,
+  rankOfPoints,
   ranking,
   setRecord,
   STATUS_META,
@@ -21,6 +32,7 @@ import {
   useAppState,
   type Status,
 } from "@/lib/homework-store";
+import { RANK_STYLE } from "@/lib/rank-style";
 
 const QrScanner = lazy(() => import("@/components/QrScanner"));
 
@@ -42,7 +54,7 @@ export const Route = createFileRoute("/")({
   component: ScanPage,
 });
 
-type Hit = { id: number; student: string; assignment: string };
+
 
 function ScanPage() {
   const state = useAppState();
@@ -88,10 +100,10 @@ function ScanPage() {
   ).length;
 
 
-  const celebrate = (student: string, assignment: string, studentId: string) => {
-    setHit({ id: Date.now(), student, assignment });
+  const celebrate = (hitData: Omit<Hit, "id">, studentId: string) => {
+    setHit({ ...hitData, id: Date.now() });
     setFlashRow(studentId);
-    window.setTimeout(() => setHit(null), 1300);
+    window.setTimeout(() => setHit(null), hitData.rankUp ? 2600 : 1300);
     window.setTimeout(() => setFlashRow(null), 1500);
   };
 
@@ -117,11 +129,27 @@ function ScanPage() {
       toast.info(`${student.name} さんは提出済みです`, { description: target.name });
       return;
     }
+    // ランクは「通算ポイント」から毎回計算する（カードも演出も同じ基準）
+    const before = rankOf(state, student.id);
+    const gained = state.pointRules[state.settings.scanStatus] ?? 0;
+    const points = earnedPoints(state, student.id) + gained;
+    const after = rankOfPoints(state.rankRules, points);
+    const rankUp = after !== before ? after : null;
+
     setRecord(student.id, target.id, state.settings.scanStatus);
-    playSuccess(state.settings.sound);
-    if (state.settings.vibe) vibrate(60);
-    if (state.settings.speak) speak(`${student.name}さん、${target.name}`);
-    celebrate(student.name, target.name, student.id);
+    playRankSuccess(after, state.settings.sound);
+    if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
+    if (state.settings.vibe) vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
+    if (state.settings.speak)
+      speak(
+        rankUp
+          ? `${student.name}さん、${RANK_STYLE[rankUp].jp}カードになりました`
+          : `${student.name}さん、${target.name}`,
+      );
+    celebrate(
+      { student: student.name, assignment: target.name, rank: after, points, rankUp },
+      student.id,
+    );
   };
 
   const doneStudents = students.filter(
@@ -275,6 +303,13 @@ function ScanPage() {
                 >
                   <span className="w-5 shrink-0 text-center tabular-nums">{i + 1}</span>
                   <span className="min-w-0 flex-1 truncate">{r.student.name}</span>
+                  <span
+                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider ${
+                      RANK_STYLE[rankOfPoints(state.rankRules, r.points)].badge
+                    }`}
+                  >
+                    {RANK_STYLE[rankOfPoints(state.rankRules, r.points)].label}
+                  </span>
                   <span className="shrink-0 tabular-nums">{r.points}pt</span>
                 </li>
               ))}

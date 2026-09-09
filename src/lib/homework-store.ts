@@ -63,6 +63,24 @@ export const STATUS_META: Record<
 
 export type PointRules = Record<Status, number>;
 
+/* ---------- カードのランク ---------- */
+
+export type Rank = "NORMAL" | "GOLD" | "BLACK";
+/** 下位から上位の順（あとからランクを増やしやすいように配列で管理） */
+export const RANK_ORDER: Rank[] = ["NORMAL", "GOLD", "BLACK"];
+/** ランクごとの「必要な通算ポイント」。先生があとから変更できる */
+export type RankRules = Record<Rank, number>;
+export const DEFAULT_RANK_RULES: RankRules = { NORMAL: 0, GOLD: 100, BLACK: 300 };
+
+/** 通算ポイントからランクを求める（ランクは保存せず、いつも計算で出す） */
+export function rankOfPoints(rules: RankRules, points: number): Rank {
+  let current: Rank = RANK_ORDER[0]!;
+  for (const r of RANK_ORDER) {
+    if (points >= (rules[r] ?? 0)) current = r;
+  }
+  return current;
+}
+
 export type GachaPrize = { id: string; name: string; weight: number };
 export type GachaResult = {
   id: string;
@@ -85,6 +103,7 @@ export type AppState = {
   gachaCost: number;
   prizes: GachaPrize[];
   gachaLog: GachaResult[];
+  rankRules: RankRules;
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
 };
@@ -122,6 +141,7 @@ const defaultState = (): AppState => ({
     { id: "pz_5", name: "★レア★ 大きなメダル", weight: 1 },
   ],
   gachaLog: [],
+  rankRules: { ...DEFAULT_RANK_RULES },
 });
 
 let state: AppState = defaultState();
@@ -142,6 +162,7 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     ...parsed,
     settings: { ...base.settings, ...(parsed.settings ?? {}) },
     pointRules: { ...base.pointRules, ...(parsed.pointRules ?? {}) },
+    rankRules: { ...base.rankRules, ...(parsed.rankRules ?? {}) },
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
   };
@@ -332,6 +353,9 @@ export const updatePointRules = (patch: Partial<PointRules>) =>
 
 export const setGachaCost = (cost: number) => setState((s) => ({ ...s, gachaCost: cost }));
 
+export const updateRankRules = (patch: Partial<RankRules>) =>
+  setState((s) => ({ ...s, rankRules: { ...s.rankRules, ...patch } }));
+
 export const addPrize = (name: string, weight: number) =>
   setState((s) => ({ ...s, prizes: [...s.prizes, { id: `pz_${uid()}`, name, weight }] }));
 
@@ -365,6 +389,10 @@ export const spentPoints = (state: AppState, studentId: string) =>
 
 export const availablePoints = (state: AppState, studentId: string) =>
   earnedPoints(state, studentId) - spentPoints(state, studentId);
+
+/** その児童の今のランク（通算ポイントから毎回計算する） */
+export const rankOf = (state: AppState, studentId: string): Rank =>
+  rankOfPoints(state.rankRules, earnedPoints(state, studentId));
 
 export function ranking(state: AppState, className = "all") {
   return state.students

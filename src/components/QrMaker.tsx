@@ -1,9 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { useAppState } from "@/lib/homework-store";
+import { earnedPoints, rankOfPoints, useAppState, type Rank } from "@/lib/homework-store";
+import { RANK_STYLE } from "@/lib/rank-style";
 
-type Card = { key: string; text: string; studentName: string; assignmentName: string; url: string };
+type Card = {
+  key: string;
+  text: string;
+  studentName: string;
+  className: string;
+  number: number;
+  points: number;
+  rank: Rank;
+  assignmentName: string;
+  url: string;
+};
 
 export default function QrMaker() {
   const state = useAppState();
@@ -26,10 +37,22 @@ export default function QrMaker() {
       const QR = await import("qrcode");
       const list: Card[] = [];
       for (const s of students) {
+        const points = earnedPoints(state, s.id);
+        const rank = rankOfPoints(state.rankRules, points);
         for (const a of assignments) {
           const text = `${s.name},${a.name}`;
           const url = await QR.toDataURL(text, { margin: 1, width: 240 });
-          list.push({ key: `${s.id}_${a.id}`, text, studentName: s.name, assignmentName: a.name, url });
+          list.push({
+            key: `${s.id}_${a.id}`,
+            text,
+            studentName: s.name,
+            className: s.className,
+            number: s.number,
+            points,
+            rank,
+            assignmentName: a.name,
+            url,
+          });
         }
       }
       if (!cancelled) setCards(list);
@@ -38,13 +61,13 @@ export default function QrMaker() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cls, assignmentId, state.students, state.assignments]);
+  }, [cls, assignmentId, state.students, state.assignments, state.records, state.rankRules, state.pointRules]);
 
   return (
     <section className="paper-card p-4">
-      <h2 className="mb-1 font-display text-base font-bold">QRコード作成</h2>
+      <h2 className="mb-1 font-display text-base font-bold">QRカード印刷</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        児童名と宿題名を組み合わせたQRコードを作ります。印刷して配り、スキャン画面で読み取ると提出が記録されます。
+        児童が持つポイントカード風のQRカードです。通算ポイントに合わせて、カードのランク（NORMAL／GOLD／BLACK）が自動で変わります。
       </p>
 
       <div className="mb-3 flex flex-wrap gap-2 print:hidden">
@@ -80,18 +103,47 @@ export default function QrMaker() {
       </div>
 
       {cards.length === 0 ? (
-        <p className="text-sm text-muted-foreground">作成できるQRコードがありません。</p>
+        <p className="text-sm text-muted-foreground">作成できるQRカードがありません。</p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {cards.map((c) => (
-            <figure key={c.key} className="rounded-xl border border-border bg-card p-2 text-center">
-              <img src={c.url} alt={`${c.studentName} ${c.assignmentName} のQRコード`} className="mx-auto w-full" />
-              <figcaption className="mt-1 text-xs font-bold leading-tight">
-                {c.studentName}
-                <span className="block font-normal text-muted-foreground">{c.assignmentName}</span>
-              </figcaption>
-            </figure>
-          ))}
+          {cards.map((c) => {
+            const style = RANK_STYLE[c.rank];
+            return (
+              <figure
+                key={c.key}
+                className={`flex break-inside-avoid flex-col gap-1.5 rounded-2xl border-2 p-2.5 ${style.card}`}
+              >
+                <div className="flex items-center justify-between gap-1">
+                  <span
+                    className={`rounded-full px-2 py-0.5 font-display text-[10px] font-bold tracking-widest ${style.badge}`}
+                  >
+                    {style.label}
+                  </span>
+                  <span className="text-[10px] font-bold tabular-nums opacity-80">
+                    {c.points} pt
+                  </span>
+                </div>
+
+                <div className="rounded-xl bg-white p-1.5">
+                  <img
+                    src={c.url}
+                    alt={`${c.studentName} ${c.assignmentName} のQRコード`}
+                    className="mx-auto w-full"
+                  />
+                </div>
+
+                <figcaption className="text-center text-xs font-bold leading-tight">
+                  {c.studentName}
+                  <span className="block text-[10px] font-normal opacity-75">
+                    {c.className} {c.number}番
+                  </span>
+                  <span className="block text-[10px] font-normal opacity-75">
+                    {c.assignmentName}
+                  </span>
+                </figcaption>
+              </figure>
+            );
+          })}
         </div>
       )}
     </section>

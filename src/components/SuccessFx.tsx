@@ -1,11 +1,23 @@
-type Props = {
-  hit: { id: number; student: string; assignment: string } | null;
+import { RANK_STYLE } from "@/lib/rank-style";
+import type { Rank } from "@/lib/homework-store";
+
+export type Hit = {
+  id: number;
+  student: string;
+  assignment: string;
+  rank: Rank;
+  points: number;
+  /** ランクアップしたときだけ、上がった先のランク */
+  rankUp: Rank | null;
 };
 
-const PIECES = Array.from({ length: 14 }, (_, i) => i);
+type Props = { hit: Hit | null };
 
 export default function SuccessFx({ hit }: Props) {
   if (!hit) return null;
+
+  const style = RANK_STYLE[hit.rank];
+  const pieces = Array.from({ length: style.pieces }, (_, i) => i);
 
   return (
     <div
@@ -13,32 +25,42 @@ export default function SuccessFx({ hit }: Props) {
       className="pointer-events-none fixed inset-0 z-50 overflow-hidden"
       aria-live="polite"
     >
-      <div className="fx-wash absolute inset-0 bg-success/25" />
+      <div className={`fx-wash absolute inset-0 ${style.fxWash}`} />
 
-      {PIECES.map((i) => (
+      {pieces.map((i) => (
         <span
           key={i}
-          className="fx-confetti absolute top-0 h-3 w-1.5 rounded-full bg-accent"
+          className="fx-confetti absolute top-0 h-3 w-1.5 rounded-full"
           style={{
             left: `${(i * 7 + 6) % 96}%`,
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ["--dx" as any]: `${(i % 5) * 18 - 36}px`,
             animationDelay: `${(i % 6) * 60}ms`,
-            backgroundColor:
-              i % 3 === 0
-                ? "var(--success)"
-                : i % 3 === 1
-                  ? "var(--accent)"
-                  : "var(--primary)",
+            backgroundColor: style.confetti[i % style.confetti.length],
           }}
         />
       ))}
 
       <div className="absolute inset-0 grid place-content-center">
         <div className="relative grid place-items-center">
-          <span className="fx-ring absolute h-40 w-40 rounded-full border-4 border-success" />
-          <div className="fx-pop flex flex-col items-center gap-3 rounded-4xl bg-card/95 px-10 py-8 shadow-[var(--shadow-lift)] ring-4 ring-success/40">
-            <svg viewBox="0 0 48 48" className="h-16 w-16">
+          <span className={`fx-ring absolute h-40 w-40 rounded-full border-4 ${style.fxRing}`} />
+          {hit.rank !== "NORMAL" && (
+            <span
+              className={`fx-ring absolute h-56 w-56 rounded-full border-2 ${style.fxRing}`}
+              style={{ animationDelay: "160ms" }}
+            />
+          )}
+
+          <div
+            className={`fx-pop flex flex-col items-center gap-2 rounded-4xl px-10 py-8 shadow-[var(--shadow-lift)] ring-4 ${style.fxPanel}`}
+          >
+            <span
+              className={`rounded-full px-3 py-0.5 font-display text-xs font-bold tracking-widest ${style.badge}`}
+            >
+              {style.label}
+            </span>
+
+            <svg viewBox="0 0 48 48" className="h-14 w-14">
               <circle cx="24" cy="24" r="21" className="fill-success/15" />
               <path
                 d="M14 25l7 7 13-15"
@@ -48,8 +70,20 @@ export default function SuccessFx({ hit }: Props) {
                 strokeLinejoin="round"
               />
             </svg>
+
             <p className="font-display text-3xl font-bold leading-none">{hit.student}</p>
-            <p className="text-sm font-bold text-success">{hit.assignment} を記録しました</p>
+            <p className={`text-sm font-bold ${style.fxText}`}>
+              {hit.assignment} を記録しました
+            </p>
+            <p className="text-xs font-bold opacity-80">つうさん {hit.points} pt</p>
+
+            {hit.rankUp && (
+              <p
+                className={`fx-pop mt-1 rounded-2xl px-4 py-2 font-display text-xl font-bold tracking-wider ${RANK_STYLE[hit.rankUp].badge}`}
+              >
+                {RANK_STYLE[hit.rankUp].label} CARD GET!
+              </p>
+            )}
           </div>
         </div>
       </div>
