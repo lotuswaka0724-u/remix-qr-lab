@@ -162,6 +162,7 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     ...parsed,
     settings: { ...base.settings, ...(parsed.settings ?? {}) },
     pointRules: { ...base.pointRules, ...(parsed.pointRules ?? {}) },
+    rankRules: { ...base.rankRules, ...(parsed.rankRules ?? {}) },
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
   };
