@@ -279,20 +279,94 @@ function ScanPage() {
               <QrScanner active={scanning} onDetected={handleDetected} />
             </Suspense>
 
-            <label className="mt-2 block rounded-2xl bg-primary/5 p-2 text-xs font-bold">
-              読み取ったときの記録
-              <select
-                className="mt-1 w-full rounded-lg border border-input bg-background px-2 py-1.5 text-xs font-medium"
-                value={state.settings.scanStatus}
-                onChange={(e) => updateSettings({ scanStatus: e.target.value as Status })}
+            {/* ---- STEP 表示（児童QR → しゅくだいのカード） ---- */}
+            <div className="mt-2 rounded-2xl bg-primary/5 p-2.5 text-xs">
+              <p className="font-bold">
+                STEP1 児童のQR{" "}
+                <span className="mx-1 text-muted-foreground">→</span> STEP2 しゅくだいのカード
+              </p>
+              {pendingStudent ? (
+                <p className="mt-1 font-bold text-primary">
+                  {pendingStudent.student.name} さん
+                  {pendingStudent.assignment ? `／${pendingStudent.assignment.name}` : ""}
+                  <span className="ml-1 font-medium text-muted-foreground">
+                    しゅくだいのカードをかざしてください
+                  </span>
+                </p>
+              ) : (
+                <p className="mt-1 text-muted-foreground">児童のQRを読み取ってください</p>
+              )}
+              {pendingStudent && (
+                <button
+                  type="button"
+                  className="mt-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                  onClick={() => {
+                    setPendingStudent(null);
+                    setPendingConfirm(null);
+                  }}
+                >
+                  えらび直す
+                </button>
+              )}
+            </div>
+
+            {pendingConfirm && (
+              <div className="mt-2 rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-2.5 text-xs">
+                <p className="font-bold text-destructive">{pendingConfirm.message}</p>
+                <p className="mt-0.5">
+                  {pendingConfirm.student.name}／{pendingConfirm.target.name}／
+                  {HW_STATE_META[pendingConfirm.hw].label}
+                </p>
+                <div className="mt-1.5 flex gap-2">
+                  <Button
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() =>
+                      record(
+                        pendingConfirm.student,
+                        pendingConfirm.target,
+                        pendingConfirm.hw,
+                        true,
+                      )
+                    }
+                  >
+                    先生が確認して記録する
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full"
+                    onClick={() => setPendingConfirm(null)}
+                  >
+                    やめる
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {lastResult && (
+              <div
+                className={`mt-2 rounded-2xl border-2 p-2.5 text-xs ${HW_STATE_META[lastResult.hw].card}`}
               >
-                {STATUS_ORDER.filter((s) => s !== "none").map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_META[s].label}（{state.pointRules[s]}pt）
-                  </option>
-                ))}
-              </select>
-            </label>
+                <p className="font-display text-base font-bold leading-tight">
+                  {lastResult.studentName}
+                  <span className="ml-1 text-[11px] font-normal opacity-80">
+                    {lastResult.className}
+                  </span>
+                </p>
+                <p className="mt-0.5 font-bold">{lastResult.assignmentName}</p>
+                <p className="mt-0.5 font-bold">
+                  {HW_STATE_META[lastResult.hw].icon} {HW_STATE_META[lastResult.hw].label}
+                </p>
+                <p className="mt-0.5 font-display text-lg font-bold tabular-nums">
+                  {lastResult.delta >= 0 ? `＋${lastResult.delta}` : lastResult.delta}ポイント
+                </p>
+                <p className="text-[11px] opacity-80">
+                  ぜんぶで {lastResult.total} ポイント
+                </p>
+              </div>
+            )}
+
 
 
             <button
