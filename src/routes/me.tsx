@@ -14,18 +14,19 @@ import {
   type StudentView,
 } from "@/lib/student.functions";
 
-export const Route = createFileRoute("/me/$studentId")({
+export const Route = createFileRoute("/me")({
   head: () => ({
     meta: [
       { title: "わたしのページ | 宿題チェッカー" },
       {
         name: "description",
-        content: "合言葉を入れると、自分の今日の宿題・ポイント・ガチャだけが見られるページです。",
+        content:
+          "ログイン番号を入れると、自分の今日の宿題・ポイント・ガチャだけが見られるページです。",
       },
       { property: "og:title", content: "わたしのページ | 宿題チェッカー" },
       {
         property: "og:description",
-        content: "合言葉でひらく、自分だけの宿題とポイントのページ。",
+        content: "ログイン番号でひらく、自分だけの宿題とポイントのページ。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -35,7 +36,6 @@ export const Route = createFileRoute("/me/$studentId")({
 });
 
 function MyPage() {
-  const { studentId } = Route.useParams();
   const login = useServerFn(studentLogin);
   const fetchView = useServerFn(getStudentView);
   const draw = useServerFn(studentDrawGacha);
@@ -43,14 +43,15 @@ function MyPage() {
 
   const [view, setView] = useState<StudentView | null>(null);
   const [ready, setReady] = useState(false);
-  const [code, setCode] = useState("");
+  const [num, setNum] = useState("");
   const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [prize, setPrize] = useState<string | null>(null);
 
   useEffect(() => {
     let off = false;
-    void fetchView({ data: { studentId } })
+    void fetchView({})
       .then((v) => {
         if (!off) {
           setView(v);
@@ -61,19 +62,26 @@ function MyPage() {
     return () => {
       off = true;
     };
-  }, [fetchView, studentId]);
+  }, [fetchView]);
 
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (busy) return;
+    setBusy(true);
     setError("");
-    const res = await login({ data: { studentId, code } });
+    const res = await login({ data: { loginNumber: num } });
+    setBusy(false);
     if (!res.ok) {
-      setError("あいことばが ちがうようです");
+      setError(
+        res.reason === "locked"
+          ? "しばらくたってから もういちど ためしてね"
+          : "ログインできませんでした",
+      );
       playError();
       return;
     }
-    setCode("");
-    setView(await fetchView({ data: { studentId } }));
+    setNum("");
+    setView(await fetchView({}));
   };
 
   const spin = async () => {
@@ -84,7 +92,7 @@ function MyPage() {
     }
     setSpinning(true);
     setPrize(null);
-    const res = await draw({ data: { studentId } });
+    const res = await draw({});
     window.setTimeout(() => {
       setSpinning(false);
       if (res && res.ok) {
@@ -109,24 +117,21 @@ function MyPage() {
   if (!view) {
     return (
       <main className="mx-auto max-w-sm px-4 py-12">
-        <form onSubmit={onLogin} className="glass-panel space-y-4 p-6 text-center">
-          <h1 className="font-display text-xl font-bold">あいことばを いれてね</h1>
-          <p className="text-xs text-muted-foreground">
-            先生からもらった 4けたの すうじを いれると、じぶんのページがひらきます。
-          </p>
+        <form onSubmit={onLogin} className="glass-panel space-y-5 p-6 text-center">
+          <h1 className="font-display text-2xl font-bold">ログイン番号を いれてください</h1>
           <Input
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
+            value={num}
+            onChange={(e) => setNum(e.target.value.replace(/\D/g, ""))}
             inputMode="numeric"
             autoComplete="off"
             maxLength={8}
-            placeholder="1234"
-            className="text-center font-display text-2xl tracking-[0.4em]"
-            aria-label="あいことば"
+            placeholder="83112"
+            className="h-16 text-center font-display text-3xl tracking-[0.3em]"
+            aria-label="ログイン番号"
           />
-          {error && <p className="text-sm font-bold text-destructive">{error}</p>}
-          <Button type="submit" className="w-full rounded-full">
-            ひらく
+          {error && <p className="text-base font-bold text-destructive">{error}</p>}
+          <Button type="submit" disabled={busy} className="h-14 w-full rounded-full text-lg">
+            ログイン
           </Button>
         </form>
       </main>
@@ -186,15 +191,17 @@ function MyPage() {
           <ul className="grid gap-2 sm:grid-cols-2">
             {view.items.map((a) => {
               const meta = STATUS_META[a.status];
+              const ok =
+                a.status === "fixed" || a.status === "submitted" || a.status === "school";
               return (
                 <li
                   key={a.id}
-                  className="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-2 text-sm"
+                  className="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-3 text-base"
                 >
                   <span
-                    className={`grid h-8 w-8 shrink-0 place-content-center rounded-lg font-bold ${meta.tone}`}
+                    className={`grid h-10 w-10 shrink-0 place-content-center rounded-lg font-display text-xl font-bold ${meta.tone}`}
                   >
-                    {meta.short}
+                    {ok ? "○" : "×"}
                   </span>
                   <span className="min-w-0 flex-1 truncate font-bold">{a.name}</span>
                   <span className="shrink-0 text-xs text-muted-foreground">{meta.label}</span>

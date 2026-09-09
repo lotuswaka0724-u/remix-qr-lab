@@ -2,18 +2,16 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { ensureStudentCodes, resetStudentCode } from "@/lib/class-sync.functions";
-import { useAppState } from "@/lib/homework-store";
-
-type Card = { id: string; name: string; className: string; qr: string };
+import { Input } from "@/components/ui/input";
+import { syncStudentDirectory } from "@/lib/class-sync.functions";
+import { loginNumber, updateStudent, useAppState } from "@/lib/homework-store";
 
 export default function MyPageLinks() {
   const state = useAppState();
   const [cls, setCls] = useState("all");
-  const [cards, setCards] = useState<Card[]>([]);
-  const [codes, setCodes] = useState<Record<string, string>>({});
-  const ensure = useServerFn(ensureStudentCodes);
-  const reset = useServerFn(resetStudentCode);
+  const [qr, setQr] = useState("");
+  const [saved, setSaved] = useState("");
+  const sync = useServerFn(syncStudentDirectory);
 
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
@@ -26,35 +24,44 @@ export default function MyPageLinks() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    void (async () => {
       const QR = await import("qrcode");
-      const origin = window.location.origin;
-      const list: Card[] = [];
-      for (const s of students) {
-        const qr = await QR.toDataURL(`${origin}/me/${s.id}`, { margin: 1, width: 240 });
-        list.push({ id: s.id, name: s.name, className: s.className, qr });
-      }
-      if (!cancelled) setCards(list);
+      const url = `${window.location.origin}/me`;
+      const img = await QR.toDataURL(url, { margin: 1, width: 320 });
+      if (!cancelled) setQr(img);
     })();
     return () => {
       cancelled = true;
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cls, state.students]);
+  }, []);
 
-  useEffect(() => {
-    void ensure({}).then((c) => c && setCodes(c));
-  }, [ensure, state.students.length]);
+  const register = async () => {
+    const rows = state.students
+      .filter((s) => s.fiscalYear && s.grade && s.classNumber)
+      .map((s) => ({
+        studentId: s.id,
+        fiscalYear: Number(s.fiscalYear),
+        grade: Number(s.grade),
+        classNumber: Number(s.classNumber),
+        attendanceNumber: s.number,
+        name: s.name,
+      }));
+    const res = await sync({ data: { rows } });
+    setSaved(res.ok ? `${res.count}人 とうろくしました` : "とうろくできませんでした");
+  };
+
+  const numbers = students.map(loginNumber).filter(Boolean);
+  const dup = numbers.filter((n, i) => numbers.indexOf(n) !== i);
 
   return (
     <section className="paper-card p-4">
-      <h2 className="mb-1 font-display text-base font-bold">児童の個人ページと合言葉</h2>
+      <h2 className="mb-1 font-display text-base font-bold">児童のログイン番号とQRコード</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        QRコードを読み取り、4けたの合言葉を入れると、その子だけのページがひらきます。
-        合言葉はほかの人に見せないでください。
+        ログイン番号は「年度＋学年＋クラス＋出席番号」をつなげた数字です。QRコードはみんな同じ
+        ログイン画面につながり、番号を入れた本人のページだけがひらきます。
       </p>
 
-      <div className="mb-3 flex flex-wrap gap-2 print:hidden">
+      <div className="mb-3 flex flex-wrap items-center gap-2 print:hidden">
         <select
           value={cls}
           onChange={(e) => setCls(e.target.value)}
@@ -68,39 +75,92 @@ export default function MyPageLinks() {
             </option>
           ))}
         </select>
-        <Button type="button" onClick={() => window.print()}>
+        <Button type="button" onClick={register}>
+          ログイン番号をとうろく
+        </Button>
+        <Button type="button" variant="secondary" onClick={() => window.print()}>
           印刷する
         </Button>
+        {saved && <span className="text-xs text-muted-foreground">{saved}</span>}
       </div>
 
-      {cards.length === 0 ? (
-        <p className="text-sm text-muted-foreground">名簿に児童がいません。</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-          {cards.map((c) => (
-            <figure key={c.id} className="rounded-xl border border-border bg-card p-2 text-center">
-              <img src={c.qr} alt={`${c.name} の個人ページのQRコード`} className="mx-auto w-full" />
-              <figcaption className="mt-1 text-xs font-bold leading-tight">
-                {c.name}
-                <span className="block font-normal text-muted-foreground">{c.className}</span>
-                <span className="mt-1 block font-display text-lg tracking-[0.3em] text-primary">
-                  {codes[c.id] ?? "----"}
-                </span>
-                <button
-                  type="button"
-                  className="mt-1 text-[11px] font-normal text-muted-foreground underline print:hidden"
-                  onClick={async () => {
-                    const r = await reset({ data: { studentId: c.id } });
-                    if (r) setCodes((p) => ({ ...p, [c.id]: r.code }));
-                  }}
-                >
-                  合言葉を作り直す
-                </button>
-              </figcaption>
-            </figure>
-          ))}
-        </div>
+      {dup.length > 0 && (
+        <p className="mb-3 rounded-xl bg-destructive/10 px-3 py-2 text-xs font-bold text-destructive">
+          同じログイン番号の児童がいます（{Array.from(new Set(dup)).join("・")}
+          ）。学年・クラス・出席番号を見なおしてください。
+        </p>
       )}
+
+      <div className="mb-4 flex items-center gap-4">
+        {qr && (
+          <img src={qr} alt="児童用ログイン画面のQRコード" className="w-32 rounded-xl border" />
+        )}
+        <p className="text-xs text-muted-foreground">
+          このQRコードを読み取ると、児童用のログイン画面がひらきます。
+        </p>
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] text-sm">
+          <thead className="text-xs text-muted-foreground">
+            <tr>
+              <th className="p-2 text-left">氏名</th>
+              <th className="p-2">年度</th>
+              <th className="p-2">学年</th>
+              <th className="p-2">クラス</th>
+              <th className="p-2">出席番号</th>
+              <th className="p-2">ログイン番号</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map((s) => (
+              <tr key={s.id} className="border-t border-border">
+                <td className="p-2 font-bold">
+                  {s.name}
+                  <span className="block text-xs font-normal text-muted-foreground">
+                    {s.className}
+                  </span>
+                </td>
+                {(
+                  [
+                    ["fiscalYear", s.fiscalYear],
+                    ["grade", s.grade],
+                    ["classNumber", s.classNumber],
+                  ] as const
+                ).map(([k, v]) => (
+                  <td key={k} className="p-1">
+                    <Input
+                      type="number"
+                      inputMode="numeric"
+                      value={v ?? ""}
+                      onChange={(e) =>
+                        updateStudent(s.id, {
+                          [k]: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      className="h-9 w-20 text-center"
+                      aria-label={`${s.name} の ${k}`}
+                    />
+                  </td>
+                ))}
+                <td className="p-1">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={s.number}
+                    onChange={(e) => updateStudent(s.id, { number: Number(e.target.value) })}
+                    className="h-9 w-20 text-center"
+                    aria-label={`${s.name} の 出席番号`}
+                  />
+                </td>
+                <td className="p-2 text-center font-display text-lg tracking-widest text-primary">
+                  {loginNumber(s) || "—"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

@@ -32,6 +32,27 @@ export type Database = {
         }
         Relationships: []
       }
+      login_attempts: {
+        Row: {
+          count: number
+          key: string
+          updated_at: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          key: string
+          updated_at?: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          updated_at?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       student_codes: {
         Row: {
           code_hash: string
@@ -45,6 +66,45 @@ export type Database = {
         }
         Update: {
           code_hash?: string
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_directory: {
+        Row: {
+          attendance_number: number
+          class_number: number
+          created_at: string
+          fiscal_year: number
+          grade: number
+          id: string
+          login_number: string | null
+          name: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          attendance_number: number
+          class_number: number
+          created_at?: string
+          fiscal_year: number
+          grade: number
+          id?: string
+          login_number?: string | null
+          name: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          attendance_number?: number
+          class_number?: number
+          created_at?: string
+          fiscal_year?: number
+          grade?: number
+          id?: string
+          login_number?: string | null
+          name?: string
           student_id?: string
           updated_at?: string
         }

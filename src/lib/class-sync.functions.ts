@@ -47,44 +47,36 @@ export const saveClassState = createServerFn({ method: "POST" })
     return { ok: true as const };
   });
 
-/** 先生用：合言葉を持っていない児童に4桁の合言葉を自動発行する */
-export const ensureStudentCodes = createServerFn({ method: "POST" }).handler(async () => {
-  const { getGate, readClassState, writeClassState, saveCode, listCodedStudentIds } = await import(
-    "@/lib/gate.server"
-  );
-  const gate = await getGate();
-  if (gate.data.role !== "teacher") return null;
-
-  const state = (await readClassState()) as Partial<AppState>;
-  const students = state.students ?? [];
-  const codes: Record<string, string> = { ...(state.codes ?? {}) };
-  const existing = new Set(await listCodedStudentIds());
-
-  let changed = false;
-  for (const s of students) {
-    if (existing.has(s.id) && codes[s.id]) continue;
-    const code = String(Math.floor(1000 + Math.random() * 9000));
-    await saveCode(s.id, code);
-    codes[s.id] = code;
-    changed = true;
-  }
-  if (changed) await writeClassState({ ...state, codes });
-  return codes;
-});
-
-/** 先生用：合言葉を作り直す */
-export const resetStudentCode = createServerFn({ method: "POST" })
-  .inputValidator((data: { studentId: string }) => ({ studentId: String(data.studentId) }))
-  .handler(async ({ data }) => {
-    const { getGate, readClassState, writeClassState, saveCode } = await import(
-      "@/lib/gate.server"
-    );
+/** 先生用：名簿（年度・学年・クラス・出席番号・氏名）をログイン用の台帳に登録する */
+export const syncStudentDirectory = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: {
+      rows: {
+        studentId: string;
+        fiscalYear: number;
+        grade: number;
+        classNumber: number;
+        attendanceNumber: number;
+        name: string;
+      }[];
+    }) => data,
+  )
+  .handler(async ({ data, context: _context }) => {
+    const { getGate, upsertDirectory } = await import("@/lib/gate.server");
     const gate = await getGate();
-    if (gate.data.role !== "teacher") return null;
-    const state = (await readClassState()) as Partial<AppState>;
-    const code = String(Math.floor(1000 + Math.random() * 9000));
-    await saveCode(data.studentId, code);
-    const codes = { ...(state.codes ?? {}), [data.studentId]: code };
-    await writeClassState({ ...state, codes });
-    return { code };
+    if (gate.data.role !== "teacher") return { ok: false as const };
+    const rows = data.rows.filter(
+      (r) =>
+        r.studentId &&
+        Number.isInteger(r.fiscalYear) &&
+        Number.isInteger(r.grade) &&
+        Number.isInteger(r.classNumber) &&
+        Number.isInteger(r.attendanceNumber) &&
+        r.fiscalYear > 0 &&
+        r.grade > 0 &&
+        r.classNumber > 0 &&
+        r.attendanceNumber > 0,
+    );
+    await upsertDirectory(rows);
+    return { ok: true as const, count: rows.length };
   });

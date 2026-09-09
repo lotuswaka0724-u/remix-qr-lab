@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 
 import type { AppState, Status } from "@/lib/homework-store";
 
-/** 児童用：合言葉でログインし、自分のぶんだけを見る */
+/** 児童用：ログイン番号（年度＋学年＋クラス＋出席番号）でログインし、自分のぶんだけを見る */
 
 export type StudentView = {
   name: string;
@@ -57,67 +57,89 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
   };
 }
 
+/** ログイン番号だけを受け取る。URLやパラメータで児童を指定させない。 */
 export const studentLogin = createServerFn({ method: "POST" })
-  .inputValidator((data: { studentId: string; code: string }) => ({
-    studentId: String(data.studentId ?? ""),
-    code: String(data.code ?? ""),
+  .inputValidator((data: { loginNumber: string }) => ({
+    loginNumber: String(data.loginNumber ?? "").replace(/\D/g, ""),
   }))
   .handler(async ({ data }) => {
-    const { getGate, getCodeHash, hashCode, safeEqual } = await import("@/lib/gate.server");
-    const stored = await getCodeHash(data.studentId);
-    if (!stored) return { ok: false as const };
-    if (!safeEqual(hashCode(data.studentId, data.code), stored)) return { ok: false as const };
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { getGate, findByLoginNumber, tooManyAttempts, clearAttempts, readClassState } =
+      await import("@/lib/gate.server");
+
+    const req = getRequest();
+    const ip =
+      req.headers.get("cf-connecting-ip") ??
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      "unknown";
+    const key = `student:${ip}`;
+
+    if (await tooManyAttempts(key)) {
+      return { ok: false as const, reason: "locked" as const };
+    }
+    if (data.loginNumber.length < 3 || data.loginNumber.length > 8) {
+      return { ok: false as const, reason: "invalid" as const };
+    }
+
+    const hit = await findByLoginNumber(data.loginNumber);
+    if (!hit) return { ok: false as const, reason: "invalid" as const };
+
+    // 名簿に実在する児童だけログインさせる
+    const state = await readClassState();
+    if (!(state.students ?? []).some((s) => s.id === hit.studentId)) {
+      return { ok: false as const, reason: "invalid" as const };
+    }
+
     const gate = await getGate();
     await gate.clear();
-    await gate.update({ role: "student", studentId: data.studentId });
+    await gate.update({ role: "student", studentId: hit.studentId });
+    await clearAttempts(key);
     return { ok: true as const };
   });
 
-export const getStudentView = createServerFn({ method: "GET" })
-  .inputValidator((data: { studentId: string }) => ({ studentId: String(data.studentId ?? "") }))
-  .handler(async ({ data }) => {
-    const { getGate, readClassState } = await import("@/lib/gate.server");
-    const gate = await getGate();
-    if (gate.data.role !== "student" || gate.data.studentId !== data.studentId) return null;
-    return project(await readClassState(), data.studentId);
-  });
+/** セッションの児童だけを返す。引数で他人を指定することはできない。 */
+export const getStudentView = createServerFn({ method: "GET" }).handler(async () => {
+  const { getGate, readClassState } = await import("@/lib/gate.server");
+  const gate = await getGate();
+  if (gate.data.role !== "student" || !gate.data.studentId) return null;
+  return project(await readClassState(), gate.data.studentId);
+});
 
-export const studentDrawGacha = createServerFn({ method: "POST" })
-  .inputValidator((data: { studentId: string }) => ({ studentId: String(data.studentId ?? "") }))
-  .handler(async ({ data }) => {
-    const { getGate, readClassState, writeClassState } = await import("@/lib/gate.server");
-    const gate = await getGate();
-    if (gate.data.role !== "student" || gate.data.studentId !== data.studentId) return null;
+export const studentDrawGacha = createServerFn({ method: "POST" }).handler(async () => {
+  const { getGate, readClassState, writeClassState } = await import("@/lib/gate.server");
+  const gate = await getGate();
+  if (gate.data.role !== "student" || !gate.data.studentId) return null;
+  const studentId = gate.data.studentId;
 
-    const state = await readClassState();
-    const view = project(state, data.studentId);
-    if (!view) return null;
-    const cost = view.gachaCost;
-    if (view.available < cost) return { ok: false as const, view };
+  const state = await readClassState();
+  const view = project(state, studentId);
+  if (!view) return null;
+  const cost = view.gachaCost;
+  if (view.available < cost) return { ok: false as const, view };
 
-    const prizes = (state.prizes ?? []).filter((p) => p.weight > 0);
-    if (!prizes.length) return { ok: false as const, view };
-    const total = prizes.reduce((a, p) => a + p.weight, 0);
-    let r = Math.random() * total;
-    let picked = prizes[prizes.length - 1]!;
-    for (const p of prizes) {
-      r -= p.weight;
-      if (r <= 0) {
-        picked = p;
-        break;
-      }
+  const prizes = (state.prizes ?? []).filter((p) => p.weight > 0);
+  if (!prizes.length) return { ok: false as const, view };
+  const total = prizes.reduce((a, p) => a + p.weight, 0);
+  let r = Math.random() * total;
+  let picked = prizes[prizes.length - 1]!;
+  for (const p of prizes) {
+    r -= p.weight;
+    if (r <= 0) {
+      picked = p;
+      break;
     }
-    const result = {
-      id: `gc_${Math.random().toString(36).slice(2, 9)}`,
-      studentId: data.studentId,
-      prize: picked.name,
-      cost,
-      at: Date.now(),
-    };
-    const next = { ...state, gachaLog: [result, ...(state.gachaLog ?? [])].slice(0, 500) };
-    await writeClassState(next);
-    return { ok: true as const, prize: picked.name, view: project(next, data.studentId)! };
-  });
+  }
+  const result = {
+    id: `gc_${Math.random().toString(36).slice(2, 9)}`,
+    studentId,
+    prize: picked.name,
+    cost,
+    at: Date.now(),
+  };
+  const next = { ...state, gachaLog: [result, ...(state.gachaLog ?? [])].slice(0, 500) };
+  await writeClassState(next);
+  return { ok: true as const, prize: picked.name, view: project(next, studentId)! };
+});
 
 export const studentLogout = createServerFn({ method: "POST" }).handler(async () => {
   const { getGate } = await import("@/lib/gate.server");

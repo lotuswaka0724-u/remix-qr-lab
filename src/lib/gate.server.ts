@@ -72,3 +72,78 @@ export async function saveCode(studentId: string, code: string) {
     updated_at: new Date().toISOString(),
   });
 }
+
+/* ---------- 児童名簿（年度・学年・クラス・出席番号） ---------- */
+
+export type DirectoryRow = {
+  studentId: string;
+  fiscalYear: number;
+  grade: number;
+  classNumber: number;
+  attendanceNumber: number;
+  name: string;
+};
+
+export function loginNumberOf(r: Omit<DirectoryRow, "studentId" | "name">) {
+  return `${r.fiscalYear}${r.grade}${r.classNumber}${r.attendanceNumber}`;
+}
+
+export async function upsertDirectory(rows: DirectoryRow[]) {
+  const db = await admin();
+  if (!rows.length) return;
+  await db.from("student_directory").upsert(
+    rows.map((r) => ({
+      student_id: r.studentId,
+      fiscal_year: r.fiscalYear,
+      grade: r.grade,
+      class_number: r.classNumber,
+      attendance_number: r.attendanceNumber,
+      name: r.name,
+      updated_at: new Date().toISOString(),
+    })),
+    { onConflict: "student_id" },
+  );
+}
+
+/** ログイン番号に一致する児童。1人に定まらないときは null（取り違え防止） */
+export async function findByLoginNumber(loginNumber: string): Promise<{ studentId: string } | null> {
+  const db = await admin();
+  const { data } = await db
+    .from("student_directory")
+    .select("student_id")
+    .eq("login_number", loginNumber)
+    .limit(2);
+  if (!data || data.length !== 1) return null;
+  return { studentId: data[0]!.student_id };
+}
+
+/* ---------- ログイン試行の制限 ---------- */
+
+const WINDOW_MS = 10 * 60 * 1000;
+const MAX_ATTEMPTS = 10;
+
+/** true = これ以上ためせない */
+export async function tooManyAttempts(key: string): Promise<boolean> {
+  const db = await admin();
+  const now = Date.now();
+  const { data } = await db
+    .from("login_attempts")
+    .select("count, window_start")
+    .eq("key", key)
+    .maybeSingle();
+
+  const fresh = !data || now - new Date(data.window_start).getTime() > WINDOW_MS;
+  const count = fresh ? 1 : data!.count + 1;
+  await db.from("login_attempts").upsert({
+    key,
+    count,
+    window_start: fresh ? new Date(now).toISOString() : data!.window_start,
+    updated_at: new Date(now).toISOString(),
+  });
+  return count > MAX_ATTEMPTS;
+}
+
+export async function clearAttempts(key: string) {
+  const db = await admin();
+  await db.from("login_attempts").delete().eq("key", key);
+}

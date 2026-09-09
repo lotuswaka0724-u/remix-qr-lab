@@ -190,7 +190,7 @@ function TeacherGate({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const isStudent = pathname.startsWith("/me/");
+  const isStudent = pathname === "/me" || pathname.startsWith("/me/");
 
   if (isStudent) {
     return (
