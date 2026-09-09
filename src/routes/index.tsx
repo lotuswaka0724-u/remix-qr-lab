@@ -303,6 +303,13 @@ function ScanPage() {
                 >
                   <span className="w-5 shrink-0 text-center tabular-nums">{i + 1}</span>
                   <span className="min-w-0 flex-1 truncate">{r.student.name}</span>
+                  <span
+                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider ${
+                      RANK_STYLE[rankOfPoints(state.rankRules, r.points)].badge
+                    }`}
+                  >
+                    {RANK_STYLE[rankOfPoints(state.rankRules, r.points)].label}
+                  </span>
                   <span className="shrink-0 tabular-nums">{r.points}pt</span>
                 </li>
               ))}
