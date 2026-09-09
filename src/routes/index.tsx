@@ -88,6 +88,7 @@ function ScanPage() {
     delta: number;
     total: number;
   } | null>(null);
+  const [manual, setManual] = useState("");
 
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
