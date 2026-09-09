@@ -94,3 +94,33 @@ export function speak(text: string) {
   u.rate = 1.15;
   window.speechSynthesis.speak(u);
 }
+
+/* ---------- ランク別の演出音 ---------- */
+
+type RankKey = "NORMAL" | "GOLD" | "BLACK";
+
+/** 読み取り成功音。ランクが上がるほど豪華になる */
+export function playRankSuccess(rank: RankKey, preset: number) {
+  playSuccess(preset);
+  if (rank === "GOLD") {
+    [0, 0.08, 0.16].forEach((t, i) => tone(1046 + i * 262, 0.12 + t, 0.18, "triangle", 0.09));
+  }
+  if (rank === "BLACK") {
+    [0, 0.07, 0.14, 0.21, 0.28].forEach((t, i) =>
+      tone(784 + i * 261, 0.1 + t, 0.26, "triangle", 0.1),
+    );
+    tone(196, 0.1, 0.6, "sine", 0.09);
+    tone(2093, 0.42, 0.5, "sine", 0.06);
+  }
+}
+
+/** ランクアップしたときのファンファーレ */
+export function playRankUp(rank: RankKey) {
+  const base = rank === "BLACK" ? 523 : 440;
+  [0, 0.12, 0.24].forEach((t, i) => tone(base * (1 + i * 0.25), t, 0.22, "triangle", 0.12));
+  tone(base * 2, 0.36, 0.8, "sine", 0.1);
+  if (rank === "BLACK") {
+    tone(base * 3, 0.5, 0.7, "sine", 0.07);
+    tone(base / 2, 0.36, 0.9, "sine", 0.08);
+  }
+}
