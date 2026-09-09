@@ -12,4 +12,11 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    // これらは実行中に動的 import されるため、事前に取り込んでおかないと
+    // 画面表示中に再バンドル→リロードが起き "Importing a module script failed" になる
+    optimizeDeps: {
+      include: ["qrcode", "html5-qrcode"],
+    },
+  },
 });
