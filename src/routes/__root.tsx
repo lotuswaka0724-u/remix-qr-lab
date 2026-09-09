@@ -114,6 +114,31 @@ function RootShell({ children }: { children: ReactNode }) {
       </head>
       <body>
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => {
+  const key = "homework-module-recovery";
+  const recover = (reason) => {
+    const message = String(reason?.message || reason || "");
+    if (!/module script|dynamically imported module|importing a module|failed to fetch/i.test(message)) return;
+    let previous = null;
+    try { previous = JSON.parse(sessionStorage.getItem(key) || "null"); } catch {}
+    const now = Date.now();
+    const attempts = previous && now - previous.at < 30000 ? previous.attempts : 0;
+    if (attempts >= 2) return;
+    try { sessionStorage.setItem(key, JSON.stringify({ attempts: attempts + 1, at: now })); } catch {}
+    window.setTimeout(() => window.location.reload(), 1200);
+  };
+  window.addEventListener("error", (event) => recover(event.error || event.message), true);
+  window.addEventListener("unhandledrejection", (event) => recover(event.reason));
+  window.addEventListener("load", () => {
+    window.setTimeout(() => {
+      try { sessionStorage.removeItem(key); } catch {}
+    }, 5000);
+  });
+})();`,
+          }}
+        />
         <Scripts />
       </body>
     </html>
