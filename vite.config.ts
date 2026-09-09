@@ -13,22 +13,12 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    // これらは実行中に動的 import されるため、事前に取り込んでおかないと
-    // 画面表示中に再バンドル→リロードが起き "Importing a module script failed" になる
+    // QR 関連は実行中に動的 import されるため、初回起動時だけ事前に取り込む。
+    // TanStack の基盤モジュールは Vite のクロールに任せ、深い import の手動指定による
+    // optimizer の二重更新を避ける。
     optimizeDeps: {
-      // 初回の依存確認が終わるまで配信結果を確定せず、表示後にファイルが
-      // 差し替わって白画面になるのを防ぐ。自動確認自体は互換性のため残す。
       holdUntilCrawlEnd: true,
-      include: [
-        "@tanstack/router-core",
-        "@tanstack/router-core/isServer",
-        "@tanstack/router-core/ssr/client",
-        "seroval",
-        "qrcode",
-        "html5-qrcode",
-      ],
-      // 初回の依存関係解析中に生成物が更新されても、表示中の iPad が
-      // 直前の module URL を読み切れるようにして白画面を防ぐ。
+      include: ["qrcode", "html5-qrcode"],
       ignoreOutdatedRequests: true,
     },
   },
