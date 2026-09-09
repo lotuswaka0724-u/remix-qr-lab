@@ -54,7 +54,7 @@ export const Route = createFileRoute("/")({
   component: ScanPage,
 });
 
-type Hit = { id: number; student: string; assignment: string };
+
 
 function ScanPage() {
   const state = useAppState();
