@@ -8,6 +8,7 @@ import {
   type Category,
   type Rarity,
 } from "@/lib/game-catalog";
+import { DEFAULT_GAME_SETTINGS, type GameSettings } from "@/lib/game-settings";
 
 /** アバター・ペット・マイルームのデータ（既存の宿題・ポイントデータとは別に保存する） */
 export type GameData = {
@@ -18,22 +19,6 @@ export type GameData = {
   petItems: string[];
   room: { wallpaper?: string | undefined; floor?: string | undefined; furniture: string[] };
   customize: { day: string; count: number };
-};
-
-export type GameSettings = {
-  gachaOn: boolean;
-  itemGachaCost: number;
-  dailyCustomizeLimit: number;
-  seasons: string[];
-  events: string[];
-};
-
-export const DEFAULT_GAME_SETTINGS: GameSettings = {
-  gachaOn: true,
-  itemGachaCost: 5,
-  dailyCustomizeLimit: 20,
-  seasons: ["spring", "summer", "autumn", "winter"],
-  events: [],
 };
 
 export type GameView = {
