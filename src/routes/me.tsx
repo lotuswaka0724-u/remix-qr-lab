@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
+import { GamePanel } from "@/components/GamePanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { playError, playSuccess } from "@/lib/feedback";
@@ -48,6 +49,7 @@ function MyPage() {
   const [busy, setBusy] = useState(false);
   const [spinning, setSpinning] = useState(false);
   const [prize, setPrize] = useState<string | null>(null);
+  const [mainTab, setMainTab] = useState<"home" | "game">("home");
 
   useEffect(() => {
     let off = false;
@@ -167,6 +169,30 @@ function MyPage() {
         </Button>
       </header>
 
+      <nav className="flex flex-wrap gap-2">
+        {([
+          ["home", "📚 しゅくだい・ポイント"],
+          ["game", "🎮 アバター・ガチャ・ペット・へや"],
+        ] as const).map(([id, label]) => (
+          <button
+            key={id}
+            type="button"
+            onClick={() => setMainTab(id)}
+            className={`rounded-full px-4 py-2 text-sm font-bold transition-all ${
+              mainTab === id
+                ? "bg-primary text-primary-foreground shadow-[var(--shadow-lift)]"
+                : "bg-muted hover:bg-secondary"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      {mainTab === "game" && <GamePanel />}
+
+      {mainTab === "home" && (
+      <>
       <section className="glass-panel p-4">
         <div className="mb-3 flex items-center gap-2">
           <h2 className="mr-auto font-display text-base font-bold">今日の宿題</h2>
@@ -268,6 +294,8 @@ function MyPage() {
           </ul>
         )}
       </section>
+      </>
+      )}
     </main>
   );
 }
