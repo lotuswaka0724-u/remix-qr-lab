@@ -3,7 +3,22 @@ import { useSyncExternalStore } from "react";
 import { getClassState, saveClassState } from "@/lib/class-sync.functions";
 
 export type Assignment = { id: string; name: string; inToday: boolean };
-export type Student = { id: string; number: number; name: string; className: string };
+export type Student = {
+  id: string;
+  number: number;
+  name: string;
+  className: string;
+  /** ログイン番号のもと（年度＋学年＋クラス＋出席番号） */
+  fiscalYear?: number;
+  grade?: number;
+  classNumber?: number;
+};
+
+/** 児童のログイン番号（年度＋学年＋クラス＋出席番号を数字でつなげたもの） */
+export const loginNumber = (s: Student) =>
+  s.fiscalYear && s.grade && s.classNumber
+    ? `${s.fiscalYear}${s.grade}${s.classNumber}${s.number}`
+    : "";
 
 /** 提出のようす */
 export type Status = "fixed" | "submitted" | "school" | "declared" | "none";
