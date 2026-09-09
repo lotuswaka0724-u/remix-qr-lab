@@ -307,6 +307,9 @@ function ManagePage() {
         </div>
       </section>
 
+      <TeacherDemoSection />
+
+
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">ガチャの設定</h2>
         <div className="mb-3 flex items-center gap-2">
