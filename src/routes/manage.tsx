@@ -255,7 +255,30 @@ function ManagePage() {
 
       <CsvPanel />
 
-      <QrMaker />
+      <section className="paper-card p-4">
+        <h2 className="mb-1 font-display text-base font-bold">QRコード管理・印刷</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          用途に合わせて印刷のしかたを選べます。
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant={qrMode === "card" ? "default" : "secondary"}
+            onClick={() => setQrMode("card")}
+          >
+            QRカード印刷
+          </Button>
+          <Button
+            type="button"
+            variant={qrMode === "material" ? "default" : "secondary"}
+            onClick={() => setQrMode("material")}
+          >
+            教材貼付用QR印刷
+          </Button>
+        </div>
+      </section>
+
+      {qrMode === "card" ? <QrMaker /> : <MaterialQrPrint />}
 
       <MyPageLinks />
 
