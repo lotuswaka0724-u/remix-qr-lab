@@ -499,16 +499,111 @@ export const clearToday = () =>
 
 /* ---------- points ---------- */
 
-/** これまでに貯めた合計ポイント（使った分は含まない） */
+const hwKey = (date: string, studentId: string, assignmentId: string) =>
+  `${date}|${studentId}|${assignmentId}`;
+
+/** 宿題じょうたいQRで処理ずみの「日付・児童・宿題」 */
+const hwHandledKeys = (state: AppState) =>
+  new Set((state.hwEvents ?? []).map((e) => hwKey(e.date, e.studentId, e.assignmentId)));
+
+/**
+ * これまでに貯めた合計ポイント（使った分は含まない）。
+ * 旧方式（先生が状態を選んだ記録）はそのまま点数に残し、
+ * 宿題じょうたいQRで処理した分は、そのときの増減で数える。
+ */
 export function earnedPoints(state: AppState, studentId: string) {
+  const handled = hwHandledKeys(state);
   let total = 0;
-  for (const day of Object.values(state.records)) {
+  for (const [date, day] of Object.entries(state.records)) {
     const forStudent = day[studentId];
     if (!forStudent) continue;
-    for (const v of Object.values(forStudent)) total += state.pointRules[toStatus(v)] ?? 0;
+    for (const [assignmentId, v] of Object.entries(forStudent)) {
+      if (handled.has(hwKey(date, studentId, assignmentId))) continue;
+      total += state.pointRules[toStatus(v)] ?? 0;
+    }
+  }
+  for (const e of state.hwEvents ?? []) {
+    if (e.studentId === studentId) total += e.delta;
   }
   return total;
 }
+
+/* ---------- 宿題じょうたいQRの処理 ---------- */
+
+export type HwApplyResult =
+  | { ok: true; delta: number; total: number; state: HwState }
+  | { ok: false; reason: "duplicate" | "order"; message: string };
+
+/** その日・その宿題で、すでに読み取った状態の一覧 */
+export const hwStatesFor = (
+  state: AppState,
+  date: string,
+  studentId: string,
+  assignmentId: string,
+): HwState[] =>
+  (state.hwEvents ?? [])
+    .filter((e) => e.date === date && e.studentId === studentId && e.assignmentId === assignmentId)
+    .map((e) => e.state);
+
+/**
+ * 宿題じょうたいQRを1件処理する。
+ * 同じQRの読み直しではポイントを二重に動かさない。
+ */
+export function applyHwState(
+  studentId: string,
+  assignmentId: string,
+  hw: HwState,
+  opts: { force?: boolean; date?: string } = {},
+): HwApplyResult {
+  const date = opts.date ?? todayKey();
+  const already = hwStatesFor(state, date, studentId, assignmentId);
+
+  if (already.includes(hw)) {
+    return {
+      ok: false,
+      reason: "duplicate",
+      message: "このしゅくだいは、すでに処理されています",
+    };
+  }
+  if (HW_STATE_META[hw].needsSubmit && !already.includes("SUBMIT") && !opts.force) {
+    return {
+      ok: false,
+      reason: "order",
+      message: "このQRは、今の状態では使えません。",
+    };
+  }
+
+  const delta = state.hwPointRules[hw] ?? HW_STATE_META[hw].defaultPoints;
+  const total = earnedPoints(state, studentId) + delta;
+  const event: HwEvent = {
+    id: `he_${uid()}`,
+    date,
+    studentId,
+    assignmentId,
+    state: hw,
+    delta,
+    total,
+    at: Date.now(),
+  };
+
+  setState((s) => {
+    const day = { ...(s.records[date] ?? {}) };
+    const forStudent = { ...(day[studentId] ?? {}) };
+    forStudent[assignmentId] = HW_STATE_META[hw].status;
+    day[studentId] = forStudent;
+    return {
+      ...s,
+      records: { ...s.records, [date]: day },
+      hwEvents: [...(s.hwEvents ?? []), event],
+    };
+  });
+
+  return { ok: true, delta, total, state: hw };
+}
+
+export const updateHwPointRules = (patch: Partial<HwPointRules>) =>
+  setState((s) => ({ ...s, hwPointRules: { ...s.hwPointRules, ...patch } }));
+
 
 export const spentPoints = (state: AppState, studentId: string) =>
   state.gachaLog.filter((g) => g.studentId === studentId).reduce((a, g) => a + g.cost, 0);
