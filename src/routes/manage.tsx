@@ -14,16 +14,19 @@ import {
   addStudent,
   removeAssignment,
   removePrize,
+  RANK_ORDER,
   removeStudent,
   setGachaCost,
   STATUS_META,
   STATUS_ORDER,
   updateAssignment,
   updatePointRules,
+  updateRankRules,
   updatePrize,
   updateStudent,
   useAppState,
 } from "@/lib/homework-store";
+import { RANK_STYLE } from "@/lib/rank-style";
 
 export const Route = createFileRoute("/manage")({
   head: () => ({
