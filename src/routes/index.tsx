@@ -100,10 +100,10 @@ function ScanPage() {
   ).length;
 
 
-  const celebrate = (student: string, assignment: string, studentId: string) => {
-    setHit({ id: Date.now(), student, assignment });
+  const celebrate = (hitData: Omit<Hit, "id">, studentId: string) => {
+    setHit({ ...hitData, id: Date.now() });
     setFlashRow(studentId);
-    window.setTimeout(() => setHit(null), 1300);
+    window.setTimeout(() => setHit(null), hitData.rankUp ? 2600 : 1300);
     window.setTimeout(() => setFlashRow(null), 1500);
   };
 
