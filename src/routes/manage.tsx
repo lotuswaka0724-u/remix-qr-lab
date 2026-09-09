@@ -309,10 +309,18 @@ function ManagePage() {
           >
             教材貼付用QR印刷
           </Button>
+          <Button
+            type="button"
+            variant={qrMode === "hwstate" ? "default" : "secondary"}
+            onClick={() => setQrMode("hwstate")}
+          >
+            しゅくだいカード印刷（児童用）
+          </Button>
         </div>
       </section>
 
-      {qrMode === "card" ? <QrMaker /> : <MaterialQrPrint />}
+      {qrMode === "card" ? <QrMaker /> : qrMode === "material" ? <MaterialQrPrint /> : <HwStateQrPrint />}
+
 
       <MyPageLinks />
 
