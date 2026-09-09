@@ -13,22 +13,34 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    // これらは実行中に動的 import されるため、事前に取り込んでおかないと
-    // 画面表示中に再バンドル→リロードが起き "Importing a module script failed" になる
+    // iPad が最初の画面を要求した後に optimizer が依存を追加すると、配信中の
+    // module URL が無効になり Safari が白画面になる。初回画面と動的 QR 機能で
+    // 実際に使う依存を起動時にまとめ、ページ配信後の二度目の最適化を防ぐ。
     optimizeDeps: {
-      // 初回の依存確認が終わるまで配信結果を確定せず、表示後にファイルが
-      // 差し替わって白画面になるのを防ぐ。自動確認自体は互換性のため残す。
       holdUntilCrawlEnd: true,
       include: [
+        "react",
+        "react/jsx-runtime",
+        "react/jsx-dev-runtime",
+        "react-dom",
+        "react-dom/client",
+        "@tanstack/react-query",
+        "@tanstack/react-router",
+        "@tanstack/react-router > @tanstack/react-store",
         "@tanstack/router-core",
         "@tanstack/router-core/isServer",
         "@tanstack/router-core/ssr/client",
+        "@supabase/supabase-js",
+        "@radix-ui/react-slot",
+        "@radix-ui/react-switch",
+        "class-variance-authority",
+        "clsx",
         "seroval",
+        "sonner",
+        "tailwind-merge",
         "qrcode",
         "html5-qrcode",
       ],
-      // 初回の依存関係解析中に生成物が更新されても、表示中の iPad が
-      // 直前の module URL を読み切れるようにして白画面を防ぐ。
       ignoreOutdatedRequests: true,
     },
   },
