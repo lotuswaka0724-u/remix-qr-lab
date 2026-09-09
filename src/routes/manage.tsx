@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import CsvPanel from "@/components/CsvPanel";
+import { GameHub } from "@/components/GamePanel";
+import { createDemoEngine } from "@/lib/demo-game";
 import HwStateQrPrint from "@/components/HwStateQrPrint";
 import MaterialQrPrint from "@/components/MaterialQrPrint";
 import MyPageLinks from "@/components/MyPageLinks";
@@ -418,5 +420,31 @@ function ManagePage() {
         データはこの端末のブラウザに保存されます。別の端末とは共有されません。
       </p>
     </main>
+  );
+}
+
+/** 先生用：動作確認・児童説明デモ（ブラウザ内だけで動き、児童データは変わりません） */
+function TeacherDemoSection() {
+  const [open, setOpen] = useState(false);
+  const [nonce, setNonce] = useState(0);
+  const engine = useMemo(() => createDemoEngine(), [nonce]);
+
+  return (
+    <section className="paper-card p-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="mr-auto font-display text-base font-bold">先生用 動作確認・児童説明モード</h2>
+        <Button size="sm" variant={open ? "secondary" : "default"} onClick={() => setOpen((v) => !v)}>
+          {open ? "とじる" : "デモをひらく"}
+        </Button>
+      </div>
+      <p className="mt-1 text-xs text-muted-foreground">
+        すべてのアイテムを試着でき、きせかえ回数の制限もありません。ここでの操作は児童のポイント・アイテム・アバターには保存されません。
+      </p>
+      {open && (
+        <div className="mt-4">
+          <GameHub engine={engine} onReset={() => setNonce((n) => n + 1)} />
+        </div>
+      )}
+    </section>
   );
 }
