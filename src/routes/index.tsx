@@ -2,15 +2,26 @@ import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
-import SuccessFx from "@/components/SuccessFx";
+import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { playError, playSuccess, SOUND_PRESETS, speak, vibrate } from "@/lib/feedback";
+import {
+  playError,
+  playRankSuccess,
+  playRankUp,
+  playSuccess,
+  SOUND_PRESETS,
+  speak,
+  vibrate,
+} from "@/lib/feedback";
 import {
   clearToday,
   cycleRecord,
+  earnedPoints,
   isSubmitted,
   parseQr,
+  rankOf,
+  rankOfPoints,
   ranking,
   setRecord,
   STATUS_META,
@@ -21,6 +32,7 @@ import {
   useAppState,
   type Status,
 } from "@/lib/homework-store";
+import { RANK_STYLE } from "@/lib/rank-style";
 
 const QrScanner = lazy(() => import("@/components/QrScanner"));
 
