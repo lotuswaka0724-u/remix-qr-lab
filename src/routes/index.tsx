@@ -129,11 +129,27 @@ function ScanPage() {
       toast.info(`${student.name} さんは提出済みです`, { description: target.name });
       return;
     }
+    // ランクは「通算ポイント」から毎回計算する（カードも演出も同じ基準）
+    const before = rankOf(state, student.id);
+    const gained = state.pointRules[state.settings.scanStatus] ?? 0;
+    const points = earnedPoints(state, student.id) + gained;
+    const after = rankOfPoints(state.rankRules, points);
+    const rankUp = after !== before ? after : null;
+
     setRecord(student.id, target.id, state.settings.scanStatus);
-    playSuccess(state.settings.sound);
-    if (state.settings.vibe) vibrate(60);
-    if (state.settings.speak) speak(`${student.name}さん、${target.name}`);
-    celebrate(student.name, target.name, student.id);
+    playRankSuccess(after, state.settings.sound);
+    if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
+    if (state.settings.vibe) vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
+    if (state.settings.speak)
+      speak(
+        rankUp
+          ? `${student.name}さん、${RANK_STYLE[rankUp].jp}カードになりました`
+          : `${student.name}さん、${target.name}`,
+      );
+    celebrate(
+      { student: student.name, assignment: target.name, rank: after, points, rankUp },
+      student.id,
+    );
   };
 
   const doneStudents = students.filter(
