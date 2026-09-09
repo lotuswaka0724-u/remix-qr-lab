@@ -16,9 +16,9 @@ export default defineConfig({
     // これらは実行中に動的 import されるため、事前に取り込んでおかないと
     // 画面表示中に再バンドル→リロードが起き "Importing a module script failed" になる
     optimizeDeps: {
-      // 依存の自動追加は、既に開いているプレビューが参照するファイルを
-      // 起動後に置き換えてしまう。必要な依存をここで固定し、再最適化を防ぐ。
-      noDiscovery: true,
+      // 初回の依存確認が終わるまで配信結果を確定せず、表示後にファイルが
+      // 差し替わって白画面になるのを防ぐ。自動確認自体は互換性のため残す。
+      holdUntilCrawlEnd: true,
       include: [
         "@tanstack/react-start-client",
         "@tanstack/router-core",
