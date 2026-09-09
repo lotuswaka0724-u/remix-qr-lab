@@ -1,0 +1,1 @@
+CREATE POLICY "no direct client access" ON public.student_game FOR ALL TO anon, authenticated USING (false) WITH CHECK (false);
