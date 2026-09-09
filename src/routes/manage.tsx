@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import CsvPanel from "@/components/CsvPanel";
+import MaterialQrPrint from "@/components/MaterialQrPrint";
 import MyPageLinks from "@/components/MyPageLinks";
 import QrMaker from "@/components/QrMaker";
 import { Button } from "@/components/ui/button";
@@ -49,6 +50,7 @@ function ManagePage() {
   const [stClass, setStClass] = useState(state.students[0]?.className ?? "1年1組");
   const [prizeName, setPrizeName] = useState("");
   const [prizeWeight, setPrizeWeight] = useState("1");
+  const [qrMode, setQrMode] = useState<"card" | "material">("card");
 
   return (
     <main className="mx-auto max-w-5xl space-y-5 px-4 py-6">
@@ -255,7 +257,30 @@ function ManagePage() {
 
       <CsvPanel />
 
-      <QrMaker />
+      <section className="paper-card p-4">
+        <h2 className="mb-1 font-display text-base font-bold">QRコード管理・印刷</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          用途に合わせて印刷のしかたを選べます。
+        </p>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            type="button"
+            variant={qrMode === "card" ? "default" : "secondary"}
+            onClick={() => setQrMode("card")}
+          >
+            QRカード印刷
+          </Button>
+          <Button
+            type="button"
+            variant={qrMode === "material" ? "default" : "secondary"}
+            onClick={() => setQrMode("material")}
+          >
+            教材貼付用QR印刷
+          </Button>
+        </div>
+      </section>
+
+      {qrMode === "card" ? <QrMaker /> : <MaterialQrPrint />}
 
       <MyPageLinks />
 
