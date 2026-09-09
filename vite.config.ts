@@ -13,33 +13,19 @@ export default defineConfig({
     server: { entry: "server" },
   },
   vite: {
-    // iPad が最初の画面を要求した後に optimizer が依存を追加すると、配信中の
-    // module URL が無効になり Safari が白画面になる。初回画面と動的 QR 機能で
-    // 実際に使う依存を起動時にまとめ、ページ配信後の二度目の最適化を防ぐ。
+    // CommonJS/UMD の QR ライブラリだけを事前変換する。TanStack と seroval は
+    // ESM のまま配信し、初回表示後の再最適化で module URL が変わるのを防ぐ。
     optimizeDeps: {
       holdUntilCrawlEnd: true,
       include: [
-        "react",
-        "react/jsx-runtime",
-        "react/jsx-dev-runtime",
-        "react-dom",
-        "react-dom/client",
-        "@tanstack/react-query",
-        "@tanstack/react-router",
-        "@tanstack/react-router > @tanstack/react-store",
+        "qrcode",
+        "html5-qrcode",
+      ],
+      exclude: [
         "@tanstack/router-core",
         "@tanstack/router-core/isServer",
         "@tanstack/router-core/ssr/client",
-        "@supabase/supabase-js",
-        "@radix-ui/react-slot",
-        "@radix-ui/react-switch",
-        "class-variance-authority",
-        "clsx",
         "seroval",
-        "sonner",
-        "tailwind-merge",
-        "qrcode",
-        "html5-qrcode",
       ],
       ignoreOutdatedRequests: true,
     },
