@@ -103,6 +103,7 @@ export type AppState = {
   gachaCost: number;
   prizes: GachaPrize[];
   gachaLog: GachaResult[];
+  rankRules: RankRules;
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
 };
