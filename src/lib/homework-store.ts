@@ -1,5 +1,7 @@
 import { useSyncExternalStore } from "react";
 
+import { getClassState, saveClassState } from "@/lib/class-sync.functions";
+
 export type Assignment = { id: string; name: string; inToday: boolean };
 export type Student = { id: string; number: number; name: string; className: string };
 
