@@ -4,12 +4,15 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
+import { gateStatus, teacherLogin } from "@/lib/class-sync.functions";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
@@ -125,8 +128,80 @@ const NAV = [
   { to: "/manage", label: "管理" },
 ] as const;
 
+function TeacherGate({ children }: { children: ReactNode }) {
+  const check = useServerFn(gateStatus);
+  const login = useServerFn(teacherLogin);
+  const [role, setRole] = useState<string | null | undefined>(undefined);
+  const [pw, setPw] = useState("");
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    void check({}).then((s) => setRole(s.role));
+  }, [check]);
+
+  if (role === undefined) {
+    return (
+      <main className="px-4 py-10 text-center text-sm text-muted-foreground">よみこみ中…</main>
+    );
+  }
+
+  if (role !== "teacher") {
+    return (
+      <main className="mx-auto max-w-sm px-4 py-12">
+        <form
+          className="glass-panel space-y-4 p-6 text-center"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setErr("");
+            const res = await login({ data: { password: pw } });
+            if (res.ok) {
+              setPw("");
+              setRole("teacher");
+              window.location.reload();
+            } else setErr("合言葉がちがいます");
+          }}
+        >
+          <h1 className="font-display text-xl font-bold">先生用の合言葉</h1>
+          <p className="text-xs text-muted-foreground">
+            クラスのデータを見るには、先生用の合言葉が必要です。
+          </p>
+          <input
+            type="password"
+            value={pw}
+            onChange={(e) => setPw(e.target.value)}
+            className="h-11 w-full rounded-xl border border-border bg-card px-3 text-center"
+            aria-label="先生用の合言葉"
+          />
+          {err && <p className="text-sm font-bold text-destructive">{err}</p>}
+          <button
+            type="submit"
+            className="w-full rounded-full bg-primary px-4 py-2 font-bold text-primary-foreground"
+          >
+            はいる
+          </button>
+        </form>
+      </main>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isStudent = pathname.startsWith("/me/");
+
+  if (isStudent) {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <div className="min-h-screen">
+          <Outlet />
+        </div>
+        <Toaster position="top-center" richColors />
+      </QueryClientProvider>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -155,7 +230,9 @@ function RootComponent() {
           </div>
         </header>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <TeacherGate>
+          <Outlet />
+        </TeacherGate>
       </div>
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
