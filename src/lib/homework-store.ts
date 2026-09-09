@@ -90,6 +90,124 @@ export type GachaResult = {
   at: number;
 };
 
+/* ---------- 児童が自分でえらぶ「宿題じょうたいQR」 ---------- */
+
+export type HwState = "SUBMIT" | "REDO" | "RESUBMIT" | "FORGOT" | "SCHOOL_DONE" | "NO_REPORT";
+
+/** 児童がえらぶ5種類（この順番で印刷・表示する） */
+export const HW_STATE_ORDER: HwState[] = ["SUBMIT", "REDO", "RESUBMIT", "FORGOT", "SCHOOL_DONE"];
+
+export type HwStateMeta = {
+  /** 児童向けのことば（この表現でそろえる） */
+  label: string;
+  icon: string;
+  defaultPoints: number;
+  /** 提出一覧に反映する記録 */
+  status: Status;
+  /** 先ににSUBMITが必要か */
+  needsSubmit: boolean;
+  /** カードの色づかい */
+  card: string;
+  badge: string;
+  /** 先生だけがつかうもの */
+  teacherOnly?: boolean;
+};
+
+export const HW_STATE_META: Record<HwState, HwStateMeta> = {
+  SUBMIT: {
+    label: "しゅくだいを出しました",
+    icon: "📗",
+    defaultPoints: 10,
+    status: "submitted",
+    needsSubmit: false,
+    card: "bg-[#dcfce7] text-[#14532d] border-[#22c55e]",
+    badge: "bg-[#16a34a] text-white",
+  },
+  REDO: {
+    label: "なおすところがありました",
+    icon: "✏️",
+    defaultPoints: -3,
+    status: "submitted",
+    needsSubmit: true,
+    card: "bg-[#fef9c3] text-[#713f12] border-[#eab308]",
+    badge: "bg-[#ca8a04] text-white",
+  },
+  RESUBMIT: {
+    label: "なおして出しました",
+    icon: "🔵",
+    defaultPoints: 3,
+    status: "fixed",
+    needsSubmit: true,
+    card: "bg-[#dbeafe] text-[#1e3a8a] border-[#3b82f6]",
+    badge: "bg-[#2563eb] text-white",
+  },
+  FORGOT: {
+    label: "わすれました",
+    icon: "🟠",
+    defaultPoints: 2,
+    status: "declared",
+    needsSubmit: false,
+    card: "bg-[#ffedd5] text-[#7c2d12] border-[#f97316]",
+    badge: "bg-[#ea580c] text-white",
+  },
+  SCHOOL_DONE: {
+    label: "学校でやりました",
+    icon: "🟣",
+    defaultPoints: 1,
+    status: "school",
+    needsSubmit: false,
+    card: "bg-[#ede9fe] text-[#4c1d95] border-[#8b5cf6]",
+    badge: "bg-[#7c3aed] text-white",
+  },
+  NO_REPORT: {
+    label: "わすれたと言っていない",
+    icon: "—",
+    defaultPoints: 0,
+    status: "none",
+    needsSubmit: false,
+    card: "bg-muted text-muted-foreground border-border",
+    badge: "bg-muted text-muted-foreground",
+    teacherOnly: true,
+  },
+};
+
+export type HwPointRules = Record<HwState, number>;
+
+export const DEFAULT_HW_POINT_RULES: HwPointRules = {
+  SUBMIT: 10,
+  REDO: -3,
+  RESUBMIT: 3,
+  FORGOT: 2,
+  SCHOOL_DONE: 1,
+  NO_REPORT: 0,
+};
+
+/** 宿題じょうたいQRで記録した1件 */
+export type HwEvent = {
+  id: string;
+  /** 対象日 */
+  date: string;
+  studentId: string;
+  assignmentId: string;
+  state: HwState;
+  /** そのときのポイント増減 */
+  delta: number;
+  /** 処理後の通算ポイント */
+  total: number;
+  at: number;
+};
+
+/** 宿題じょうたいQRの中身。例: HW:SUBMIT */
+export const hwStateQrText = (s: HwState) => `HW:${s}`;
+
+export function parseHwStateQr(text: string): HwState | null {
+  const t = text.trim().toUpperCase().replace(/^HW[:：]/, "");
+  return (HW_STATE_ORDER as HwState[]).concat("NO_REPORT").includes(t as HwState)
+    ? (t as HwState)
+    : null;
+}
+
+
 /** date -> studentId -> assignmentId -> ようす */
 export type Records = Record<string, Record<string, Record<string, Status | boolean>>>;
 
