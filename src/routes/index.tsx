@@ -15,22 +15,24 @@ import {
   vibrate,
 } from "@/lib/feedback";
 import {
+  applyHwState,
   clearToday,
   cycleRecord,
-  earnedPoints,
+  HW_STATE_META,
   isSubmitted,
+  parseHwStateQr,
   parseQr,
   rankOf,
   rankOfPoints,
   ranking,
-  setRecord,
   STATUS_META,
-  STATUS_ORDER,
   toStatus,
   todayKey,
   updateSettings,
   useAppState,
-  type Status,
+  type Assignment,
+  type HwState,
+  type Student,
 } from "@/lib/homework-store";
 import { RANK_STYLE } from "@/lib/rank-style";
 
