@@ -264,6 +264,8 @@ const defaultState = (): AppState => ({
   ],
   gachaLog: [],
   rankRules: { ...DEFAULT_RANK_RULES },
+  hwPointRules: { ...DEFAULT_HW_POINT_RULES },
+  hwEvents: [],
 });
 
 let state: AppState = defaultState();
