@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { downloadCsv } from "@/lib/csv";
-import { isSubmitted, useAppState } from "@/lib/homework-store";
+import { HW_STATE_META, isSubmitted, useAppState } from "@/lib/homework-store";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
