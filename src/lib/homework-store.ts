@@ -222,6 +222,10 @@ export type AppState = {
   prizes: GachaPrize[];
   gachaLog: GachaResult[];
   rankRules: RankRules;
+  /** 宿題じょうたいQRの点数（先生が変えられる） */
+  hwPointRules: HwPointRules;
+  /** 宿題じょうたいQRの記録 */
+  hwEvents: HwEvent[];
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
 };
