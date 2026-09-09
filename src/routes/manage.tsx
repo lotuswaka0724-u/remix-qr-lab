@@ -55,7 +55,7 @@ function ManagePage() {
   const [stClass, setStClass] = useState(state.students[0]?.className ?? "1年1組");
   const [prizeName, setPrizeName] = useState("");
   const [prizeWeight, setPrizeWeight] = useState("1");
-  const [qrMode, setQrMode] = useState<"card" | "material">("card");
+  const [qrMode, setQrMode] = useState<"card" | "material" | "hwstate">("card");
 
   return (
     <main className="mx-auto max-w-5xl space-y-5 px-4 py-6">
