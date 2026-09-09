@@ -390,6 +390,10 @@ export const spentPoints = (state: AppState, studentId: string) =>
 export const availablePoints = (state: AppState, studentId: string) =>
   earnedPoints(state, studentId) - spentPoints(state, studentId);
 
+/** その児童の今のランク（通算ポイントから毎回計算する） */
+export const rankOf = (state: AppState, studentId: string): Rank =>
+  rankOfPoints(state.rankRules, earnedPoints(state, studentId));
+
 export function ranking(state: AppState, className = "all") {
   return state.students
     .filter((s) => className === "all" || s.className === className)
