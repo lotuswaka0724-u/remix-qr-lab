@@ -189,6 +189,32 @@ function ManagePage() {
       </section>
 
       <section className="paper-card p-4">
+        <h2 className="mb-1 font-display text-base font-bold">カードランクの設定</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          通算ポイントが下の数字以上になると、そのランクになります。カードのデザインも、読み取りのときの音や演出も、この判定にそろって変わります。
+        </p>
+        <ul className="grid gap-2 sm:grid-cols-3">
+          {RANK_ORDER.map((r) => (
+            <li key={r} className="flex items-center gap-2 rounded-xl bg-muted/60 p-2">
+              <span
+                className={`rounded-full px-2 py-0.5 font-display text-[11px] font-bold tracking-widest ${RANK_STYLE[r].badge}`}
+              >
+                {RANK_STYLE[r].label}
+              </span>
+              <Input
+                type="number"
+                value={state.rankRules[r]}
+                disabled={r === "NORMAL"}
+                onChange={(e) => updateRankRules({ [r]: Number(e.target.value) })}
+                className="w-24 bg-card"
+              />
+              <span className="text-xs text-muted-foreground">pt以上</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">ガチャの設定</h2>
         <div className="mb-3 flex items-center gap-2">
           <span className="text-sm">1回にひつようなポイント</span>
