@@ -299,6 +299,32 @@ function ScanPage() {
               <QrScanner active={scanning} onDetected={handleDetected} />
             </Suspense>
 
+            {/* ---- 手入力（カメラが使えないとき） ---- */}
+            <form
+              className="mt-2 flex gap-1.5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const v = manual.trim();
+                if (!v) return;
+                lastScan.current = { text: "", at: 0 };
+                handleDetected(v);
+                setManual("");
+              }}
+            >
+              <input
+                value={manual}
+                onChange={(e) => setManual(e.target.value)}
+                placeholder="手入力（児童名／しゅくだいのカード）"
+                aria-label="手入力"
+                className="min-w-0 flex-1 rounded-lg border border-input bg-background px-2 py-1.5 text-xs"
+              />
+              <Button type="submit" size="sm" variant="secondary" className="rounded-full">
+                記録
+              </Button>
+            </form>
+
+
+
             {/* ---- STEP 表示（児童QR → しゅくだいのカード） ---- */}
             <div className="mt-2 rounded-2xl bg-primary/5 p-2.5 text-xs">
               <p className="font-bold">
