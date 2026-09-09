@@ -181,7 +181,7 @@ export default function QrMaker() {
           <div id="qr-card-sheet" className="card-sheet">
             <div className="card-grid">
               {chosen.map((c) => (
-                <PrintCard key={c.key} c={c} school={state.school} />
+                <PrintCard key={c.key} c={c} />
               ))}
             </div>
           </div>
@@ -286,13 +286,13 @@ export default function QrMaker() {
   );
 }
 
-function PrintCard({ c, school }: { c: CardData; school: string }) {
+function PrintCard({ c }: { c: CardData }) {
   const style = RANK_STYLE[c.rank];
   return (
     <div className={`id-card ${style.card}`}>
       <div className="id-card-body">
         <div className="id-card-info">
-          <p className="id-card-school">{school || "SCHOOL"}</p>
+          <p className="id-card-school">HOMEWORK MEMBERS CARD</p>
           <p className="id-card-name">{c.romaji}</p>
           <p className="id-card-jp">{c.name}</p>
           <p className="id-card-class">
