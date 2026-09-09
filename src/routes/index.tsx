@@ -68,6 +68,26 @@ function ScanPage() {
   const [hit, setHit] = useState<Hit | null>(null);
   const [flashRow, setFlashRow] = useState<string | null>(null);
   const lastScan = useRef<{ text: string; at: number }>({ text: "", at: 0 });
+  /** STEP1で読み取った児童（つぎに、しゅくだいのカードを読む） */
+  const [pendingStudent, setPendingStudent] = useState<{
+    student: Student;
+    assignment?: Assignment | undefined;
+  } | null>(null);
+  /** 順番がおかしいときの確認 */
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    student: Student | { id: string; name: string };
+    target: { id: string; name: string };
+    hw: HwState;
+    message: string;
+  } | null>(null);
+  const [lastResult, setLastResult] = useState<{
+    studentName: string;
+    className: string;
+    assignmentName: string;
+    hw: HwState;
+    delta: number;
+    total: number;
+  } | null>(null);
 
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
