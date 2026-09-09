@@ -13,7 +13,8 @@ export function sessionConfig() {
     password: process.env["SESSION_SECRET"]!,
     name: "shukudai-gate",
     maxAge: 60 * 60 * 24 * 30,
-    cookie: { httpOnly: true, secure: true, sameSite: "lax" as const, path: "/" },
+    // プレビューはiframe内（クロスサイト）で表示されるため、SameSite=None が必要
+    cookie: { httpOnly: true, secure: true, sameSite: "none" as const, path: "/" },
   };
 }
 
