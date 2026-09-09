@@ -56,6 +56,29 @@ function HistoryPage() {
       .filter((d) => d.done > 0);
   }, [state.records, state.assignments, students]);
 
+  const hwLog = useMemo(() => {
+    const names = new Map(state.assignments.map((a) => [a.id, a.name]));
+    const byId = new Map(state.students.map((s) => [s.id, s]));
+    return [...(state.hwEvents ?? [])]
+      .filter((e) => classFilter === "all" || byId.get(e.studentId)?.className === classFilter)
+      .sort((a, b) => b.at - a.at)
+      .slice(0, 300)
+      .map((e) => {
+        const d = new Date(e.at);
+        return {
+          id: e.id,
+          when: `${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
+          studentName: byId.get(e.studentId)?.name ?? "（削除済み）",
+          className: byId.get(e.studentId)?.className ?? "",
+          assignmentName: names.get(e.assignmentId) ?? "（削除済み）",
+          label: HW_STATE_META[e.state].label,
+          icon: HW_STATE_META[e.state].icon,
+          delta: e.delta,
+          total: e.total,
+        };
+      });
+  }, [state.hwEvents, state.assignments, state.students, classFilter]);
+
   return (
     <main className="mx-auto max-w-5xl space-y-4 px-4 py-6">
       <div className="flex flex-wrap items-center gap-2">
