@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 
 import CsvPanel from "@/components/CsvPanel";
+import HwStateQrPrint from "@/components/HwStateQrPrint";
 import MaterialQrPrint from "@/components/MaterialQrPrint";
 import MyPageLinks from "@/components/MyPageLinks";
 import QrMaker from "@/components/QrMaker";
@@ -12,19 +13,20 @@ import {
   addAssignment,
   addPrize,
   addStudent,
+  HW_STATE_META,
+  HW_STATE_ORDER,
   removeAssignment,
   removePrize,
   RANK_ORDER,
   removeStudent,
   setGachaCost,
-  STATUS_META,
-  STATUS_ORDER,
   updateAssignment,
-  updatePointRules,
+  updateHwPointRules,
   updateRankRules,
   updatePrize,
   updateStudent,
   useAppState,
+  type HwState,
 } from "@/lib/homework-store";
 import { RANK_STYLE } from "@/lib/rank-style";
 
@@ -53,7 +55,7 @@ function ManagePage() {
   const [stClass, setStClass] = useState(state.students[0]?.className ?? "1年1組");
   const [prizeName, setPrizeName] = useState("");
   const [prizeWeight, setPrizeWeight] = useState("1");
-  const [qrMode, setQrMode] = useState<"card" | "material">("card");
+  const [qrMode, setQrMode] = useState<"card" | "material" | "hwstate">("card");
 
   return (
     <main className="mx-auto max-w-5xl space-y-5 px-4 py-6">
@@ -166,23 +168,24 @@ function ManagePage() {
       </section>
 
       <section className="paper-card p-4">
-        <h2 className="mb-1 font-display text-base font-bold">ポイントの点数</h2>
+        <h2 className="mb-1 font-display text-base font-bold">しゅくだいカードのポイント</h2>
         <p className="mb-3 text-xs text-muted-foreground">
-          記録のようすごとに、もらえるポイントを決められます。
+          児童がえらぶカードごとのポイントを決められます。変えても、これまでの記録とポイントはそのまま残ります（つぎの読み取りから新しい点数になります）。
         </p>
         <ul className="grid gap-2 sm:grid-cols-2">
-          {STATUS_ORDER.map((st) => (
+          {[...HW_STATE_ORDER, "NO_REPORT" as HwState].map((st) => (
             <li key={st} className="flex items-center gap-2 rounded-xl bg-muted/60 p-2">
-              <span
-                className={`grid h-8 w-8 shrink-0 place-content-center rounded-lg font-bold ${STATUS_META[st].tone}`}
-              >
-                {STATUS_META[st].short}
+              <span className="text-xl leading-none">{HW_STATE_META[st].icon}</span>
+              <span className="min-w-0 flex-1 text-sm">
+                {HW_STATE_META[st].label}
+                {HW_STATE_META[st].teacherOnly && (
+                  <span className="ml-1 text-[11px] text-muted-foreground">（先生用）</span>
+                )}
               </span>
-              <span className="min-w-0 flex-1 text-sm">{STATUS_META[st].label}</span>
               <Input
                 type="number"
-                value={state.pointRules[st]}
-                onChange={(e) => updatePointRules({ [st]: Number(e.target.value) })}
+                value={state.hwPointRules[st]}
+                onChange={(e) => updateHwPointRules({ [st]: Number(e.target.value) })}
                 className="w-20 bg-card"
               />
               <span className="text-xs text-muted-foreground">pt</span>
@@ -190,6 +193,7 @@ function ManagePage() {
           ))}
         </ul>
       </section>
+
 
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">カードランクの設定</h2>
@@ -306,10 +310,18 @@ function ManagePage() {
           >
             教材貼付用QR印刷
           </Button>
+          <Button
+            type="button"
+            variant={qrMode === "hwstate" ? "default" : "secondary"}
+            onClick={() => setQrMode("hwstate")}
+          >
+            しゅくだいカード印刷（児童用）
+          </Button>
         </div>
       </section>
 
-      {qrMode === "card" ? <QrMaker /> : <MaterialQrPrint />}
+      {qrMode === "card" ? <QrMaker /> : qrMode === "material" ? <MaterialQrPrint /> : <HwStateQrPrint />}
+
 
       <MyPageLinks />
 

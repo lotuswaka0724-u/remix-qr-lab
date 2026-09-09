@@ -90,6 +90,127 @@ export type GachaResult = {
   at: number;
 };
 
+/* ---------- 児童が自分でえらぶ「宿題じょうたいQR」 ---------- */
+
+export type HwState = "SUBMIT" | "REDO" | "RESUBMIT" | "FORGOT" | "SCHOOL_DONE" | "NO_REPORT";
+
+/** 児童がえらぶ5種類（この順番で印刷・表示する） */
+export const HW_STATE_ORDER: HwState[] = ["SUBMIT", "REDO", "RESUBMIT", "FORGOT", "SCHOOL_DONE"];
+
+export type HwStateMeta = {
+  /** 児童向けのことば（この表現でそろえる） */
+  label: string;
+  icon: string;
+  defaultPoints: number;
+  /** 提出一覧に反映する記録 */
+  status: Status;
+  /** 先ににSUBMITが必要か */
+  needsSubmit: boolean;
+  /** カードの色づかい */
+  card: string;
+  badge: string;
+  /** 先生だけがつかうもの */
+  teacherOnly?: boolean;
+};
+
+export const HW_STATE_META: Record<HwState, HwStateMeta> = {
+  SUBMIT: {
+    label: "しゅくだいを出しました",
+    icon: "📗",
+    defaultPoints: 10,
+    status: "submitted",
+    needsSubmit: false,
+    card: "bg-[#dcfce7] text-[#14532d] border-[#22c55e]",
+    badge: "bg-[#16a34a] text-white",
+  },
+  REDO: {
+    label: "なおすところがありました",
+    icon: "✏️",
+    defaultPoints: -3,
+    status: "submitted",
+    needsSubmit: true,
+    card: "bg-[#fef9c3] text-[#713f12] border-[#eab308]",
+    badge: "bg-[#ca8a04] text-white",
+  },
+  RESUBMIT: {
+    label: "なおして出しました",
+    icon: "🔵",
+    defaultPoints: 3,
+    status: "fixed",
+    needsSubmit: true,
+    card: "bg-[#dbeafe] text-[#1e3a8a] border-[#3b82f6]",
+    badge: "bg-[#2563eb] text-white",
+  },
+  FORGOT: {
+    label: "わすれました",
+    icon: "🟠",
+    defaultPoints: 2,
+    status: "declared",
+    needsSubmit: false,
+    card: "bg-[#ffedd5] text-[#7c2d12] border-[#f97316]",
+    badge: "bg-[#ea580c] text-white",
+  },
+  SCHOOL_DONE: {
+    label: "学校でやりました",
+    icon: "🟣",
+    defaultPoints: 1,
+    status: "school",
+    needsSubmit: false,
+    card: "bg-[#ede9fe] text-[#4c1d95] border-[#8b5cf6]",
+    badge: "bg-[#7c3aed] text-white",
+  },
+  NO_REPORT: {
+    label: "わすれたと言っていない",
+    icon: "—",
+    defaultPoints: 0,
+    status: "none",
+    needsSubmit: false,
+    card: "bg-muted text-muted-foreground border-border",
+    badge: "bg-muted text-muted-foreground",
+    teacherOnly: true,
+  },
+};
+
+export type HwPointRules = Record<HwState, number>;
+
+export const DEFAULT_HW_POINT_RULES: HwPointRules = {
+  SUBMIT: 10,
+  REDO: -3,
+  RESUBMIT: 3,
+  FORGOT: 2,
+  SCHOOL_DONE: 1,
+  NO_REPORT: 0,
+};
+
+/** 宿題じょうたいQRで記録した1件 */
+export type HwEvent = {
+  id: string;
+  /** 対象日 */
+  date: string;
+  studentId: string;
+  assignmentId: string;
+  state: HwState;
+  /** そのときのポイント増減 */
+  delta: number;
+  /** 処理後の通算ポイント */
+  total: number;
+  at: number;
+};
+
+/** 宿題じょうたいQRの中身。例: HW:SUBMIT */
+export const hwStateQrText = (s: HwState) => `HW:${s}`;
+
+export function parseHwStateQr(text: string): HwState | null {
+  const raw = text.trim();
+  const id = raw.toUpperCase().replace(/^HW[:：]/, "");
+  const all = [...HW_STATE_ORDER, "NO_REPORT" as HwState];
+  if (all.includes(id as HwState)) return id as HwState;
+  // 児童向けのことばでも判定できるようにする
+  const plain = raw.replace(/[\s　]/g, "");
+  return all.find((s) => HW_STATE_META[s].label.replace(/[\s　]/g, "") === plain) ?? null;
+}
+
+
 /** date -> studentId -> assignmentId -> ようす */
 export type Records = Record<string, Record<string, Record<string, Status | boolean>>>;
 
@@ -104,6 +225,10 @@ export type AppState = {
   prizes: GachaPrize[];
   gachaLog: GachaResult[];
   rankRules: RankRules;
+  /** 宿題じょうたいQRの点数（先生が変えられる） */
+  hwPointRules: HwPointRules;
+  /** 宿題じょうたいQRの記録 */
+  hwEvents: HwEvent[];
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
 };
@@ -142,6 +267,8 @@ const defaultState = (): AppState => ({
   ],
   gachaLog: [],
   rankRules: { ...DEFAULT_RANK_RULES },
+  hwPointRules: { ...DEFAULT_HW_POINT_RULES },
+  hwEvents: [],
 });
 
 let state: AppState = defaultState();
@@ -163,6 +290,8 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     settings: { ...base.settings, ...(parsed.settings ?? {}) },
     pointRules: { ...base.pointRules, ...(parsed.pointRules ?? {}) },
     rankRules: { ...base.rankRules, ...(parsed.rankRules ?? {}) },
+    hwPointRules: { ...base.hwPointRules, ...(parsed.hwPointRules ?? {}) },
+    hwEvents: parsed.hwEvents ?? [],
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
   };
@@ -373,16 +502,111 @@ export const clearToday = () =>
 
 /* ---------- points ---------- */
 
-/** これまでに貯めた合計ポイント（使った分は含まない） */
+const hwKey = (date: string, studentId: string, assignmentId: string) =>
+  `${date}|${studentId}|${assignmentId}`;
+
+/** 宿題じょうたいQRで処理ずみの「日付・児童・宿題」 */
+const hwHandledKeys = (state: AppState) =>
+  new Set((state.hwEvents ?? []).map((e) => hwKey(e.date, e.studentId, e.assignmentId)));
+
+/**
+ * これまでに貯めた合計ポイント（使った分は含まない）。
+ * 旧方式（先生が状態を選んだ記録）はそのまま点数に残し、
+ * 宿題じょうたいQRで処理した分は、そのときの増減で数える。
+ */
 export function earnedPoints(state: AppState, studentId: string) {
+  const handled = hwHandledKeys(state);
   let total = 0;
-  for (const day of Object.values(state.records)) {
+  for (const [date, day] of Object.entries(state.records)) {
     const forStudent = day[studentId];
     if (!forStudent) continue;
-    for (const v of Object.values(forStudent)) total += state.pointRules[toStatus(v)] ?? 0;
+    for (const [assignmentId, v] of Object.entries(forStudent)) {
+      if (handled.has(hwKey(date, studentId, assignmentId))) continue;
+      total += state.pointRules[toStatus(v)] ?? 0;
+    }
+  }
+  for (const e of state.hwEvents ?? []) {
+    if (e.studentId === studentId) total += e.delta;
   }
   return total;
 }
+
+/* ---------- 宿題じょうたいQRの処理 ---------- */
+
+export type HwApplyResult =
+  | { ok: true; delta: number; total: number; state: HwState }
+  | { ok: false; reason: "duplicate" | "order"; message: string };
+
+/** その日・その宿題で、すでに読み取った状態の一覧 */
+export const hwStatesFor = (
+  state: AppState,
+  date: string,
+  studentId: string,
+  assignmentId: string,
+): HwState[] =>
+  (state.hwEvents ?? [])
+    .filter((e) => e.date === date && e.studentId === studentId && e.assignmentId === assignmentId)
+    .map((e) => e.state);
+
+/**
+ * 宿題じょうたいQRを1件処理する。
+ * 同じQRの読み直しではポイントを二重に動かさない。
+ */
+export function applyHwState(
+  studentId: string,
+  assignmentId: string,
+  hw: HwState,
+  opts: { force?: boolean; date?: string } = {},
+): HwApplyResult {
+  const date = opts.date ?? todayKey();
+  const already = hwStatesFor(state, date, studentId, assignmentId);
+
+  if (already.includes(hw)) {
+    return {
+      ok: false,
+      reason: "duplicate",
+      message: "このしゅくだいは、すでに処理されています",
+    };
+  }
+  if (HW_STATE_META[hw].needsSubmit && !already.includes("SUBMIT") && !opts.force) {
+    return {
+      ok: false,
+      reason: "order",
+      message: "このQRは、今の状態では使えません。",
+    };
+  }
+
+  const delta = state.hwPointRules[hw] ?? HW_STATE_META[hw].defaultPoints;
+  const total = earnedPoints(state, studentId) + delta;
+  const event: HwEvent = {
+    id: `he_${uid()}`,
+    date,
+    studentId,
+    assignmentId,
+    state: hw,
+    delta,
+    total,
+    at: Date.now(),
+  };
+
+  setState((s) => {
+    const day = { ...(s.records[date] ?? {}) };
+    const forStudent = { ...(day[studentId] ?? {}) };
+    forStudent[assignmentId] = HW_STATE_META[hw].status;
+    day[studentId] = forStudent;
+    return {
+      ...s,
+      records: { ...s.records, [date]: day },
+      hwEvents: [...(s.hwEvents ?? []), event],
+    };
+  });
+
+  return { ok: true, delta, total, state: hw };
+}
+
+export const updateHwPointRules = (patch: Partial<HwPointRules>) =>
+  setState((s) => ({ ...s, hwPointRules: { ...s.hwPointRules, ...patch } }));
+
 
 export const spentPoints = (state: AppState, studentId: string) =>
   state.gachaLog.filter((g) => g.studentId === studentId).reduce((a, g) => a + g.cost, 0);

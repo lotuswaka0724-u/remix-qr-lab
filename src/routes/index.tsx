@@ -15,22 +15,24 @@ import {
   vibrate,
 } from "@/lib/feedback";
 import {
+  applyHwState,
   clearToday,
   cycleRecord,
-  earnedPoints,
+  HW_STATE_META,
   isSubmitted,
+  parseHwStateQr,
   parseQr,
   rankOf,
   rankOfPoints,
   ranking,
-  setRecord,
   STATUS_META,
-  STATUS_ORDER,
   toStatus,
   todayKey,
   updateSettings,
   useAppState,
-  type Status,
+  type Assignment,
+  type HwState,
+  type Student,
 } from "@/lib/homework-store";
 import { RANK_STYLE } from "@/lib/rank-style";
 
@@ -66,6 +68,27 @@ function ScanPage() {
   const [hit, setHit] = useState<Hit | null>(null);
   const [flashRow, setFlashRow] = useState<string | null>(null);
   const lastScan = useRef<{ text: string; at: number }>({ text: "", at: 0 });
+  /** STEP1で読み取った児童（つぎに、しゅくだいのカードを読む） */
+  const [pendingStudent, setPendingStudent] = useState<{
+    student: Student;
+    assignment?: Assignment | undefined;
+  } | null>(null);
+  /** 順番がおかしいときの確認 */
+  const [pendingConfirm, setPendingConfirm] = useState<{
+    student: Student | { id: string; name: string };
+    target: { id: string; name: string };
+    hw: HwState;
+    message: string;
+  } | null>(null);
+  const [lastResult, setLastResult] = useState<{
+    studentName: string;
+    className: string;
+    assignmentName: string;
+    hw: HwState;
+    delta: number;
+    total: number;
+  } | null>(null);
+  const [manual, setManual] = useState("");
 
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
@@ -107,11 +130,91 @@ function ScanPage() {
     window.setTimeout(() => setFlashRow(null), 1500);
   };
 
+  const record = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+    hw: HwState,
+    force = false,
+  ) => {
+    const before = rankOf(state, student.id);
+    const res = applyHwState(student.id, target.id, hw, { force });
+
+    if (!res.ok) {
+      playError();
+      if (state.settings.vibe) vibrate([80, 60, 80]);
+      if (res.reason === "order") {
+        setPendingConfirm({ student, target, hw, message: res.message });
+        toast.warning(res.message, { description: `${student.name}／${target.name}` });
+      } else {
+        toast.info(res.message, {
+          description: `${student.name}／${target.name}／${HW_STATE_META[hw].label}`,
+        });
+      }
+      return;
+    }
+
+    setPendingConfirm(null);
+    setPendingStudent(null);
+    const after = rankOfPoints(state.rankRules, res.total);
+    const rankUp = after !== before ? after : null;
+
+    setLastResult({
+      studentName: student.name,
+      className: state.students.find((s) => s.id === student.id)?.className ?? "",
+      assignmentName: target.name,
+      hw,
+      delta: res.delta,
+      total: res.total,
+    });
+
+    playRankSuccess(after, state.settings.sound);
+    if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
+    if (state.settings.vibe)
+      vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
+    if (state.settings.speak)
+      speak(
+        rankUp
+          ? `${student.name}さん、${RANK_STYLE[rankUp].jp}カードになりました`
+          : `${student.name}さん、${HW_STATE_META[hw].label}`,
+      );
+    celebrate(
+      {
+        student: student.name,
+        assignment: `${target.name}／${HW_STATE_META[hw].label}`,
+        rank: after,
+        points: res.total,
+        rankUp,
+      },
+      student.id,
+    );
+  };
+
   const handleDetected = (text: string) => {
     const now = Date.now();
     if (lastScan.current.text === text && now - lastScan.current.at < 2500) return;
     lastScan.current = { text, at: now };
 
+    // ① 宿題じょうたいQR（児童が自分でえらんで持ってくるカード）
+    const hw = parseHwStateQr(text);
+    if (hw) {
+      if (!pendingStudent) {
+        playError();
+        toast.warning("さきに児童のQRを読み取ってください");
+        return;
+      }
+      const target =
+        pendingStudent.assignment ??
+        (focusHw === "all" ? todayAssignments[0] : todayAssignments.find((a) => a.id === focusHw));
+      if (!target) {
+        playError();
+        toast.error("宿題が特定できません", { description: "管理画面で宿題を登録してください" });
+        return;
+      }
+      record(pendingStudent.student, target, hw);
+      return;
+    }
+
+    // ② 児童QR（だれの宿題かを決める）
     const { student, assignment } = parseQr(text, state);
     if (!student) {
       playError();
@@ -119,38 +222,15 @@ function ScanPage() {
       toast.error("該当する児童が見つかりません", { description: text });
       return;
     }
-    const target = assignment ?? todayAssignments[0];
-    if (!target) {
-      playError();
-      toast.error("宿題が特定できません", { description: "管理画面で宿題を登録してください" });
-      return;
-    }
-    if (day[student.id]?.[target.id]) {
-      toast.info(`${student.name} さんは提出済みです`, { description: target.name });
-      return;
-    }
-    // ランクは「通算ポイント」から毎回計算する（カードも演出も同じ基準）
-    const before = rankOf(state, student.id);
-    const gained = state.pointRules[state.settings.scanStatus] ?? 0;
-    const points = earnedPoints(state, student.id) + gained;
-    const after = rankOfPoints(state.rankRules, points);
-    const rankUp = after !== before ? after : null;
-
-    setRecord(student.id, target.id, state.settings.scanStatus);
-    playRankSuccess(after, state.settings.sound);
-    if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
-    if (state.settings.vibe) vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
-    if (state.settings.speak)
-      speak(
-        rankUp
-          ? `${student.name}さん、${RANK_STYLE[rankUp].jp}カードになりました`
-          : `${student.name}さん、${target.name}`,
-      );
-    celebrate(
-      { student: student.name, assignment: target.name, rank: after, points, rankUp },
-      student.id,
-    );
+    setPendingConfirm(null);
+    setPendingStudent({ student, assignment });
+    playSuccess(state.settings.sound);
+    if (state.settings.speak) speak(`${student.name}さん、しゅくだいのカードをかざしてください`);
+    toast.success(`${student.name} さん`, {
+      description: "つぎに、しゅくだいのカードを読み取ってください",
+    });
   };
+
 
   const doneStudents = students.filter(
     (s) => todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id])),
@@ -220,20 +300,120 @@ function ScanPage() {
               <QrScanner active={scanning} onDetected={handleDetected} />
             </Suspense>
 
-            <label className="mt-2 block rounded-2xl bg-primary/5 p-2 text-xs font-bold">
-              読み取ったときの記録
-              <select
-                className="mt-1 w-full rounded-lg border border-input bg-background px-2 py-1.5 text-xs font-medium"
-                value={state.settings.scanStatus}
-                onChange={(e) => updateSettings({ scanStatus: e.target.value as Status })}
+            {/* ---- 手入力（カメラが使えないとき） ---- */}
+            <form
+              className="mt-2 flex gap-1.5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const v = manual.trim();
+                if (!v) return;
+                lastScan.current = { text: "", at: 0 };
+                handleDetected(v);
+                setManual("");
+              }}
+            >
+              <input
+                value={manual}
+                onChange={(e) => setManual(e.target.value)}
+                placeholder="手入力（児童名／しゅくだいのカード）"
+                aria-label="手入力"
+                className="min-w-0 flex-1 rounded-lg border border-input bg-background px-2 py-1.5 text-xs"
+              />
+              <Button type="submit" size="sm" variant="secondary" className="rounded-full">
+                記録
+              </Button>
+            </form>
+
+
+
+            {/* ---- STEP 表示（児童QR → しゅくだいのカード） ---- */}
+            <div className="mt-2 rounded-2xl bg-primary/5 p-2.5 text-xs">
+              <p className="font-bold">
+                STEP1 児童のQR{" "}
+                <span className="mx-1 text-muted-foreground">→</span> STEP2 しゅくだいのカード
+              </p>
+              {pendingStudent ? (
+                <p className="mt-1 font-bold text-primary">
+                  {pendingStudent.student.name} さん
+                  {pendingStudent.assignment ? `／${pendingStudent.assignment.name}` : ""}
+                  <span className="ml-1 font-medium text-muted-foreground">
+                    しゅくだいのカードをかざしてください
+                  </span>
+                </p>
+              ) : (
+                <p className="mt-1 text-muted-foreground">児童のQRを読み取ってください</p>
+              )}
+              {pendingStudent && (
+                <button
+                  type="button"
+                  className="mt-1 rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                  onClick={() => {
+                    setPendingStudent(null);
+                    setPendingConfirm(null);
+                  }}
+                >
+                  えらび直す
+                </button>
+              )}
+            </div>
+
+            {pendingConfirm && (
+              <div className="mt-2 rounded-2xl border-2 border-destructive/40 bg-destructive/5 p-2.5 text-xs">
+                <p className="font-bold text-destructive">{pendingConfirm.message}</p>
+                <p className="mt-0.5">
+                  {pendingConfirm.student.name}／{pendingConfirm.target.name}／
+                  {HW_STATE_META[pendingConfirm.hw].label}
+                </p>
+                <div className="mt-1.5 flex gap-2">
+                  <Button
+                    size="sm"
+                    className="rounded-full"
+                    onClick={() =>
+                      record(
+                        pendingConfirm.student,
+                        pendingConfirm.target,
+                        pendingConfirm.hw,
+                        true,
+                      )
+                    }
+                  >
+                    先生が確認して記録する
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="rounded-full"
+                    onClick={() => setPendingConfirm(null)}
+                  >
+                    やめる
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {lastResult && (
+              <div
+                className={`mt-2 rounded-2xl border-2 p-2.5 text-xs ${HW_STATE_META[lastResult.hw].card}`}
               >
-                {STATUS_ORDER.filter((s) => s !== "none").map((s) => (
-                  <option key={s} value={s}>
-                    {STATUS_META[s].label}（{state.pointRules[s]}pt）
-                  </option>
-                ))}
-              </select>
-            </label>
+                <p className="font-display text-base font-bold leading-tight">
+                  {lastResult.studentName}
+                  <span className="ml-1 text-[11px] font-normal opacity-80">
+                    {lastResult.className}
+                  </span>
+                </p>
+                <p className="mt-0.5 font-bold">{lastResult.assignmentName}</p>
+                <p className="mt-0.5 font-bold">
+                  {HW_STATE_META[lastResult.hw].icon} {HW_STATE_META[lastResult.hw].label}
+                </p>
+                <p className="mt-0.5 font-display text-lg font-bold tabular-nums">
+                  {lastResult.delta >= 0 ? `＋${lastResult.delta}` : lastResult.delta}ポイント
+                </p>
+                <p className="text-[11px] opacity-80">
+                  ぜんぶで {lastResult.total} ポイント
+                </p>
+              </div>
+            )}
+
 
 
             <button

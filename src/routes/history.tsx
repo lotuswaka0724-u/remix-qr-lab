@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { downloadCsv } from "@/lib/csv";
-import { isSubmitted, useAppState } from "@/lib/homework-store";
+import { HW_STATE_META, isSubmitted, useAppState } from "@/lib/homework-store";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
@@ -56,6 +56,29 @@ function HistoryPage() {
       .filter((d) => d.done > 0);
   }, [state.records, state.assignments, students]);
 
+  const hwLog = useMemo(() => {
+    const names = new Map(state.assignments.map((a) => [a.id, a.name]));
+    const byId = new Map(state.students.map((s) => [s.id, s]));
+    return [...(state.hwEvents ?? [])]
+      .filter((e) => classFilter === "all" || byId.get(e.studentId)?.className === classFilter)
+      .sort((a, b) => b.at - a.at)
+      .slice(0, 300)
+      .map((e) => {
+        const d = new Date(e.at);
+        return {
+          id: e.id,
+          when: `${d.getMonth() + 1}月${d.getDate()}日 ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`,
+          studentName: byId.get(e.studentId)?.name ?? "（削除済み）",
+          className: byId.get(e.studentId)?.className ?? "",
+          assignmentName: names.get(e.assignmentId) ?? "（削除済み）",
+          label: HW_STATE_META[e.state].label,
+          icon: HW_STATE_META[e.state].icon,
+          delta: e.delta,
+          total: e.total,
+        };
+      });
+  }, [state.hwEvents, state.assignments, state.students, classFilter]);
+
   return (
     <main className="mx-auto max-w-5xl space-y-4 px-4 py-6">
       <div className="flex flex-wrap items-center gap-2">
@@ -89,6 +112,39 @@ function HistoryPage() {
           CSVで書き出す
         </Button>
       </div>
+
+      <section className="paper-card p-4">
+        <h2 className="mb-1 font-display text-base font-bold">よみとりの記録</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          しゅくだいカードを読み取った記録です。あたらしい順にならびます。
+        </p>
+        {hwLog.length === 0 ? (
+          <p className="text-sm text-muted-foreground">まだ記録がありません。</p>
+        ) : (
+          <ul className="space-y-1.5">
+            {hwLog.map((e) => (
+              <li
+                key={e.id}
+                className="flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl bg-muted/60 px-3 py-2 text-sm"
+              >
+                <span className="tabular-nums text-muted-foreground">{e.when}</span>
+                <span className="font-bold">{e.studentName}</span>
+                <span className="text-muted-foreground">{e.className}</span>
+                <span>{e.assignmentName}</span>
+                <span className="font-bold">
+                  {e.icon} {e.label}
+                </span>
+                <span className="ml-auto font-bold tabular-nums">
+                  {e.delta >= 0 ? `＋${e.delta}` : e.delta}ポイント
+                </span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  ぜんぶで {e.total}ポイント
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       {days.length === 0 ? (
         <div className="paper-card grid place-content-center gap-2 p-16 text-center">
