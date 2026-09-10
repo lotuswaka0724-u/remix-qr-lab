@@ -1,14 +1,17 @@
+/**
+ * アバターのレイヤーシステム。
+ *
+ * ルール:
+ * - すべてのパーツは「200 x 300 の共通キャンバス」上の透明レイヤーとして描く。
+ * - パーツどうしは独立していて、1つ変えてもほかのパーツは変わらない。
+ * - 男の子・女の子は「せいべつ（body）」で決まり、かみがたでは変わらない。
+ * - サムネイル（選択肢の絵）は、アバター本体とは別のプレビュー用の描画を使う。
+ */
 import { ITEM_BY_ID, type Category } from "@/lib/game-catalog";
-import {
-  OFFICIAL_ATLAS_COLUMNS,
-  OFFICIAL_AVATAR_ATLAS,
-  OFFICIAL_SPRITES,
-  isGirlBase,
-  officialSpriteForItem,
-  type OfficialSpriteName,
-} from "@/lib/official-avatar-assets";
 
 export type Equipped = Partial<Record<Category, string>>;
+export type Crop = { x: number; y: number; w: number; h: number };
+export type BaseKind = "boy" | "girl";
 
 const art = (eq: Equipped, cat: Category) => {
   const id = eq[cat];
@@ -16,7 +19,17 @@ const art = (eq: Equipped, cat: Category) => {
   return item?.art;
 };
 
-/* ---------------- かみがた ---------------- */
+/** せいべつ（きほんアバター）。かみがたでは絶対に変わらない。 */
+export const baseOf = (eq: Equipped): BaseKind =>
+  (art(eq, "body")?.["base"] as BaseKind | undefined) === "girl" ? "girl" : "boy";
+
+/* からだ・あたまの共通座標（すべてのパーツがこの座標に合わせる） */
+const BODY_SCALE: Record<BaseKind, number> = { boy: 1, girl: 0.94 };
+const HEAD_SCALE: Record<BaseKind, number> = { boy: 1, girl: 0.96 };
+const bodyTransform = (b: BaseKind) => `translate(100 0) scale(${BODY_SCALE[b]} 1) translate(-100 0)`;
+const headTransform = (b: BaseKind) => `translate(100 90) scale(${HEAD_SCALE[b]}) translate(-100 -90)`;
+
+/* ---------------- かみがた（形だけ。色は hairColor が決める） ---------------- */
 
 function Hair({ shape, color, front }: { shape: string; color: string; front: boolean }) {
   if (front) {
@@ -43,6 +56,8 @@ function Hair({ shape, color, front }: { shape: string; color: string; front: bo
         );
       case "sporty":
         return <path d="M64 64 Q100 38 136 64 Q118 56 100 58 Q82 56 64 64Z" fill={color} />;
+      case "bangs":
+        return <path d="M58 70 Q100 28 142 70 Q124 52 100 52 Q76 52 58 70Z" fill={color} />;
       default:
         return <path d="M60 68 Q100 30 140 68 Q124 46 100 46 Q76 46 60 68Z" fill={color} />;
     }
@@ -54,7 +69,12 @@ function Hair({ shape, color, front }: { shape: string; color: string; front: bo
       return <path d="M56 62 Q100 24 144 62 L144 124 Q128 108 124 62 L76 62 Q72 108 56 124Z" fill={color} />;
     case "long":
     case "straight":
-      return <path d="M56 62 Q100 22 144 62 L146 168 L126 168 Q124 90 122 62 L78 62 Q76 90 74 168 L54 168Z" fill={color} />;
+      return (
+        <path
+          d="M56 62 Q100 22 144 62 L146 168 L126 168 Q124 90 122 62 L78 62 Q76 90 74 168 L54 168Z"
+          fill={color}
+        />
+      );
     case "fluffy":
       return (
         <g fill={color}>
@@ -99,79 +119,94 @@ function Hair({ shape, color, front }: { shape: string; color: string; front: bo
 
 /* ---------------- かお ---------------- */
 
-function Eyes({ kind }: { kind: string }) {
+function Eyes({ kind, base }: { kind: string; base: BaseKind }) {
   const l = 84;
   const r = 116;
   const y = 88;
-  switch (kind) {
-    case "happy":
-      return (
-        <g stroke="#1f2937" strokeWidth="3.5" fill="none" strokeLinecap="round">
-          <path d={`M${l - 8} ${y + 2} q8 -9 16 0`} />
-          <path d={`M${r - 8} ${y + 2} q8 -9 16 0`} />
-        </g>
-      );
-    case "dot":
-      return (
-        <g fill="#1f2937">
-          <circle cx={l} cy={y} r="3.5" />
-          <circle cx={r} cy={y} r="3.5" />
-        </g>
-      );
-    case "cool":
-      return (
-        <g fill="#1f2937">
-          <rect x={l - 8} y={y - 3} width="16" height="6" rx="3" />
-          <rect x={r - 8} y={y - 3} width="16" height="6" rx="3" />
-        </g>
-      );
-    case "wink":
-      return (
-        <g stroke="#1f2937" strokeWidth="3.5" fill="#1f2937" strokeLinecap="round">
-          <circle cx={l} cy={y} r="5.5" stroke="none" />
-          <path d={`M${r - 8} ${y + 2} q8 -9 16 0`} fill="none" />
-        </g>
-      );
-    case "star":
-      return (
-        <g fill="#f59e0b">
-          <path d={`M${l} ${y - 8} l3 6 6 1 -4.5 4.5 1 6 -5.5 -3 -5.5 3 1 -6 -4.5 -4.5 6 -1Z`} />
-          <path d={`M${r} ${y - 8} l3 6 6 1 -4.5 4.5 1 6 -5.5 -3 -5.5 3 1 -6 -4.5 -4.5 6 -1Z`} />
-        </g>
-      );
-    case "sparkle":
-      return (
-        <g>
-          <circle cx={l} cy={y} r="7" fill="#1f2937" />
-          <circle cx={r} cy={y} r="7" fill="#1f2937" />
-          <circle cx={l + 2.5} cy={y - 2.5} r="2.4" fill="#fff" />
-          <circle cx={r + 2.5} cy={y - 2.5} r="2.4" fill="#fff" />
-        </g>
-      );
-    case "sleepy":
-      return (
-        <g stroke="#1f2937" strokeWidth="3.5" strokeLinecap="round">
-          <path d={`M${l - 8} ${y} h16`} />
-          <path d={`M${r - 8} ${y} h16`} />
-        </g>
-      );
-    case "big":
-      return (
-        <g>
-          <ellipse cx={l} cy={y} rx="8" ry="9" fill="#1f2937" />
-          <ellipse cx={r} cy={y} rx="8" ry="9" fill="#1f2937" />
-          <circle cx={l + 3} cy={y - 3} r="2.6" fill="#fff" />
-          <circle cx={r + 3} cy={y - 3} r="2.6" fill="#fff" />
-        </g>
-      );
-    default:
-      return (
-        <g fill="#1f2937">
-          <circle cx={l} cy={y} r="5.5" />
-          <circle cx={r} cy={y} r="5.5" />
-        </g>
-      );
-  }
+  const lashes =
+    base === "girl" ? (
+      <g stroke="#1f2937" strokeWidth="2.4" strokeLinecap="round">
+        <path d={`M${l - 11} ${y - 8} l-4 -4`} />
+        <path d={`M${r + 11} ${y - 8} l4 -4`} />
+      </g>
+    ) : null;
+  const eyes = () => {
+    switch (kind) {
+      case "happy":
+        return (
+          <g stroke="#1f2937" strokeWidth="3.5" fill="none" strokeLinecap="round">
+            <path d={`M${l - 8} ${y + 2} q8 -9 16 0`} />
+            <path d={`M${r - 8} ${y + 2} q8 -9 16 0`} />
+          </g>
+        );
+      case "dot":
+        return (
+          <g fill="#1f2937">
+            <circle cx={l} cy={y} r="3.5" />
+            <circle cx={r} cy={y} r="3.5" />
+          </g>
+        );
+      case "cool":
+        return (
+          <g fill="#1f2937">
+            <rect x={l - 8} y={y - 3} width="16" height="6" rx="3" />
+            <rect x={r - 8} y={y - 3} width="16" height="6" rx="3" />
+          </g>
+        );
+      case "wink":
+        return (
+          <g stroke="#1f2937" strokeWidth="3.5" fill="#1f2937" strokeLinecap="round">
+            <circle cx={l} cy={y} r="5.5" stroke="none" />
+            <path d={`M${r - 8} ${y + 2} q8 -9 16 0`} fill="none" />
+          </g>
+        );
+      case "star":
+        return (
+          <g fill="#f59e0b">
+            <path d={`M${l} ${y - 8} l3 6 6 1 -4.5 4.5 1 6 -5.5 -3 -5.5 3 1 -6 -4.5 -4.5 6 -1Z`} />
+            <path d={`M${r} ${y - 8} l3 6 6 1 -4.5 4.5 1 6 -5.5 -3 -5.5 3 1 -6 -4.5 -4.5 6 -1Z`} />
+          </g>
+        );
+      case "sparkle":
+        return (
+          <g>
+            <circle cx={l} cy={y} r="7" fill="#1f2937" />
+            <circle cx={r} cy={y} r="7" fill="#1f2937" />
+            <circle cx={l + 2.5} cy={y - 2.5} r="2.4" fill="#fff" />
+            <circle cx={r + 2.5} cy={y - 2.5} r="2.4" fill="#fff" />
+          </g>
+        );
+      case "sleepy":
+        return (
+          <g stroke="#1f2937" strokeWidth="3.5" strokeLinecap="round">
+            <path d={`M${l - 8} ${y} h16`} />
+            <path d={`M${r - 8} ${y} h16`} />
+          </g>
+        );
+      case "big":
+        return (
+          <g>
+            <ellipse cx={l} cy={y} rx="8" ry="9" fill="#1f2937" />
+            <ellipse cx={r} cy={y} rx="8" ry="9" fill="#1f2937" />
+            <circle cx={l + 3} cy={y - 3} r="2.6" fill="#fff" />
+            <circle cx={r + 3} cy={y - 3} r="2.6" fill="#fff" />
+          </g>
+        );
+      default:
+        return (
+          <g fill="#1f2937">
+            <circle cx={l} cy={y} r="5.5" />
+            <circle cx={r} cy={y} r="5.5" />
+          </g>
+        );
+    }
+  };
+  return (
+    <g>
+      {eyes()}
+      {lashes}
+    </g>
+  );
 }
 
 function Mouth({ kind }: { kind: string }) {
@@ -185,16 +220,24 @@ function Mouth({ kind }: { kind: string }) {
       return <path d={`M88 ${y - 2} q12 14 24 0 q-12 6 -24 0Z`} fill="#be123c" />;
     case "cat":
       return (
-        <path d={`M92 ${y} q4 5 8 0 q4 5 8 0`} stroke="#be123c" strokeWidth="3" fill="none" strokeLinecap="round" />
+        <path
+          d={`M92 ${y} q4 5 8 0 q4 5 8 0`}
+          stroke="#be123c"
+          strokeWidth="3"
+          fill="none"
+          strokeLinecap="round"
+        />
       );
     case "flat":
       return <path d={`M92 ${y} h16`} stroke="#9f1239" strokeWidth="3" strokeLinecap="round" />;
     default:
-      return <path d={`M91 ${y - 3} q9 10 18 0`} stroke="#be123c" strokeWidth="3" fill="none" strokeLinecap="round" />;
+      return (
+        <path d={`M91 ${y - 3} q9 10 18 0`} stroke="#be123c" strokeWidth="3" fill="none" strokeLinecap="round" />
+      );
   }
 }
 
-/* ---------------- 服のかざり ---------------- */
+/* ---------------- 服のもよう ---------------- */
 
 function Deco({ deco, x = 100, y = 168 }: { deco?: string | undefined; x?: number; y?: number }) {
   if (!deco) return null;
@@ -203,11 +246,7 @@ function Deco({ deco, x = 100, y = 168 }: { deco?: string | undefined; x?: numbe
       return <path d={`M${x} ${y + 6} l-9 -9 a6 6 0 0 1 9 -8 a6 6 0 0 1 9 8Z`} fill="#fff" opacity="0.9" />;
     case "star":
       return (
-        <path
-          d={`M${x} ${y - 10} l4 9 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1Z`}
-          fill="#fff"
-          opacity="0.9"
-        />
+        <path d={`M${x} ${y - 10} l4 9 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1Z`} fill="#fff" opacity="0.9" />
       );
     case "flower":
       return (
@@ -282,7 +321,9 @@ function Deco({ deco, x = 100, y = 168 }: { deco?: string | undefined; x?: numbe
     case "check":
       return (
         <g stroke="#fff" strokeWidth="2" opacity="0.7">
-          <path d={`M${x - 16} ${y} h32 M${x - 16} ${y + 10} h32 M${x - 8} ${y - 8} v28 M${x + 8} ${y - 8} v28`} />
+          <path
+            d={`M${x - 16} ${y} h32 M${x - 16} ${y + 10} h32 M${x - 8} ${y - 8} v28 M${x + 8} ${y - 8} v28`}
+          />
         </g>
       );
     case "pleat":
@@ -296,282 +337,158 @@ function Deco({ deco, x = 100, y = 168 }: { deco?: string | undefined; x?: numbe
   }
 }
 
-/* ---------------- 本体 ---------------- */
+/* ---------------- パーツ（レイヤー） ---------------- */
 
-export type Crop = { x: number; y: number; w: number; h: number };
+type A = Record<string, string>;
 
-function OfficialSprite({
-  name,
-  x,
-  y,
-  width,
-  height,
-}: {
-  name: OfficialSpriteName;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}) {
-  const index = OFFICIAL_SPRITES[name];
-  const sx = (index % OFFICIAL_ATLAS_COLUMNS) * 256;
-  const sy = Math.floor(index / OFFICIAL_ATLAS_COLUMNS) * 256;
-  return (
-    <svg x={x} y={y} width={width} height={height} viewBox={`${sx} ${sy} 256 256`} overflow="hidden">
-      <image href={OFFICIAL_AVATAR_ATLAS} width="2048" height="2304" />
-    </svg>
-  );
-}
+const LegsLayer = ({ skin }: { skin: string }) => (
+  <g fill={skin}>
+    <rect x="84" y="216" width="12" height="42" rx="6" />
+    <rect x="104" y="216" width="12" height="42" rx="6" />
+  </g>
+);
 
-/** 添付された正式素材だけで構成する、基本男児・女児のレイヤーアバター。 */
-function OfficialAvatar({ equipped }: { equipped: Equipped }) {
-  const base = isGirlBase(equipped.hair) ? "girl" : "boy";
-  const face = equipped.face ? officialSpriteForItem(equipped.face, base) : undefined;
-  const hair = equipped.hair ? officialSpriteForItem(equipped.hair, base) : undefined;
-  const top = equipped.tops ? officialSpriteForItem(equipped.tops, base) : undefined;
-  const bottoms = equipped.bottoms ? officialSpriteForItem(equipped.bottoms, base) : undefined;
-  const shoes = equipped.shoes ? officialSpriteForItem(equipped.shoes, base) : undefined;
-  const hat = equipped.hat ? officialSpriteForItem(equipped.hat, base) : undefined;
-  const glasses = equipped.glasses ? officialSpriteForItem(equipped.glasses, base) : undefined;
-  const hold = equipped.hold ? officialSpriteForItem(equipped.hold, base) : undefined;
-
-  return (
-    <>
-      <ellipse cx="100" cy="276" rx="49" ry="8" fill="#0f766e" opacity="0.1" />
-      <OfficialSprite name={`${base}-base`} x={20} y={8} width={160} height={270} />
-      {bottoms && <OfficialSprite name={bottoms} x={57} y={174} width={86} height={82} />}
-      {shoes && <OfficialSprite name={shoes} x={55} y={224} width={90} height={66} />}
-      {top && <OfficialSprite name={top} x={49} y={126} width={102} height={104} />}
-      {hair && <OfficialSprite name={hair} x={34} y={22} width={132} height={130} />}
-      {face && <OfficialSprite name={face} x={34} y={30} width={132} height={128} />}
-      {glasses && <OfficialSprite name={glasses} x={53} y={66} width={94} height={72} />}
-      {hat && <OfficialSprite name={hat} x={38} y={0} width={124} height={92} />}
-      {hold && <OfficialSprite name={hold} x={126} y={145} width={70} height={92} />}
-    </>
-  );
-}
-
-export function AvatarView({
-  equipped,
-  size = 220,
-  crop,
-}: {
-  equipped: Equipped;
-  size?: number;
-  crop?: Crop | undefined;
-}) {
-  return (
-    <svg
-      viewBox={crop ? `${crop.x} ${crop.y} ${crop.w} ${crop.h}` : "0 0 200 300"}
-      width={size}
-      height={crop ? (size * crop.h) / crop.w : (size * 300) / 200}
-      role="img"
-      aria-label="正式素材のアバター"
-    >
-      <OfficialAvatar equipped={equipped} />
-    </svg>
-  );
-}
-
-function LegacyAvatarView({
-  equipped,
-  size = 220,
-  crop,
-}: {
-  equipped: Equipped;
-  size?: number;
-  crop?: Crop | undefined;
-}) {
-  const skin = art(equipped, "skin")?.["color"] ?? "#f7d9c4";
-  const hairColor = art(equipped, "hairColor")?.["color"] ?? "#1f2430";
-  const hair = art(equipped, "hair")?.["shape"];
-  const face = art(equipped, "face");
-  const tops = art(equipped, "tops");
-  const bottoms = art(equipped, "bottoms");
-  const shoes = art(equipped, "shoes");
-  const hat = art(equipped, "hat");
-  const glasses = art(equipped, "glasses");
-  const mask = art(equipped, "mask");
-  const acc = art(equipped, "accessory");
-  const hold = art(equipped, "hold");
-
-  const topShape = tops?.["shape"] ?? "tee";
-  const suit = topShape === "suit";
-
-  return (
-    <svg
-      viewBox={crop ? `${crop.x} ${crop.y} ${crop.w} ${crop.h}` : "0 0 200 300"}
-      width={size}
-      height={crop ? (size * crop.h) / crop.w : (size * 300) / 200}
-      role="img"
-      aria-label="アバター"
-    >
-      {/* ゆかのかげ */}
-      <ellipse cx="100" cy="270" rx="52" ry="9" fill="#0f172a" opacity="0.08" />
-      {/* 足 */}
-      <g fill={skin}>
-        <rect x="84" y="216" width="12" height="42" rx="6" />
-        <rect x="104" y="216" width="12" height="42" rx="6" />
+const BottomsLayer = ({ a }: { a: A }) => (
+  <g>
+    {a["shape"] === "skirt" ? (
+      <path d="M74 198 L126 198 L136 240 L64 240Z" fill={a["color"]} />
+    ) : (
+      <g fill={a["color"]}>
+        <rect x="76" y="196" width="22" height={a["shape"] === "shorts" ? 32 : 56} rx="8" />
+        <rect x="102" y="196" width="22" height={a["shape"] === "shorts" ? 32 : 56} rx="8" />
       </g>
-      {/* ボトムス */}
-      {!suit && bottoms && (
-        <g>
-          {bottoms["shape"] === "skirt" ? (
-            <path d="M74 198 L126 198 L136 240 L64 240Z" fill={bottoms["color"]} />
-          ) : (
-            <g fill={bottoms["color"]}>
-              <rect x="76" y="196" width="22" height={bottoms["shape"] === "shorts" ? 32 : 56} rx="8" />
-              <rect x="102" y="196" width="22" height={bottoms["shape"] === "shorts" ? 32 : 56} rx="8" />
-            </g>
-          )}
-          <Deco deco={bottoms["deco"]} x={100} y={216} />
-        </g>
+    )}
+    <Deco deco={a["deco"]} x={100} y={216} />
+  </g>
+);
+
+const ShoesLayer = ({ a }: { a: A }) => (
+  <g fill={a["color"]} stroke="#0f172a" strokeOpacity="0.15">
+    {a["shape"] === "boots" ? (
+      <>
+        <rect x="76" y="234" width="24" height="30" rx="8" />
+        <rect x="100" y="234" width="24" height="30" rx="8" />
+      </>
+    ) : (
+      <>
+        <rect x="74" y="252" width="26" height="14" rx="7" />
+        <rect x="100" y="252" width="26" height="14" rx="7" />
+      </>
+    )}
+    <Deco deco={a["deco"]} x={100} y={252} />
+  </g>
+);
+
+const TORSO_SHORT = "M70 154 Q100 142 130 154 Q138 178 136 206 Q100 214 64 206 Q62 178 70 154Z";
+const TORSO_LONG = "M70 154 Q100 142 130 154 Q140 190 138 244 Q100 254 62 244 Q60 190 70 154Z";
+
+function TopsLayer({ a }: { a: A }) {
+  const shape = a["shape"] ?? "tee";
+  const suit = shape === "suit";
+  return (
+    <g>
+      <g fill={a["color"]} stroke="#0f172a" strokeOpacity="0.12">
+        <circle cx="70" cy="160" r="13" />
+        <circle cx="130" cy="160" r="13" />
+      </g>
+      <path d={suit ? TORSO_LONG : TORSO_SHORT} fill={a["color"]} stroke="#0f172a" strokeOpacity="0.12" />
+      <path
+        d={suit ? "M70 154 Q100 176 130 154 L130 244 L70 244Z" : "M70 154 Q100 176 130 154 L134 206 L66 206Z"}
+        fill="#0f172a"
+        opacity="0.05"
+      />
+      {(shape === "hoodie" || shape === "coat") && (
+        <path d="M80 150 q20 22 40 0 q-20 10 -40 0Z" fill="#0f172a" opacity="0.15" />
       )}
-      {/* くつ */}
-      {shoes && (
-        <g fill={shoes["color"]} stroke="#0f172a" strokeOpacity="0.15">
-          {shoes["shape"] === "boots" ? (
-            <>
-              <rect x="76" y="234" width="24" height="30" rx="8" />
-              <rect x="100" y="234" width="24" height="30" rx="8" />
-            </>
-          ) : (
-            <>
-              <rect x="74" y="252" width="26" height="14" rx="7" />
-              <rect x="100" y="252" width="26" height="14" rx="7" />
-            </>
-          )}
-          <Deco deco={shoes["deco"]} x={100} y={252} />
+      {shape === "polo" && <path d="M92 150 l8 12 8 -12Z" fill="#0f172a" opacity="0.2" />}
+      <Deco deco={a["deco"]} x={100} y={176} />
+    </g>
+  );
+}
+
+const ArmsLayer = ({ skin, sleeve }: { skin: string; sleeve?: string | undefined }) => (
+  <>
+    <g fill={sleeve ?? skin} stroke="#0f172a" strokeOpacity="0.1">
+      <rect x="54" y="158" width="17" height="48" rx="8.5" />
+      <rect x="129" y="158" width="17" height="48" rx="8.5" />
+    </g>
+    <g fill={skin} stroke="#0f172a" strokeOpacity="0.12">
+      <circle cx="62.5" cy="209" r="9" />
+      <circle cx="137.5" cy="209" r="9" />
+    </g>
+  </>
+);
+
+const HeadLayer = ({ skin, base }: { skin: string; base: BaseKind }) => (
+  <g>
+    <ellipse cx="59" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+    <ellipse cx="141" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+    <circle cx="100" cy="90" r="42" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+    <ellipse cx="86" cy="76" rx="14" ry="9" fill="#ffffff" opacity="0.18" />
+    <g fill="#fda4af" opacity={base === "girl" ? 0.55 : 0.4}>
+      <circle cx="74" cy="100" r="6" />
+      <circle cx="126" cy="100" r="6" />
+    </g>
+  </g>
+);
+
+function GlassesLayer({ a }: { a: A }) {
+  return (
+    <g stroke={a["color"]} strokeWidth="3" fill="none">
+      {a["shape"] === "sun" ? (
+        <g fill={a["color"]}>
+          <rect x="72" y="82" width="22" height="14" rx="5" />
+          <rect x="106" y="82" width="22" height="14" rx="5" />
+          <path d="M94 88 h12" />
         </g>
-      )}
-      {/* からだ・トップス */}
-      {tops ? (
-        <g>
-          {/* かた（そで） */}
-          <g fill={tops["color"]} stroke="#0f172a" strokeOpacity="0.12">
-            <circle cx="70" cy="160" r="13" />
-            <circle cx="130" cy="160" r="13" />
-          </g>
-          <path
-            d={
-              suit
-                ? "M70 154 Q100 142 130 154 Q140 190 138 244 Q100 254 62 244 Q60 190 70 154Z"
-                : "M70 154 Q100 142 130 154 Q138 178 136 206 Q100 214 64 206 Q62 178 70 154Z"
-            }
-            fill={tops["color"]}
-            stroke="#0f172a"
-            strokeOpacity="0.12"
-          />
-          {/* 服のかげ */}
-          <path
-            d={suit ? "M70 154 Q100 176 130 154 L130 244 L70 244Z" : "M70 154 Q100 176 130 154 L134 206 L66 206Z"}
-            fill="#0f172a"
-            opacity="0.05"
-          />
-          {(topShape === "hoodie" || topShape === "coat") && (
-            <path d="M80 150 q20 22 40 0 q-20 10 -40 0Z" fill="#0f172a" opacity="0.15" />
-          )}
-          {topShape === "polo" && <path d="M92 150 l8 12 8 -12Z" fill="#0f172a" opacity="0.2" />}
-          <Deco deco={tops["deco"]} x={100} y={176} />
+      ) : a["shape"] === "starglass" ? (
+        <g fill={a["color"]} stroke="none">
+          <path d="M84 78 l4 9 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1Z" />
+          <path d="M116 78 l4 9 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1Z" />
         </g>
       ) : (
-        <path d="M70 154 Q100 142 130 154 Q138 178 136 206 Q100 214 64 206 Q62 178 70 154Z" fill={skin} />
-      )}
-      {/* うで */}
-      <g fill={tops ? tops["color"] : skin} stroke="#0f172a" strokeOpacity="0.1">
-        <rect x="54" y="158" width="17" height="48" rx="8.5" />
-        <rect x="129" y="158" width="17" height="48" rx="8.5" />
-      </g>
-      <g fill={skin} stroke="#0f172a" strokeOpacity="0.12">
-        <circle cx="62.5" cy="209" r="9" />
-        <circle cx="137.5" cy="209" r="9" />
-      </g>
-      {/* くび */}
-      <rect x="92" y="132" width="16" height="18" rx="8" fill={skin} />
-      {/* アクセサリー（くび） */}
-      {acc && ["scarf", "necklace"].includes(acc["shape"] ?? "") && (
         <g>
-          {acc["shape"] === "scarf" ? (
-            <rect x="80" y="136" width="40" height="14" rx="7" fill={acc["color"]} />
-          ) : (
-            <g stroke={acc["color"]} strokeWidth="3" fill="none">
-              <path d="M86 142 q14 14 28 0" />
-              <circle cx="100" cy="152" r="4" fill={acc["color"]} />
-            </g>
-          )}
+          <circle cx="84" cy="88" r="11" />
+          <circle cx="116" cy="88" r="11" />
+          <path d="M95 88 h10" />
         </g>
       )}
-      {/* かみ（うしろ） */}
-      {hair && <Hair shape={hair} color={hairColor} front={false} />}
-      {/* あたま */}
-      <g>
-        {/* みみ */}
-        <ellipse cx="59" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
-        <ellipse cx="141" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
-        <circle cx="100" cy="90" r="42" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
-        {/* ほほのハイライト */}
-        <ellipse cx="86" cy="76" rx="14" ry="9" fill="#ffffff" opacity="0.18" />
-      </g>
-
-      {/* かみ（まえ） */}
-      {hair && <Hair shape={hair} color={hairColor} front={true} />}
-      {/* かお */}
-      <Eyes kind={face?.["eye"] ?? "round"} />
-      <Mouth kind={face?.["mouth"] ?? "smile"} />
-      <g fill="#fda4af" opacity="0.5">
-        <circle cx="74" cy="100" r="6" />
-        <circle cx="126" cy="100" r="6" />
-      </g>
-      {/* メガネ */}
-      {glasses && (
-        <g stroke={glasses["color"]} strokeWidth="3" fill="none">
-          {glasses["shape"] === "sun" ? (
-            <g fill={glasses["color"]}>
-              <rect x="72" y="82" width="22" height="14" rx="5" />
-              <rect x="106" y="82" width="22" height="14" rx="5" />
-              <path d="M94 88 h12" />
-            </g>
-          ) : glasses["shape"] === "starglass" ? (
-            <g fill={glasses["color"]} stroke="none">
-              <path d="M84 78 l4 9 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1Z" />
-              <path d="M116 78 l4 9 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1Z" />
-            </g>
-          ) : (
-            <g>
-              <circle cx="84" cy="88" r="11" />
-              <circle cx="116" cy="88" r="11" />
-              <path d="M95 88 h10" />
-            </g>
-          )}
-        </g>
-      )}
-      {/* マスク */}
-      {mask && (
-        <g>
-          <path d="M76 100 q24 24 48 0 l2 14 q-26 18 -52 0Z" fill={mask["color"]} stroke="#94a3b8" />
-        </g>
-      )}
-      {/* イヤーマフ */}
-      {acc?.["shape"] === "earmuff" && (
-        <g fill={acc["color"]}>
-          <circle cx="58" cy="88" r="10" />
-          <circle cx="142" cy="88" r="10" />
-          <path d="M60 62 q40 -22 80 0" stroke={acc["color"]} strokeWidth="5" fill="none" />
-        </g>
-      )}
-      {acc?.["shape"] === "watch" && <rect x="52" y="196" width="18" height="7" rx="3" fill={acc["color"]} />}
-      {acc && ["heart", "star", "flower"].includes(acc["shape"] ?? "") && (
-        <Deco deco={acc["shape"]} x={132} y={150} />
-      )}
-      {/* ぼうし */}
-      {hat && <Hat art={hat} />}
-      {/* もちもの */}
-      {hold && <Hold art={hold} />}
-    </svg>
+    </g>
   );
 }
 
-function Hat({ art: a }: { art: Record<string, string> }) {
+const MaskLayer = ({ a }: { a: A }) => (
+  <path d="M76 100 q24 24 48 0 l2 14 q-26 18 -52 0Z" fill={a["color"]} stroke="#94a3b8" />
+);
+
+function AccNeckLayer({ a }: { a: A }) {
+  if (a["shape"] === "scarf") return <rect x="80" y="136" width="40" height="14" rx="7" fill={a["color"]} />;
+  if (a["shape"] === "necklace")
+    return (
+      <g stroke={a["color"]} strokeWidth="3" fill="none">
+        <path d="M86 142 q14 14 28 0" />
+        <circle cx="100" cy="152" r="4" fill={a["color"]} />
+      </g>
+    );
+  return null;
+}
+
+function AccOtherLayer({ a }: { a: A }) {
+  if (a["shape"] === "earmuff")
+    return (
+      <g fill={a["color"]}>
+        <circle cx="58" cy="88" r="10" />
+        <circle cx="142" cy="88" r="10" />
+        <path d="M60 62 q40 -22 80 0" stroke={a["color"]} strokeWidth="5" fill="none" />
+      </g>
+    );
+  if (a["shape"] === "watch") return <rect x="52" y="196" width="18" height="7" rx="3" fill={a["color"]} />;
+  if (["heart", "star", "flower"].includes(a["shape"] ?? ""))
+    return <Deco deco={a["shape"]} x={132} y={150} />;
+  return null;
+}
+
+function HatLayer({ a }: { a: A }) {
   const c = a["color"] ?? "#16a34a";
   switch (a["shape"]) {
     case "knit":
@@ -606,9 +523,9 @@ function Hat({ art: a }: { art: Record<string, string> }) {
     case "ribbon":
       return (
         <g fill={c}>
-          <path d="M74 50 l16 10 -16 10Z" />
-          <path d="M106 50 l-16 10 16 10Z" />
-          <circle cx="90" cy="60" r="5" />
+          <path d="M84 46 l16 10 -16 10Z" />
+          <path d="M116 46 l-16 10 16 10Z" />
+          <circle cx="100" cy="56" r="5" />
         </g>
       );
     case "band":
@@ -674,7 +591,7 @@ function Hat({ art: a }: { art: Record<string, string> }) {
   }
 }
 
-function Hold({ art: a }: { art: Record<string, string> }) {
+function HoldLayer({ a }: { a: A }) {
   const c = a["color"] ?? "#2563eb";
   switch (a["shape"]) {
     case "bag":
@@ -687,8 +604,8 @@ function Hold({ art: a }: { art: Record<string, string> }) {
     case "umbrella":
       return (
         <g>
-          <path d="M144 190 q0 -30 24 -30 q24 0 24 30Z" fill={c} />
-          <rect x="166" y="188" width="4" height="44" fill="#94a3b8" />
+          <path d="M136 190 q0 -30 22 -30 q22 0 22 30Z" fill={c} />
+          <rect x="156" y="188" width="4" height="44" fill="#94a3b8" />
         </g>
       );
     case "bottle":
@@ -725,8 +642,8 @@ function Hold({ art: a }: { art: Record<string, string> }) {
     case "net":
       return (
         <g stroke={c} strokeWidth="4" fill="none">
-          <circle cx="166" cy="172" r="14" />
-          <path d="M158 184 l-14 40" />
+          <circle cx="160" cy="172" r="14" />
+          <path d="M152 184 l-10 40" />
         </g>
       );
     case "fan":
@@ -739,6 +656,71 @@ function Hold({ art: a }: { art: Record<string, string> }) {
     default:
       return null;
   }
+}
+
+/* ---------------- アバター本体 ---------------- */
+
+export function AvatarView({
+  equipped,
+  size = 220,
+  crop,
+}: {
+  equipped: Equipped;
+  size?: number;
+  crop?: Crop | undefined;
+}) {
+  const base = baseOf(equipped);
+  const skin = art(equipped, "skin")?.["color"] ?? "#f7d9c4";
+  const hairColor = art(equipped, "hairColor")?.["color"] ?? "#1f2430";
+  const hairShape = art(equipped, "hair")?.["shape"];
+  const face = art(equipped, "face");
+  const tops = art(equipped, "tops");
+  const bottoms = art(equipped, "bottoms");
+  const shoes = art(equipped, "shoes");
+  const hat = art(equipped, "hat");
+  const glasses = art(equipped, "glasses");
+  const mask = art(equipped, "mask");
+  const acc = art(equipped, "accessory");
+  const hold = art(equipped, "hold");
+  const suit = (tops?.["shape"] ?? "") === "suit";
+
+  return (
+    <svg
+      viewBox={crop ? `${crop.x} ${crop.y} ${crop.w} ${crop.h}` : "0 0 200 300"}
+      width={size}
+      height={crop ? (size * crop.h) / crop.w : (size * 300) / 200}
+      role="img"
+      aria-label={base === "girl" ? "女の子のアバター" : "男の子のアバター"}
+    >
+      <ellipse cx="100" cy="270" rx="52" ry="9" fill="#0f172a" opacity="0.08" />
+
+      {/* からだ（せいべつで体つきがきまる。服はこの中でいっしょに合う） */}
+      <g transform={bodyTransform(base)}>
+        <LegsLayer skin={skin} />
+        {!suit && bottoms && <BottomsLayer a={bottoms} />}
+        {shoes && <ShoesLayer a={shoes} />}
+        {tops ? <TopsLayer a={tops} /> : <path d={TORSO_SHORT} fill={skin} />}
+        <ArmsLayer skin={skin} sleeve={tops?.["color"]} />
+        <rect x="92" y="132" width="16" height="18" rx="8" fill={skin} />
+        {acc && <AccNeckLayer a={acc} />}
+      </g>
+
+      {/* あたま（かみ・かお・メガネ・ぼうしは同じ座標にそろう） */}
+      <g transform={headTransform(base)}>
+        {hairShape && <Hair shape={hairShape} color={hairColor} front={false} />}
+        <HeadLayer skin={skin} base={base} />
+        {hairShape && <Hair shape={hairShape} color={hairColor} front={true} />}
+        <Eyes kind={face?.["eye"] ?? "round"} base={base} />
+        <Mouth kind={face?.["mouth"] ?? "smile"} />
+        {glasses && <GlassesLayer a={glasses} />}
+        {mask && <MaskLayer a={mask} />}
+        {acc && <AccOtherLayer a={acc} />}
+        {hat && <HatLayer a={hat} />}
+      </g>
+
+      {hold && <HoldLayer a={hold} />}
+    </svg>
+  );
 }
 
 /* ---------------- ペット ---------------- */
@@ -879,19 +861,22 @@ export function RoomView({
             ))}
           </div>
         )}
-        {/* かべのかぐ */}
         <div className="absolute left-0 right-0 top-3 flex justify-center gap-6 text-4xl">
           {fns
             .filter((f) => f!.subcategory === "wall")
             .map((f) => (
               <span key={f!.id} title={f!.name}>
-                {f!.art["kind"] === "clock" ? "🕒" : f!.art["kind"] === "poster" ? "🖼️" : f!.art["kind"] === "light" ? "💡" : "🪟"}
+                {f!.art["kind"] === "clock"
+                  ? "🕒"
+                  : f!.art["kind"] === "poster"
+                    ? "🖼️"
+                    : f!.art["kind"] === "light"
+                      ? "💡"
+                      : "🪟"}
               </span>
             ))}
         </div>
-        {/* ゆか */}
         <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: fl?.art["color"] ?? "#d6b487" }} />
-        {/* かぐ・アバター・ペット */}
         <div className="absolute bottom-2 left-0 right-0 flex items-end justify-center gap-1">
           <div className="flex items-end gap-1 text-4xl">
             {fns
@@ -939,51 +924,181 @@ export const FURNITURE_EMOJI: Record<string, string> = {
   light: "💡",
 };
 
-/* ---------------- アイテムのサムネイル（文字ではなく絵で見せる） ---------------- */
+/* ---------------- サムネイル（選択肢を見せるための、別のプレビュー） ---------------- */
 
-const THUMB_BASE: Equipped = {
-  face: "face_genki",
-  hair: "hair_short",
-  hairColor: "hc_black",
-  skin: "skin_s1",
-  tops: "tops_tee_blue",
-  bottoms: "bottoms_pants",
-  shoes: "shoes_basic",
+const THUMB_CROP: Partial<Record<Category, Crop>> = {
+  body: { x: 24, y: 30, w: 152, h: 152 },
+  face: { x: 56, y: 52, w: 88, h: 88 },
+  hair: { x: 40, y: 10, w: 120, h: 120 },
+  hairColor: { x: 40, y: 10, w: 120, h: 120 },
+  skin: { x: 56, y: 52, w: 88, h: 88 },
+  hat: { x: 34, y: 4, w: 132, h: 100 },
+  glasses: { x: 58, y: 62, w: 84, h: 60 },
+  mask: { x: 58, y: 78, w: 84, h: 60 },
+  tops: { x: 40, y: 136, w: 120, h: 100 },
+  bottoms: { x: 52, y: 186, w: 96, h: 84 },
+  shoes: { x: 60, y: 226, w: 80, h: 52 },
+  accessory: { x: 34, y: 56, w: 132, h: 160 },
+  hold: { x: 110, y: 150, w: 90, h: 96 },
 };
 
-const CROPS: Partial<Record<Category, Crop>> = {
-  face: { x: 46, y: 40, w: 108, h: 108 },
-  hair: { x: 34, y: 8, w: 132, h: 132 },
-  hairColor: { x: 34, y: 8, w: 132, h: 132 },
-  skin: { x: 46, y: 40, w: 108, h: 108 },
-  hat: { x: 30, y: 2, w: 140, h: 128 },
-  glasses: { x: 46, y: 46, w: 108, h: 90 },
-  mask: { x: 46, y: 56, w: 108, h: 90 },
-  tops: { x: 34, y: 126, w: 132, h: 116 },
-  bottoms: { x: 44, y: 178, w: 112, h: 100 },
-  shoes: { x: 52, y: 216, w: 96, h: 66 },
-  accessory: { x: 24, y: 44, w: 152, h: 180 },
-  hold: { x: 60, y: 130, w: 140, h: 130 },
-};
+/** うすいシルエット（どこに つくパーツか わかるようにするための下じき） */
+function Silhouette({ base }: { base: BaseKind }) {
+  return (
+    <g fill="#0f172a" opacity="0.08">
+      <g transform={bodyTransform(base)}>
+        <rect x="84" y="216" width="12" height="42" rx="6" />
+        <rect x="104" y="216" width="12" height="42" rx="6" />
+        <path d={TORSO_SHORT} />
+        <rect x="54" y="158" width="17" height="48" rx="8.5" />
+        <rect x="129" y="158" width="17" height="48" rx="8.5" />
+        <rect x="92" y="132" width="16" height="18" rx="8" />
+      </g>
+      <g transform={headTransform(base)}>
+        <circle cx="100" cy="90" r="42" />
+      </g>
+    </g>
+  );
+}
 
-/** アイテム1つを絵で表示する（アバターに実際に着せた見た目を切り取って見せる） */
-export function ItemThumb({ itemId, size = 76 }: { itemId: string; size?: number }) {
+/** カテゴリごとに「そのパーツだけ」を共通キャンバス上に描く（アバター本体とは別のデータ経路） */
+function PartLayer({ category, a, base }: { category: Category; a: A; base: BaseKind }) {
+  const skin = category === "skin" ? (a["color"] ?? "#f7d9c4") : "#f7d9c4";
+  switch (category) {
+    case "body":
+      return (
+        <>
+          <g transform={bodyTransform(base)}>
+            <LegsLayer skin={skin} />
+            <BottomsLayer a={{ color: "#475569", shape: "pants" }} />
+            <ShoesLayer a={{ color: "#e2e8f0", shape: "shoe" }} />
+            <TopsLayer a={{ color: "#38bdf8", shape: "tee" }} />
+            <ArmsLayer skin={skin} sleeve="#38bdf8" />
+            <rect x="92" y="132" width="16" height="18" rx="8" fill={skin} />
+          </g>
+          <g transform={headTransform(base)}>
+            <Hair shape="short" color="#1f2430" front={false} />
+            <HeadLayer skin={skin} base={base} />
+            <Hair shape="short" color="#1f2430" front={true} />
+            <Eyes kind="round" base={base} />
+            <Mouth kind="smile" />
+          </g>
+        </>
+      );
+    case "skin":
+      return (
+        <g transform={headTransform(base)}>
+          <HeadLayer skin={skin} base={base} />
+        </g>
+      );
+    case "face":
+      return (
+        <g transform={headTransform(base)}>
+          <HeadLayer skin="#f7d9c4" base={base} />
+          <Eyes kind={a["eye"] ?? "round"} base={base} />
+          <Mouth kind={a["mouth"] ?? "smile"} />
+        </g>
+      );
+    case "hair":
+      return (
+        <g transform={headTransform(base)}>
+          <Hair shape={a["shape"] ?? "short"} color="#1f2430" front={false} />
+          <circle cx="100" cy="90" r="42" fill="#0f172a" opacity="0.08" />
+          <Hair shape={a["shape"] ?? "short"} color="#1f2430" front={true} />
+        </g>
+      );
+    case "hairColor":
+      return (
+        <g transform={headTransform(base)}>
+          <Hair shape="short" color={a["color"] ?? "#1f2430"} front={false} />
+          <circle cx="100" cy="90" r="42" fill="#0f172a" opacity="0.08" />
+          <Hair shape="short" color={a["color"] ?? "#1f2430"} front={true} />
+        </g>
+      );
+    case "tops":
+      return (
+        <g transform={bodyTransform(base)}>
+          <TopsLayer a={a} />
+          <ArmsLayer skin="#f7d9c4" sleeve={a["color"]} />
+        </g>
+      );
+    case "bottoms":
+      return (
+        <g transform={bodyTransform(base)}>
+          <LegsLayer skin="#f7d9c4" />
+          <BottomsLayer a={a} />
+        </g>
+      );
+    case "shoes":
+      return (
+        <g transform={bodyTransform(base)}>
+          <LegsLayer skin="#f7d9c4" />
+          <ShoesLayer a={a} />
+        </g>
+      );
+    case "hat":
+      return (
+        <g transform={headTransform(base)}>
+          <HatLayer a={a} />
+        </g>
+      );
+    case "glasses":
+      return (
+        <g transform={headTransform(base)}>
+          <GlassesLayer a={a} />
+        </g>
+      );
+    case "mask":
+      return (
+        <g transform={headTransform(base)}>
+          <MaskLayer a={a} />
+        </g>
+      );
+    case "accessory":
+      return (
+        <>
+          <g transform={bodyTransform(base)}>
+            <AccNeckLayer a={a} />
+          </g>
+          <g transform={headTransform(base)}>
+            <AccOtherLayer a={a} />
+          </g>
+        </>
+      );
+    case "hold":
+      return <HoldLayer a={a} />;
+    default:
+      return null;
+  }
+}
+
+/** アイテム1つを絵で見せる（アバター本体のレイヤーとは別の、プレビュー専用の描画） */
+export function ItemThumb({
+  itemId,
+  size = 76,
+  base = "boy",
+}: {
+  itemId: string;
+  size?: number;
+  base?: BaseKind;
+}) {
   const item = ITEM_BY_ID[itemId];
   if (!item) return null;
   const color = item.art["color"] ?? "#cbd5e1";
-  const official = officialSpriteForItem(itemId, isGirlBase(itemId) ? "girl" : "boy");
 
-  if (item.category === "pet") {
-    return <PetView petId={item.id} size={size} />;
-  }
+  if (item.category === "pet") return <PetView petId={item.id} size={size} />;
+
   if (item.category === "petItem") {
     return (
-      <div
-        className="grid place-content-center rounded-xl"
-        style={{ width: size, height: size, background: color }}
-      >
+      <div className="grid place-content-center rounded-xl" style={{ width: size, height: size, background: color }}>
         <span className="text-2xl">
-          {item.art["slot"] === "hat" ? "🎩" : item.art["slot"] === "collar" ? "🔔" : item.art["slot"] === "face" ? "👓" : "🧥"}
+          {item.art["slot"] === "hat"
+            ? "🎩"
+            : item.art["slot"] === "collar"
+              ? "🔔"
+              : item.art["slot"] === "face"
+                ? "👓"
+                : "🧥"}
         </span>
       </div>
     );
@@ -1009,34 +1124,24 @@ export function ItemThumb({ itemId, size = 76 }: { itemId: string; size?: number
     );
   }
 
-  if (official) {
-    return (
-      <svg
-        viewBox="0 0 100 100"
-        width={size}
-        height={size}
-        className="rounded-xl bg-[linear-gradient(180deg,#effcf9,#ffffff)]"
-        role="img"
-        aria-label={item.name}
-      >
-        <OfficialSprite name={official} x={4} y={4} width={92} height={92} />
-      </svg>
-    );
-  }
-
+  const thumbBase: BaseKind = item.id === "body_girl" ? "girl" : item.id === "body_boy" ? "boy" : base;
   const suit = item.category === "tops" && item.art["shape"] === "suit";
   const crop: Crop = suit
-    ? { x: 34, y: 120, w: 132, h: 150 }
-    : (CROPS[item.category] ?? { x: 20, y: 20, w: 160, h: 260 });
-  const equipped: Equipped = { ...THUMB_BASE, [item.category]: item.id };
-  if (item.category === "hold") delete equipped["shoes"];
+    ? { x: 40, y: 130, w: 120, h: 130 }
+    : (THUMB_CROP[item.category] ?? { x: 20, y: 20, w: 160, h: 260 });
 
   return (
-    <div
-      className="overflow-hidden rounded-xl bg-[linear-gradient(180deg,var(--secondary),transparent)]"
-      style={{ width: size, height: size }}
+    <svg
+      viewBox={`${crop.x} ${crop.y} ${crop.w} ${crop.h}`}
+      width={size}
+      height={size}
+      preserveAspectRatio="xMidYMid meet"
+      className="rounded-xl bg-[linear-gradient(180deg,var(--secondary),transparent)]"
+      role="img"
+      aria-label={item.name}
     >
-      <AvatarView equipped={equipped} size={size} crop={crop} />
-    </div>
+      {item.category !== "body" && <Silhouette base={thumbBase} />}
+      <PartLayer category={item.category} a={item.art} base={thumbBase} />
+    </svg>
   );
 }
