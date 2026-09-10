@@ -15,6 +15,7 @@ export type Style =
   | "event";
 
 export type Category =
+  | "body"
   | "face"
   | "hair"
   | "hairColor"
@@ -52,6 +53,7 @@ export type Item = {
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
+  body: "せいべつ",
   face: "かお",
   hair: "かみがた",
   hairColor: "かみのいろ",
@@ -172,6 +174,8 @@ const TEE_COLORS: [string, string, string][] = [
 /* ---------------- アイテム一覧 ---------------- */
 
 export const ITEMS: Item[] = [
+  it({ id: "body_boy", name: "男の子", category: "body", rarity: "N", style: "cute", isInitial: true, isGacha: false, description: "男の子のきほんアバター", art: { base: "boy" } }),
+  it({ id: "body_girl", name: "女の子", category: "body", rarity: "N", style: "cute", isInitial: true, isGacha: false, description: "女の子のきほんアバター", art: { base: "girl" } }),
   ...FACES.map(([id, name, eye, mouth]) =>
     it({
       id: `face_${id}`,
@@ -498,6 +502,7 @@ export const INITIAL_ITEM_IDS = ITEMS.filter((i) => i.isInitial).map((i) => i.id
 
 /** アバターの「1カテゴリに1つだけ」装備するところ */
 export const AVATAR_SLOTS: Category[] = [
+  "body",
   "face",
   "hair",
   "hairColor",
