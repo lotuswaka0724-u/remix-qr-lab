@@ -971,6 +971,7 @@ export function ItemThumb({ itemId, size = 76 }: { itemId: string; size?: number
   const item = ITEM_BY_ID[itemId];
   if (!item) return null;
   const color = item.art["color"] ?? "#cbd5e1";
+  const official = officialSpriteForItem(itemId, isGirlBase(itemId) ? "girl" : "boy");
 
   if (item.category === "pet") {
     return <PetView petId={item.id} size={size} />;
@@ -1005,6 +1006,21 @@ export function ItemThumb({ itemId, size = 76 }: { itemId: string; size?: number
       >
         <span className="text-3xl">{FURNITURE_EMOJI[item.art["kind"] ?? ""] ?? "📦"}</span>
       </div>
+    );
+  }
+
+  if (official) {
+    return (
+      <svg
+        viewBox="0 0 100 100"
+        width={size}
+        height={size}
+        className="rounded-xl bg-[linear-gradient(180deg,#effcf9,#ffffff)]"
+        role="img"
+        aria-label={item.name}
+      >
+        <OfficialSprite name={official} x={4} y={4} width={92} height={92} />
+      </svg>
     );
   }
 
