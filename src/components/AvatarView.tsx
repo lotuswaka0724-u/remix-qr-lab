@@ -23,11 +23,20 @@ const art = (eq: Equipped, cat: Category) => {
 export const baseOf = (eq: Equipped): BaseKind =>
   (art(eq, "body")?.["base"] as BaseKind | undefined) === "girl" ? "girl" : "boy";
 
-/* からだ・あたまの共通座標（すべてのパーツがこの座標に合わせる） */
+/*
+ * からだ・あたまの共通座標。
+ * デザインシートのちびキャラ頭身（あたまが大きく、からだは小さめ）に合わせるため、
+ * 「あたまグループ」「からだグループ」ごとに1つだけ変換をかける。
+ * パーツ単位の位置調整（top/left/z-index の場当たり調整）はしない。
+ */
 const BODY_SCALE: Record<BaseKind, number> = { boy: 1, girl: 0.94 };
-const HEAD_SCALE: Record<BaseKind, number> = { boy: 1, girl: 0.96 };
-const bodyTransform = (b: BaseKind) => `translate(100 0) scale(${BODY_SCALE[b]} 1) translate(-100 0)`;
-const headTransform = (b: BaseKind) => `translate(100 90) scale(${HEAD_SCALE[b]}) translate(-100 -90)`;
+const HEAD_SCALE: Record<BaseKind, number> = { boy: 1.22, girl: 1.19 };
+/** からだは足元(y=300)を基準に少しちぢめる（ちび体型） */
+const bodyTransform = (b: BaseKind) =>
+  `translate(100 300) scale(${BODY_SCALE[b]} 0.9) translate(-100 -300)`;
+/** あたまは中心(100,90)を基準に大きくして、首の位置まで下げる */
+const headTransform = (b: BaseKind) =>
+  `translate(0 18) translate(100 90) scale(${HEAD_SCALE[b]}) translate(-100 -90)`;
 
 /* ---------------- かみがた（形だけ。色は hairColor が決める） ---------------- */
 
@@ -692,7 +701,7 @@ export function AvatarView({
       role="img"
       aria-label={base === "girl" ? "女の子のアバター" : "男の子のアバター"}
     >
-      <ellipse cx="100" cy="270" rx="52" ry="9" fill="#0f172a" opacity="0.08" />
+      <ellipse cx="100" cy="272" rx="52" ry="9" fill="#0f172a" opacity="0.08" />
 
       {/* からだ（せいべつで体つきがきまる。服はこの中でいっしょに合う） */}
       <g transform={bodyTransform(base)}>
@@ -718,7 +727,7 @@ export function AvatarView({
         {hat && <HatLayer a={hat} />}
       </g>
 
-      {hold && <HoldLayer a={hold} />}
+      {hold && <g transform={bodyTransform(base)}><HoldLayer a={hold} /></g>}
     </svg>
   );
 }
