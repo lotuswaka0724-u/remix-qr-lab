@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { AvatarView, ItemThumb, PetView, RoomView, type Equipped } from "@/components/AvatarView";
+import { AvatarView, ItemThumb, PetView, RoomView, baseOf, type BaseKind, type Equipped } from "@/components/AvatarView";
 import { Button } from "@/components/ui/button";
 import type { GameEngine, GameResult, Prize } from "@/lib/demo-game";
 import { playError, playSuccess } from "@/lib/feedback";
@@ -29,6 +29,7 @@ export const GAME_MENU: { id: GameScreenId; label: string; icon: string; hint: s
 ];
 
 const CREATE_STEPS: Category[] = [
+  "body",
   "face",
   "hair",
   "hairColor",
@@ -186,12 +187,14 @@ function ItemCard({
   onClick,
   locked,
   size = 76,
+  base = "boy",
 }: {
   item: Item;
   on: boolean;
   onClick: () => void;
   locked?: boolean;
   size?: number;
+  base?: BaseKind;
 }) {
   return (
     <button
@@ -212,7 +215,7 @@ function ItemCard({
           ✓
         </span>
       )}
-      <ItemThumb itemId={item.id} size={size} />
+      <ItemThumb itemId={item.id} size={size} base={base} />
       <span className="line-clamp-2 text-center text-[11px] font-bold leading-tight">{item.name}</span>
     </button>
   );
@@ -279,6 +282,7 @@ export function PointChip({ points }: { points: number }) {
 
 export function AvatarCreate({ game }: { game: Game }) {
   const [draft, setDraft] = useState<Record<string, string>>({
+    body: "body_boy",
     face: "face_genki",
     hair: "hair_short",
     hairColor: "hc_black",
@@ -320,6 +324,7 @@ export function AvatarCreate({ game }: { game: Game }) {
               <ItemCard
                 key={o.id}
                 item={o}
+                base={baseOf(draft as Equipped)}
                 on={draft[cat] === o.id}
                 onClick={() => setDraft((d) => ({ ...d, [cat]: o.id }))}
               />
@@ -425,6 +430,7 @@ export function GameScreen({
 /* ---------------- アバターカスタマイズ ---------------- */
 
 const EDITOR_TABS: { cat: Category; label: string; icon: string }[] = [
+  { cat: "body", label: "せいべつ", icon: "🧍" },
   { cat: "face", label: "かお", icon: "😀" },
   { cat: "hair", label: "かみ", icon: "💇" },
   { cat: "hairColor", label: "かみいろ", icon: "🎨" },
@@ -450,7 +456,7 @@ function AvatarEditor({
   listOf: (cat: Category) => Item[];
   onDone: () => void;
 }) {
-  const [cat, setCat] = useState<Category>("hair");
+  const [cat, setCat] = useState<Category>("body");
   const [draft, setDraft] = useState<Equipped>(equipped);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -564,7 +570,13 @@ function AvatarEditor({
           <div className="grid max-h-[28rem] grid-cols-3 gap-2 overflow-y-auto pr-1 sm:grid-cols-4">
             {OPTIONAL_CATS.includes(cat) && <NoneCard on={!draft[cat]} onClick={clear} />}
             {list.map((o) => (
-              <ItemCard key={o.id} item={o} on={draft[cat] === o.id} onClick={() => pick(o)} />
+              <ItemCard
+                key={o.id}
+                item={o}
+                base={baseOf(draft)}
+                on={draft[cat] === o.id}
+                onClick={() => pick(o)}
+              />
             ))}
           </div>
         ) : (
@@ -833,6 +845,7 @@ function RoomScreen({
 /* ---------------- アイテムBOX ---------------- */
 
 const BOX_ICON: Partial<Record<Category, string>> = {
+  body: "🧍",
   face: "😀",
   hair: "💇",
   hairColor: "🎨",
