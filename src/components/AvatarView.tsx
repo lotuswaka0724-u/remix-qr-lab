@@ -290,7 +290,17 @@ function Deco({ deco, x = 100, y = 168 }: { deco?: string | undefined; x?: numbe
 
 /* ---------------- 本体 ---------------- */
 
-export function AvatarView({ equipped, size = 220 }: { equipped: Equipped; size?: number }) {
+export type Crop = { x: number; y: number; w: number; h: number };
+
+export function AvatarView({
+  equipped,
+  size = 220,
+  crop,
+}: {
+  equipped: Equipped;
+  size?: number;
+  crop?: Crop | undefined;
+}) {
   const skin = art(equipped, "skin")?.["color"] ?? "#f7d9c4";
   const hairColor = art(equipped, "hairColor")?.["color"] ?? "#1f2430";
   const hair = art(equipped, "hair")?.["shape"];
@@ -308,7 +318,15 @@ export function AvatarView({ equipped, size = 220 }: { equipped: Equipped; size?
   const suit = topShape === "suit";
 
   return (
-    <svg viewBox="0 0 200 300" width={size} height={(size * 300) / 200} role="img" aria-label="アバター">
+    <svg
+      viewBox={crop ? `${crop.x} ${crop.y} ${crop.w} ${crop.h}` : "0 0 200 300"}
+      width={size}
+      height={crop ? (size * crop.h) / crop.w : (size * 300) / 200}
+      role="img"
+      aria-label="アバター"
+    >
+      {/* ゆかのかげ */}
+      <ellipse cx="100" cy="270" rx="52" ry="9" fill="#0f172a" opacity="0.08" />
       {/* 足 */}
       <g fill={skin}>
         <rect x="84" y="216" width="12" height="42" rx="6" />
@@ -348,15 +366,26 @@ export function AvatarView({ equipped, size = 220 }: { equipped: Equipped; size?
       {/* からだ・トップス */}
       {tops ? (
         <g>
+          {/* かた（そで） */}
+          <g fill={tops["color"]} stroke="#0f172a" strokeOpacity="0.12">
+            <circle cx="70" cy="160" r="13" />
+            <circle cx="130" cy="160" r="13" />
+          </g>
           <path
             d={
               suit
-                ? "M68 152 Q100 140 132 152 L138 246 L62 246Z"
-                : "M68 152 Q100 140 132 152 L136 206 L64 206Z"
+                ? "M70 154 Q100 142 130 154 Q140 190 138 244 Q100 254 62 244 Q60 190 70 154Z"
+                : "M70 154 Q100 142 130 154 Q138 178 136 206 Q100 214 64 206 Q62 178 70 154Z"
             }
             fill={tops["color"]}
             stroke="#0f172a"
             strokeOpacity="0.12"
+          />
+          {/* 服のかげ */}
+          <path
+            d={suit ? "M70 154 Q100 176 130 154 L130 244 L70 244Z" : "M70 154 Q100 176 130 154 L134 206 L66 206Z"}
+            fill="#0f172a"
+            opacity="0.05"
           />
           {(topShape === "hoodie" || topShape === "coat") && (
             <path d="M80 150 q20 22 40 0 q-20 10 -40 0Z" fill="#0f172a" opacity="0.15" />
@@ -365,16 +394,16 @@ export function AvatarView({ equipped, size = 220 }: { equipped: Equipped; size?
           <Deco deco={tops["deco"]} x={100} y={176} />
         </g>
       ) : (
-        <path d="M68 152 Q100 140 132 152 L136 206 L64 206Z" fill={skin} />
+        <path d="M70 154 Q100 142 130 154 Q138 178 136 206 Q100 214 64 206 Q62 178 70 154Z" fill={skin} />
       )}
       {/* うで */}
-      <g fill={tops ? tops["color"] : skin}>
-        <rect x="52" y="152" width="18" height="52" rx="9" />
-        <rect x="130" y="152" width="18" height="52" rx="9" />
+      <g fill={tops ? tops["color"] : skin} stroke="#0f172a" strokeOpacity="0.1">
+        <rect x="54" y="158" width="17" height="48" rx="8.5" />
+        <rect x="129" y="158" width="17" height="48" rx="8.5" />
       </g>
-      <g fill={skin}>
-        <circle cx="61" cy="208" r="9" />
-        <circle cx="139" cy="208" r="9" />
+      <g fill={skin} stroke="#0f172a" strokeOpacity="0.12">
+        <circle cx="62.5" cy="209" r="9" />
+        <circle cx="137.5" cy="209" r="9" />
       </g>
       {/* くび */}
       <rect x="92" y="132" width="16" height="18" rx="8" fill={skin} />
@@ -394,7 +423,15 @@ export function AvatarView({ equipped, size = 220 }: { equipped: Equipped; size?
       {/* かみ（うしろ） */}
       {hair && <Hair shape={hair} color={hairColor} front={false} />}
       {/* あたま */}
-      <circle cx="100" cy="90" r="42" fill={skin} />
+      <g>
+        {/* みみ */}
+        <ellipse cx="59" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+        <ellipse cx="141" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+        <circle cx="100" cy="90" r="42" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+        {/* ほほのハイライト */}
+        <ellipse cx="86" cy="76" rx="14" ry="9" fill="#ffffff" opacity="0.18" />
+      </g>
+
       {/* かみ（まえ） */}
       {hair && <Hair shape={hair} color={hairColor} front={true} />}
       {/* かお */}
@@ -820,3 +857,89 @@ export const FURNITURE_EMOJI: Record<string, string> = {
   window: "🪟",
   light: "💡",
 };
+
+/* ---------------- アイテムのサムネイル（文字ではなく絵で見せる） ---------------- */
+
+const THUMB_BASE: Equipped = {
+  face: "face_genki",
+  hair: "hair_short",
+  hairColor: "hc_black",
+  skin: "skin_s1",
+  tops: "tops_tee_blue",
+  bottoms: "bottoms_pants",
+  shoes: "shoes_basic",
+};
+
+const CROPS: Partial<Record<Category, Crop>> = {
+  face: { x: 46, y: 40, w: 108, h: 108 },
+  hair: { x: 34, y: 8, w: 132, h: 132 },
+  hairColor: { x: 34, y: 8, w: 132, h: 132 },
+  skin: { x: 46, y: 40, w: 108, h: 108 },
+  hat: { x: 30, y: 2, w: 140, h: 128 },
+  glasses: { x: 46, y: 46, w: 108, h: 90 },
+  mask: { x: 46, y: 56, w: 108, h: 90 },
+  tops: { x: 34, y: 126, w: 132, h: 116 },
+  bottoms: { x: 44, y: 178, w: 112, h: 100 },
+  shoes: { x: 52, y: 216, w: 96, h: 66 },
+  accessory: { x: 24, y: 44, w: 152, h: 180 },
+  hold: { x: 60, y: 130, w: 140, h: 130 },
+};
+
+/** アイテム1つを絵で表示する（アバターに実際に着せた見た目を切り取って見せる） */
+export function ItemThumb({ itemId, size = 76 }: { itemId: string; size?: number }) {
+  const item = ITEM_BY_ID[itemId];
+  if (!item) return null;
+  const color = item.art["color"] ?? "#cbd5e1";
+
+  if (item.category === "pet") {
+    return <PetView petId={item.id} size={size} />;
+  }
+  if (item.category === "petItem") {
+    return (
+      <div
+        className="grid place-content-center rounded-xl"
+        style={{ width: size, height: size, background: color }}
+      >
+        <span className="text-2xl">
+          {item.art["slot"] === "hat" ? "🎩" : item.art["slot"] === "collar" ? "🔔" : item.art["slot"] === "face" ? "👓" : "🧥"}
+        </span>
+      </div>
+    );
+  }
+  if (item.category === "wallpaper" || item.category === "floor") {
+    return (
+      <div
+        className="grid place-content-center rounded-xl ring-1 ring-black/10"
+        style={{ width: size, height: size, background: color }}
+      >
+        {item.art["deco"] === "star" && <span className="text-xl">⭐</span>}
+      </div>
+    );
+  }
+  if (item.category === "furniture") {
+    return (
+      <div
+        className="grid place-content-center rounded-xl"
+        style={{ width: size, height: size, background: `${color}33` }}
+      >
+        <span className="text-3xl">{FURNITURE_EMOJI[item.art["kind"] ?? ""] ?? "📦"}</span>
+      </div>
+    );
+  }
+
+  const suit = item.category === "tops" && item.art["shape"] === "suit";
+  const crop: Crop = suit
+    ? { x: 34, y: 120, w: 132, h: 150 }
+    : (CROPS[item.category] ?? { x: 20, y: 20, w: 160, h: 260 });
+  const equipped: Equipped = { ...THUMB_BASE, [item.category]: item.id };
+  if (item.category === "hold") delete equipped["shoes"];
+
+  return (
+    <div
+      className="overflow-hidden rounded-xl bg-[linear-gradient(180deg,var(--secondary),transparent)]"
+      style={{ width: size, height: size }}
+    >
+      <AvatarView equipped={equipped} size={size} crop={crop} />
+    </div>
+  );
+}

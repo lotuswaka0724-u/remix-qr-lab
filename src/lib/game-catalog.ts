@@ -421,6 +421,74 @@ export const ITEMS: Item[] = [
   it({ id: "fn_tree_xmas", name: "クリスマスツリー", category: "furniture", subcategory: "deco", rarity: "SR", style: "event", isInitial: false, isGacha: true, event: "christmas", description: "クリスマスげんてい", art: { kind: "tree", color: "#16a34a" } }),
 ];
 
+/**
+ * はじめから えらべるアイテムを ふやす（あとから ここに id をたすだけでOK）。
+ * ガチャのプールからは はずれる。
+ */
+const EXTRA_INITIAL = new Set<string>([
+  // トップス
+  "tops_hoodie_blue",
+  "tops_hoodie_pink",
+  "tops_polo",
+  "tops_sweat",
+  "tops_shirt",
+  "tops_jersey",
+  "tops_cat",
+  "tops_dino",
+  "tops_gym",
+  // ボトムス
+  "bottoms_short",
+  "bottoms_half",
+  "bottoms_jeans",
+  "bottoms_sweatpants",
+  "bottoms_pleats",
+  "bottoms_wide",
+  // ワンピース・セット
+  "tops_onepiece",
+  "tops_salopette",
+  "tops_pajama",
+  "tops_explorer",
+  // くつ
+  "shoes_sneaker",
+  "shoes_color",
+  "shoes_uwabaki",
+  "shoes_sandal",
+  "shoes_boots_rain",
+  // ぼうし
+  "hat_cap",
+  "hat_knit",
+  "hat_straw",
+  "hat_bucket",
+  "hat_beret",
+  "hat_ribbon",
+  "hat_band",
+  "hat_redwhite",
+  // アクセサリー・もちもの
+  "acc_scarf",
+  "acc_earmuff",
+  "acc_necklace",
+  "acc_watch",
+  "acc_heart",
+  "acc_star",
+  "acc_flower",
+  "glasses_round",
+  "glasses_sun",
+  "mask_color",
+  "hold_backpack",
+  "hold_randoseru",
+  "hold_bottle",
+  "hold_book",
+  "hold_umbrella",
+  "hold_magnifier",
+]);
+
+for (const item of ITEMS) {
+  if (EXTRA_INITIAL.has(item.id)) {
+    item.isInitial = true;
+    item.isGacha = false;
+  }
+}
+
 export const ITEM_BY_ID: Record<string, Item> = Object.fromEntries(ITEMS.map((i) => [i.id, i]));
 
 export const itemsOf = (category: Category) => ITEMS.filter((i) => i.category === category);

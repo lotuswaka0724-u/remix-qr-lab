@@ -262,13 +262,18 @@ function MyPage() {
       {screen === "home" && (
         <>
           <section className="glass-panel flex flex-wrap items-center gap-4 p-4">
-            <div className="rounded-3xl bg-[linear-gradient(180deg,var(--secondary),transparent)] p-2">
+            <button
+              type="button"
+              onClick={() => setScreen("avatar")}
+              aria-label="アバターをかえる"
+              className="rounded-3xl bg-[linear-gradient(180deg,var(--secondary),transparent)] p-2 transition-transform hover:-translate-y-0.5"
+            >
               {created && gv ? (
-                <AvatarView equipped={gv.data.equipped as Equipped} size={120} />
+                <AvatarView equipped={gv.data.equipped as Equipped} size={140} />
               ) : (
-                <span className="grid h-[120px] w-[120px] place-content-center text-5xl">🧑‍🎤</span>
+                <span className="grid h-[140px] w-[140px] place-content-center text-5xl">🧑‍🎤</span>
               )}
-            </div>
+            </button>
             <div className="min-w-0 flex-1">
               <p className="font-display text-2xl font-bold">こんにちは！</p>
               <p className="text-sm text-muted-foreground">
