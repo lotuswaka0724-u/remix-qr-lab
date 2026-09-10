@@ -1,4 +1,12 @@
 import { ITEM_BY_ID, type Category } from "@/lib/game-catalog";
+import {
+  OFFICIAL_ATLAS_COLUMNS,
+  OFFICIAL_AVATAR_ATLAS,
+  OFFICIAL_SPRITES,
+  isGirlBase,
+  officialSpriteForItem,
+  type OfficialSpriteName,
+} from "@/lib/official-avatar-assets";
 
 export type Equipped = Partial<Record<Category, string>>;
 
@@ -292,7 +300,80 @@ function Deco({ deco, x = 100, y = 168 }: { deco?: string | undefined; x?: numbe
 
 export type Crop = { x: number; y: number; w: number; h: number };
 
+function OfficialSprite({
+  name,
+  x,
+  y,
+  width,
+  height,
+}: {
+  name: OfficialSpriteName;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}) {
+  const index = OFFICIAL_SPRITES[name];
+  const sx = (index % OFFICIAL_ATLAS_COLUMNS) * 256;
+  const sy = Math.floor(index / OFFICIAL_ATLAS_COLUMNS) * 256;
+  return (
+    <svg x={x} y={y} width={width} height={height} viewBox={`${sx} ${sy} 256 256`} overflow="hidden">
+      <image href={OFFICIAL_AVATAR_ATLAS} width="2048" height="2304" />
+    </svg>
+  );
+}
+
+/** 添付された正式素材だけで構成する、基本男児・女児のレイヤーアバター。 */
+function OfficialAvatar({ equipped }: { equipped: Equipped }) {
+  const base = isGirlBase(equipped.hair) ? "girl" : "boy";
+  const face = equipped.face ? officialSpriteForItem(equipped.face, base) : undefined;
+  const hair = equipped.hair ? officialSpriteForItem(equipped.hair, base) : undefined;
+  const top = equipped.tops ? officialSpriteForItem(equipped.tops, base) : undefined;
+  const bottoms = equipped.bottoms ? officialSpriteForItem(equipped.bottoms, base) : undefined;
+  const shoes = equipped.shoes ? officialSpriteForItem(equipped.shoes, base) : undefined;
+  const hat = equipped.hat ? officialSpriteForItem(equipped.hat, base) : undefined;
+  const glasses = equipped.glasses ? officialSpriteForItem(equipped.glasses, base) : undefined;
+  const hold = equipped.hold ? officialSpriteForItem(equipped.hold, base) : undefined;
+
+  return (
+    <>
+      <ellipse cx="100" cy="276" rx="49" ry="8" fill="#0f766e" opacity="0.1" />
+      <OfficialSprite name={`${base}-base`} x={20} y={8} width={160} height={270} />
+      {bottoms && <OfficialSprite name={bottoms} x={57} y={174} width={86} height={82} />}
+      {shoes && <OfficialSprite name={shoes} x={55} y={224} width={90} height={66} />}
+      {top && <OfficialSprite name={top} x={49} y={126} width={102} height={104} />}
+      {hair && <OfficialSprite name={hair} x={34} y={22} width={132} height={130} />}
+      {face && <OfficialSprite name={face} x={34} y={30} width={132} height={128} />}
+      {glasses && <OfficialSprite name={glasses} x={53} y={66} width={94} height={72} />}
+      {hat && <OfficialSprite name={hat} x={38} y={0} width={124} height={92} />}
+      {hold && <OfficialSprite name={hold} x={126} y={145} width={70} height={92} />}
+    </>
+  );
+}
+
 export function AvatarView({
+  equipped,
+  size = 220,
+  crop,
+}: {
+  equipped: Equipped;
+  size?: number;
+  crop?: Crop | undefined;
+}) {
+  return (
+    <svg
+      viewBox={crop ? `${crop.x} ${crop.y} ${crop.w} ${crop.h}` : "0 0 200 300"}
+      width={size}
+      height={crop ? (size * crop.h) / crop.w : (size * 300) / 200}
+      role="img"
+      aria-label="正式素材のアバター"
+    >
+      <OfficialAvatar equipped={equipped} />
+    </svg>
+  );
+}
+
+function LegacyAvatarView({
   equipped,
   size = 220,
   crop,
