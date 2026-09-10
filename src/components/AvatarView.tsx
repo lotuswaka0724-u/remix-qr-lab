@@ -318,7 +318,15 @@ export function AvatarView({
   const suit = topShape === "suit";
 
   return (
-    <svg viewBox="0 0 200 300" width={size} height={(size * 300) / 200} role="img" aria-label="アバター">
+    <svg
+      viewBox={crop ? `${crop.x} ${crop.y} ${crop.w} ${crop.h}` : "0 0 200 300"}
+      width={size}
+      height={crop ? (size * crop.h) / crop.w : (size * 300) / 200}
+      role="img"
+      aria-label="アバター"
+    >
+      {/* ゆかのかげ */}
+      <ellipse cx="100" cy="270" rx="52" ry="9" fill="#0f172a" opacity="0.08" />
       {/* 足 */}
       <g fill={skin}>
         <rect x="84" y="216" width="12" height="42" rx="6" />
