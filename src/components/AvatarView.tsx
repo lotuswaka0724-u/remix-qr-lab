@@ -366,15 +366,26 @@ export function AvatarView({
       {/* からだ・トップス */}
       {tops ? (
         <g>
+          {/* かた（そで） */}
+          <g fill={tops["color"]} stroke="#0f172a" strokeOpacity="0.12">
+            <circle cx="70" cy="160" r="13" />
+            <circle cx="130" cy="160" r="13" />
+          </g>
           <path
             d={
               suit
-                ? "M68 152 Q100 140 132 152 L138 246 L62 246Z"
-                : "M68 152 Q100 140 132 152 L136 206 L64 206Z"
+                ? "M70 154 Q100 142 130 154 Q140 190 138 244 Q100 254 62 244 Q60 190 70 154Z"
+                : "M70 154 Q100 142 130 154 Q138 178 136 206 Q100 214 64 206 Q62 178 70 154Z"
             }
             fill={tops["color"]}
             stroke="#0f172a"
             strokeOpacity="0.12"
+          />
+          {/* 服のかげ */}
+          <path
+            d={suit ? "M70 154 Q100 176 130 154 L130 244 L70 244Z" : "M70 154 Q100 176 130 154 L134 206 L66 206Z"}
+            fill="#0f172a"
+            opacity="0.05"
           />
           {(topShape === "hoodie" || topShape === "coat") && (
             <path d="M80 150 q20 22 40 0 q-20 10 -40 0Z" fill="#0f172a" opacity="0.15" />
@@ -383,16 +394,16 @@ export function AvatarView({
           <Deco deco={tops["deco"]} x={100} y={176} />
         </g>
       ) : (
-        <path d="M68 152 Q100 140 132 152 L136 206 L64 206Z" fill={skin} />
+        <path d="M70 154 Q100 142 130 154 Q138 178 136 206 Q100 214 64 206 Q62 178 70 154Z" fill={skin} />
       )}
       {/* うで */}
-      <g fill={tops ? tops["color"] : skin}>
-        <rect x="52" y="152" width="18" height="52" rx="9" />
-        <rect x="130" y="152" width="18" height="52" rx="9" />
+      <g fill={tops ? tops["color"] : skin} stroke="#0f172a" strokeOpacity="0.1">
+        <rect x="54" y="158" width="17" height="48" rx="8.5" />
+        <rect x="129" y="158" width="17" height="48" rx="8.5" />
       </g>
-      <g fill={skin}>
-        <circle cx="61" cy="208" r="9" />
-        <circle cx="139" cy="208" r="9" />
+      <g fill={skin} stroke="#0f172a" strokeOpacity="0.12">
+        <circle cx="62.5" cy="209" r="9" />
+        <circle cx="137.5" cy="209" r="9" />
       </g>
       {/* くび */}
       <rect x="92" y="132" width="16" height="18" rx="8" fill={skin} />
