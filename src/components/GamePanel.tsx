@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { AvatarView, PetView, RoomView, type Equipped } from "@/components/AvatarView";
+import { AvatarView, ItemThumb, PetView, RoomView, type Equipped } from "@/components/AvatarView";
 import { Button } from "@/components/ui/button";
 import type { GameEngine, GameResult, Prize } from "@/lib/demo-game";
 import { playError, playSuccess } from "@/lib/feedback";
