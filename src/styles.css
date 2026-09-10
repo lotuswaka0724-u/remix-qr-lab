@@ -192,6 +192,74 @@
   100% { background-color: transparent; }
 }
 
+@keyframes kid-shake {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  20% { transform: rotate(-4deg) translateY(-3px); }
+  45% { transform: rotate(4deg) translateY(2px); }
+  70% { transform: rotate(-3deg) translateY(-2px); }
+}
+
+@keyframes kid-rays {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes kid-popin {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes kid-sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+  50% { transform: scale(1.25) rotate(12deg); opacity: 1; }
+}
+
+@utility fx-shake { animation: kid-shake 0.5s ease-in-out infinite; }
+@utility fx-popin { animation: kid-popin 0.45s cubic-bezier(0.2, 1.2, 0.3, 1) both; }
+@utility fx-rays {
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in oklab, var(--accent) 45%, transparent) 0 10deg,
+    transparent 10deg 30deg
+  );
+  animation: kid-rays 9s linear infinite;
+}
+
+/* こども向けパネル・タイル */
+@utility kid-panel {
+  background: color-mix(in oklab, var(--card) 90%, transparent);
+  border: 2px solid color-mix(in oklab, var(--primary) 16%, var(--border));
+  border-radius: 2rem;
+  box-shadow: var(--shadow-card);
+}
+
+@utility kid-tile {
+  border-radius: 1.25rem;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+@utility kid-tile-on {
+  background: color-mix(in oklab, var(--primary) 12%, var(--card));
+  box-shadow: 0 0 0 3px var(--primary) inset;
+}
+
+@utility kid-stage {
+  border-radius: 2rem;
+  background:
+    radial-gradient(circle at 50% 18%, color-mix(in oklab, var(--accent) 26%, transparent), transparent 62%),
+    linear-gradient(180deg, color-mix(in oklab, var(--primary) 12%, var(--card)), var(--card));
+  border: 2px solid color-mix(in oklab, var(--primary) 14%, var(--border));
+}
+
+@utility kid-sparkle {
+  position: absolute;
+  top: 0.75rem;
+  right: 1rem;
+  font-size: 1.25rem;
+  animation: kid-sparkle 2.2s ease-in-out infinite;
+}
+
 @utility fx-wash { animation: flash-wash 1s ease-out forwards; }
 @utility fx-pop { animation: flash-pop 1.1s cubic-bezier(0.2, 1.2, 0.3, 1) forwards; }
 @utility fx-ring { animation: flash-ring 0.9s ease-out forwards; }
