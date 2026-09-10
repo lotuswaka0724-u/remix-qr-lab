@@ -412,7 +412,15 @@ export function AvatarView({
       {/* かみ（うしろ） */}
       {hair && <Hair shape={hair} color={hairColor} front={false} />}
       {/* あたま */}
-      <circle cx="100" cy="90" r="42" fill={skin} />
+      <g>
+        {/* みみ */}
+        <ellipse cx="59" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+        <ellipse cx="141" cy="94" rx="7" ry="9" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+        <circle cx="100" cy="90" r="42" fill={skin} stroke="#0f172a" strokeOpacity="0.12" />
+        {/* ほほのハイライト */}
+        <ellipse cx="86" cy="76" rx="14" ry="9" fill="#ffffff" opacity="0.18" />
+      </g>
+
       {/* かみ（まえ） */}
       {hair && <Hair shape={hair} color={hairColor} front={true} />}
       {/* かお */}
