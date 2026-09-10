@@ -970,16 +970,16 @@ function PartLayer({ category, a, base }: { category: Category; a: A; base: Base
         <>
           <g transform={bodyTransform(base)}>
             <LegsLayer skin={skin} />
-            <BottomsLayer a={{ color: "#475569", shape: "pants" }} />
+            <BottomsLayer a={base === "girl" ? { color: "#f472b6", shape: "skirt" } : { color: "#475569", shape: "pants" }} />
             <ShoesLayer a={{ color: "#e2e8f0", shape: "shoe" }} />
-            <TopsLayer a={{ color: "#38bdf8", shape: "tee" }} />
-            <ArmsLayer skin={skin} sleeve="#38bdf8" />
+            <TopsLayer a={{ color: base === "girl" ? "#fbcfe8" : "#38bdf8", shape: "tee" }} />
+            <ArmsLayer skin={skin} sleeve={base === "girl" ? "#fbcfe8" : "#38bdf8"} />
             <rect x="92" y="132" width="16" height="18" rx="8" fill={skin} />
           </g>
           <g transform={headTransform(base)}>
-            <Hair shape="short" color="#1f2430" front={false} />
+            <Hair shape={base === "girl" ? "medium" : "short"} color="#1f2430" front={false} />
             <HeadLayer skin={skin} base={base} />
-            <Hair shape="short" color="#1f2430" front={true} />
+            <Hair shape={base === "girl" ? "medium" : "short"} color="#1f2430" front={true} />
             <Eyes kind="round" base={base} />
             <Mouth kind="smile" />
           </g>
