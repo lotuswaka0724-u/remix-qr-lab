@@ -454,6 +454,21 @@ export function GameScreen({
 
 /* ---------------- アバターカスタマイズ ---------------- */
 
+const EDITOR_TABS: { cat: Category; label: string; icon: string }[] = [
+  { cat: "face", label: "かお", icon: "😀" },
+  { cat: "hair", label: "かみ", icon: "💇" },
+  { cat: "hairColor", label: "かみのいろ", icon: "🎨" },
+  { cat: "skin", label: "はだ", icon: "🖐️" },
+  { cat: "tops", label: "トップス", icon: "👕" },
+  { cat: "bottoms", label: "ボトムス", icon: "👖" },
+  { cat: "shoes", label: "くつ", icon: "👟" },
+  { cat: "hat", label: "ぼうし", icon: "🧢" },
+  { cat: "glasses", label: "メガネ", icon: "👓" },
+  { cat: "mask", label: "マスク", icon: "😷" },
+  { cat: "accessory", label: "アクセサリー", icon: "🎀" },
+  { cat: "hold", label: "もちもの", icon: "🎒" },
+];
+
 function AvatarEditor({
   game,
   equipped,
@@ -466,48 +481,128 @@ function AvatarEditor({
   onDone: () => void;
 }) {
   const [cat, setCat] = useState<Category>("hair");
+  const [draft, setDraft] = useState<Equipped>(equipped);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const sig = JSON.stringify(equipped);
+
+  useEffect(() => {
+    setDraft(JSON.parse(sig) as Equipped);
+  }, [sig]);
+
   const list = listOf(cat);
+  const dirty = useMemo(
+    () => AVATAR_SLOTS.some((c) => (draft[c] ?? "") !== (equipped[c] ?? "")),
+    [draft, equipped],
+  );
+
+  const pick = (item: Item) => {
+    setSaved(false);
+    setDraft((d) => ({ ...d, [item.category]: item.id }));
+  };
+  const clear = () => {
+    setSaved(false);
+    setDraft((d) => {
+      const n = { ...d };
+      delete n[cat];
+      return n;
+    });
+  };
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    for (const c of AVATAR_SLOTS) {
+      const before = equipped[c] ?? "";
+      const after = draft[c] ?? "";
+      if (before === after) continue;
+      if (after) {
+        const item = ITEM_BY_ID[after];
+        if (item) await game.doEquip(item, false);
+      } else {
+        const item = ITEM_BY_ID[before];
+        if (item) await game.doEquip(item, true);
+      }
+    }
+    setSaving(false);
+    setSaved(true);
+    playSuccess(1);
+  };
 
   return (
-    <div className="glass-panel grid gap-4 p-4 lg:grid-cols-[auto_1fr]">
-      <div className="mx-auto text-center">
-        <div className="rounded-3xl bg-[linear-gradient(180deg,var(--secondary),transparent)] p-2">
-          <AvatarView equipped={equipped} size={210} />
+    <div className="glass-panel grid gap-4 p-3 sm:p-4 lg:grid-cols-[minmax(240px,340px)_1fr]">
+      {/* 中央（大きなアバター） */}
+      <div className="flex flex-col items-center">
+        <div className="relative w-full rounded-[2rem] bg-[radial-gradient(circle_at_50%_20%,var(--secondary),transparent_70%)] p-3">
+          <div className="pointer-events-none absolute inset-x-6 bottom-4 h-3 rounded-full bg-primary/10 blur-sm" />
+          <div className="flex justify-center">
+            <AvatarView equipped={draft} size={280} />
+          </div>
         </div>
-        <Button className="mt-3 w-full rounded-full" onClick={onDone}>
-          これにする！
-        </Button>
-        <p className="mt-1 text-[11px] text-muted-foreground">えらぶと すぐ ほぞんされます</p>
+        <div className="mt-3 flex w-full flex-col gap-2">
+          <Button
+            className="h-14 w-full rounded-full text-lg"
+            disabled={!dirty || saving}
+            onClick={() => void save()}
+          >
+            {saving ? "ほぞん中…" : "💾 ほぞんする"}
+          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              className="flex-1 rounded-full"
+              disabled={!dirty || saving}
+              onClick={() => setDraft(JSON.parse(sig) as Equipped)}
+            >
+              もとにもどす
+            </Button>
+            <Button variant="ghost" className="flex-1 rounded-full" onClick={onDone}>
+              ホームへ
+            </Button>
+          </div>
+          {saved && !dirty && (
+            <p className="rounded-2xl bg-primary/10 px-3 py-2 text-center font-display font-bold text-primary">
+              ✨ アバターを保存したよ！
+            </p>
+          )}
+          {dirty && (
+            <p className="text-center text-[11px] text-muted-foreground">
+              いまは しちゃく中です。「ほぞんする」をおすと きまります。
+            </p>
+          )}
+        </div>
       </div>
+
+      {/* アイテム選び */}
       <div className="min-w-0 space-y-3">
-        <div className="flex flex-wrap gap-1.5">
-          {AVATAR_SLOTS.map((c) => (
-            <Chip key={c} active={cat === c} onClick={() => setCat(c)}>
-              {CATEGORY_LABEL[c]}
-            </Chip>
+        <div className="-mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+          {EDITOR_TABS.map((t) => (
+            <button
+              key={t.cat}
+              type="button"
+              onClick={() => setCat(t.cat)}
+              className={`flex shrink-0 flex-col items-center rounded-2xl px-3 py-2 text-[11px] font-bold transition-all ${
+                cat === t.cat
+                  ? "bg-primary text-primary-foreground shadow-[var(--shadow-lift)]"
+                  : "bg-muted hover:bg-secondary"
+              }`}
+            >
+              <span className="text-xl">{t.icon}</span>
+              {t.label}
+            </button>
           ))}
         </div>
-        {OPTIONAL_CATS.includes(cat) && equipped[cat] && (
-          <Button
-            variant="outline"
-            size="sm"
-            className="rounded-full"
-            onClick={() => {
-              const item = ITEM_BY_ID[equipped[cat]!];
-              if (item) void game.doEquip(item, true);
-            }}
-          >
-            はずす
-          </Button>
-        )}
         {list.length ? (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid max-h-[26rem] grid-cols-3 gap-2 overflow-y-auto sm:grid-cols-4 lg:grid-cols-5">
+            {OPTIONAL_CATS.includes(cat) && <NoneCard on={!draft[cat]} onClick={clear} />}
             {list.map((o) => (
-              <ItemCard key={o.id} item={o} on={equipped[cat] === o.id} onClick={() => void game.doEquip(o, equipped[cat] === o.id && OPTIONAL_CATS.includes(cat))} />
+              <ItemCard key={o.id} item={o} on={draft[cat] === o.id} onClick={() => pick(o)} />
             ))}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">このカテゴリのアイテムは まだもっていません。ガチャでGETしよう！</p>
+          <p className="text-sm text-muted-foreground">
+            このカテゴリのアイテムは まだもっていません。ガチャでGETしよう！
+          </p>
         )}
       </div>
     </div>
