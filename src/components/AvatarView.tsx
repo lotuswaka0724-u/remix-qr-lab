@@ -290,7 +290,17 @@ function Deco({ deco, x = 100, y = 168 }: { deco?: string | undefined; x?: numbe
 
 /* ---------------- 本体 ---------------- */
 
-export function AvatarView({ equipped, size = 220 }: { equipped: Equipped; size?: number }) {
+export type Crop = { x: number; y: number; w: number; h: number };
+
+export function AvatarView({
+  equipped,
+  size = 220,
+  crop,
+}: {
+  equipped: Equipped;
+  size?: number;
+  crop?: Crop | undefined;
+}) {
   const skin = art(equipped, "skin")?.["color"] ?? "#f7d9c4";
   const hairColor = art(equipped, "hairColor")?.["color"] ?? "#1f2430";
   const hair = art(equipped, "hair")?.["shape"];
