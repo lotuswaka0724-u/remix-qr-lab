@@ -164,23 +164,40 @@ function ItemCard({
       type="button"
       onClick={onClick}
       disabled={locked}
-      className={`rounded-2xl p-2 text-left text-xs ring-2 transition-all disabled:opacity-40 ${
-        on ? "bg-primary/10 ring-primary" : `bg-card ${RARITY_META[item.rarity].ring} hover:-translate-y-0.5`
+      className={`relative flex flex-col items-center gap-1 rounded-2xl p-2 ring-2 transition-all disabled:opacity-40 ${
+        on
+          ? "bg-primary/10 ring-primary"
+          : `bg-card ${RARITY_META[item.rarity].ring} hover:-translate-y-0.5`
       }`}
     >
-      <div className="flex items-center gap-1">
-        <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${RARITY_META[item.rarity].tone}`}>
-          {item.rarity}
+      <span
+        className={`absolute left-1.5 top-1.5 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${RARITY_META[item.rarity].tone}`}
+      >
+        {item.rarity}
+      </span>
+      {on && (
+        <span className="absolute right-1.5 top-1.5 grid h-5 w-5 place-content-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+          ✓
         </span>
-        {item.art["color"] && (
-          <span
-            className="ml-auto inline-block h-4 w-4 rounded-full ring-1 ring-black/10"
-            style={{ background: item.art["color"] }}
-          />
-        )}
-      </div>
-      <p className="mt-1 font-bold leading-tight">{item.name}</p>
-      <p className="text-[10px] text-muted-foreground">{on ? "そうび中 ✓" : locked ? "みしゅとく" : "タップでそうび"}</p>
+      )}
+      <ItemThumb itemId={item.id} size={72} />
+      <span className="line-clamp-2 text-center text-[11px] font-bold leading-tight">{item.name}</span>
+    </button>
+  );
+}
+
+/** 「つけない」カード（ぼうし・メガネなど はずせるカテゴリで使う） */
+function NoneCard({ on, onClick }: { on: boolean; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex flex-col items-center gap-1 rounded-2xl p-2 ring-2 transition-all ${
+        on ? "bg-primary/10 ring-primary" : "bg-card ring-border hover:-translate-y-0.5"
+      }`}
+    >
+      <span className="grid h-[72px] w-[72px] place-content-center rounded-xl bg-muted text-3xl">🚫</span>
+      <span className="text-[11px] font-bold">つけない</span>
     </button>
   );
 }
