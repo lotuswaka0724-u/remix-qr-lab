@@ -149,7 +149,7 @@ function MyPage() {
   const created = !!gv?.data.created;
 
   const homeworkCard = (
-    <section className="glass-panel p-4">
+    <section className="kid-panel p-4">
       <div className="mb-3 flex items-center gap-2">
         <h2 className="mr-auto font-display text-base font-bold">📚 今日の宿題</h2>
         <span
@@ -199,7 +199,7 @@ function MyPage() {
   );
 
   const pointsCard = (
-    <section className="glass-panel p-5 text-center">
+    <section className="kid-panel p-5 text-center">
       <h2 className="font-display text-base font-bold">🪙 ポイント</h2>
       <p className="mt-2 font-display text-5xl font-bold text-primary tabular-nums">
         {view.available}
