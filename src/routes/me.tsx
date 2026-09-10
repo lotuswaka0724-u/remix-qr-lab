@@ -357,6 +357,25 @@ function MyPage() {
           <GameScreen game={game} screen={screen} onBack={() => setScreen("home")} />
         )
       )}
+
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
+        <ul className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 py-2">
+          {navItems.map((n) => (
+            <li key={n.id} className="flex-1">
+              <button
+                type="button"
+                onClick={() => setScreen(n.id)}
+                className={`flex w-full min-w-[64px] flex-col items-center rounded-2xl px-2 py-1.5 text-[11px] font-bold transition-all ${
+                  screen === n.id ? "bg-primary text-primary-foreground" : "hover:bg-secondary"
+                }`}
+              >
+                <span className="text-xl">{n.icon}</span>
+                {n.label}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
     </main>
   );
 }
