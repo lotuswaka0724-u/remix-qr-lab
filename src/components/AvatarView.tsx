@@ -846,3 +846,89 @@ export const FURNITURE_EMOJI: Record<string, string> = {
   window: "🪟",
   light: "💡",
 };
+
+/* ---------------- アイテムのサムネイル（文字ではなく絵で見せる） ---------------- */
+
+const THUMB_BASE: Equipped = {
+  face: "face_genki",
+  hair: "hair_short",
+  hairColor: "hc_black",
+  skin: "skin_s1",
+  tops: "tops_tee_blue",
+  bottoms: "bottoms_pants",
+  shoes: "shoes_basic",
+};
+
+const CROPS: Partial<Record<Category, Crop>> = {
+  face: { x: 46, y: 40, w: 108, h: 108 },
+  hair: { x: 34, y: 8, w: 132, h: 132 },
+  hairColor: { x: 34, y: 8, w: 132, h: 132 },
+  skin: { x: 46, y: 40, w: 108, h: 108 },
+  hat: { x: 30, y: 2, w: 140, h: 128 },
+  glasses: { x: 46, y: 46, w: 108, h: 90 },
+  mask: { x: 46, y: 56, w: 108, h: 90 },
+  tops: { x: 34, y: 126, w: 132, h: 116 },
+  bottoms: { x: 44, y: 178, w: 112, h: 100 },
+  shoes: { x: 52, y: 216, w: 96, h: 66 },
+  accessory: { x: 24, y: 44, w: 152, h: 180 },
+  hold: { x: 60, y: 130, w: 140, h: 130 },
+};
+
+/** アイテム1つを絵で表示する（アバターに実際に着せた見た目を切り取って見せる） */
+export function ItemThumb({ itemId, size = 76 }: { itemId: string; size?: number }) {
+  const item = ITEM_BY_ID[itemId];
+  if (!item) return null;
+  const color = item.art["color"] ?? "#cbd5e1";
+
+  if (item.category === "pet") {
+    return <PetView petId={item.id} size={size} />;
+  }
+  if (item.category === "petItem") {
+    return (
+      <div
+        className="grid place-content-center rounded-xl"
+        style={{ width: size, height: size, background: color }}
+      >
+        <span className="text-2xl">
+          {item.art["slot"] === "hat" ? "🎩" : item.art["slot"] === "collar" ? "🔔" : item.art["slot"] === "face" ? "👓" : "🧥"}
+        </span>
+      </div>
+    );
+  }
+  if (item.category === "wallpaper" || item.category === "floor") {
+    return (
+      <div
+        className="grid place-content-center rounded-xl ring-1 ring-black/10"
+        style={{ width: size, height: size, background: color }}
+      >
+        {item.art["deco"] === "star" && <span className="text-xl">⭐</span>}
+      </div>
+    );
+  }
+  if (item.category === "furniture") {
+    return (
+      <div
+        className="grid place-content-center rounded-xl"
+        style={{ width: size, height: size, background: `${color}33` }}
+      >
+        <span className="text-3xl">{FURNITURE_EMOJI[item.art["kind"] ?? ""] ?? "📦"}</span>
+      </div>
+    );
+  }
+
+  const suit = item.category === "tops" && item.art["shape"] === "suit";
+  const crop: Crop = suit
+    ? { x: 34, y: 120, w: 132, h: 150 }
+    : (CROPS[item.category] ?? { x: 20, y: 20, w: 160, h: 260 });
+  const equipped: Equipped = { ...THUMB_BASE, [item.category]: item.id };
+  if (item.category === "hold") delete equipped["shoes"];
+
+  return (
+    <div
+      className="overflow-hidden rounded-xl bg-[linear-gradient(180deg,var(--secondary),transparent)]"
+      style={{ width: size, height: size }}
+    >
+      <AvatarView equipped={equipped} size={size} crop={crop} />
+    </div>
+  );
+}
