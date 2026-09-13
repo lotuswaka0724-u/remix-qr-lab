@@ -653,19 +653,46 @@ function ScanPage() {
                         const st = toStatus(day[s.id]?.[a.id]);
                         const meta = STATUS_META[st];
                         return (
-                          <td key={a.id} className="px-3 py-1.5 text-center">
-                            <button
-                              type="button"
-                              disabled={locked}
-                              onClick={() => cycleRecord(s.id, a.id)}
-                              title={meta.label}
-                              className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
-                                st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
-                              } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
-                              aria-label={`${s.name} ${a.name} ${meta.label}`}
-                            >
-                              {meta.short}
-                            </button>
+                          <td key={a.id} className="px-2 py-1.5 text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                type="button"
+                                disabled={locked}
+                                onClick={() => cycleRecord(s.id, a.id)}
+                                title={meta.label}
+                                className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
+                                  st === "none"
+                                    ? "hover:bg-secondary"
+                                    : "shadow-[var(--shadow-lift)]"
+                                } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
+                                aria-label={`${s.name} ${a.name} ${meta.label}`}
+                              >
+                                {meta.short}
+                              </button>
+                              {st !== "none" && (
+                                <span className="text-[10px] font-bold text-muted-foreground">
+                                  {st === "submitted" ? "" : meta.label}
+                                </span>
+                              )}
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => teacherMark(s, a, "REDO")}
+                                  className="rounded-full bg-[#fef9c3] px-1.5 py-0.5 text-[10px] font-bold text-[#713f12]"
+                                  aria-label={`${s.name} ${a.name} 直しあり`}
+                                >
+                                  直しあり
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => teacherMark(s, a, "SCHOOL_DONE")}
+                                  className="rounded-full bg-[#ede9fe] px-1.5 py-0.5 text-[10px] font-bold text-[#4c1d95]"
+                                  aria-label={`${s.name} ${a.name} 学校でやった`}
+                                >
+                                  学校
+                                </button>
+                              </div>
+                            </div>
                           </td>
                         );
                       })}
