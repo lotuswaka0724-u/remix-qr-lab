@@ -681,8 +681,6 @@ export function grantManualPoints(studentId: string, amount: number, note?: stri
   return grant;
 }
 
-
-
 export const updateGameSettings = (patch: Partial<GameSettings>) =>
   setState((p) => ({ ...p, gameSettings: { ...p.gameSettings, ...patch } }));
 

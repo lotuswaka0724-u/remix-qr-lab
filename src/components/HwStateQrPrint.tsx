@@ -45,7 +45,6 @@ export default function HwStateQrPrint() {
         </Button>
       </div>
 
-
       <div className="grid gap-4 sm:grid-cols-2">
         {cards.map((c) => {
           const meta = HW_STATE_META[c.state];
