@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import type { AppState, Status } from "@/lib/homework-store";
+import type { AppState, PointRules, Status } from "@/lib/homework-store";
 
 /** 児童用：ログイン番号（年度＋学年＋クラス＋出席番号）でログインし、自分のぶんだけを見る */
 
