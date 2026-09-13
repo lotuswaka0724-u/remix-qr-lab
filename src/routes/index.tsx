@@ -226,6 +226,21 @@ function ScanPage() {
     afterRecord(student, target, res, before);
   };
 
+  /** 先生が一覧から1タップで「直しあり」「学校でやった」にする */
+  const teacherMark = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+    hw: HwState,
+  ) => {
+    const before = rankOf(state, student.id);
+    const res = applyHwState(student.id, target.id, hw, { force: true });
+    if (!res.ok) {
+      toast.info(res.message, { description: `${student.name}／${target.name}` });
+      return;
+    }
+    afterRecord(student, target, res, before);
+  };
+
   /** 教材QRだけで提出（2回目は直し完了になる） */
   const recordMaterial = (
     student: { id: string; name: string },
