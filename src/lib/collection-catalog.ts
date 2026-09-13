@@ -238,7 +238,9 @@ export const COLL_ITEM_BY_ID: Record<string, CollItem> = Object.fromEntries(
 );
 
 export const collItemsOf = (category: CollCategory) =>
-  COLL_ITEMS.filter((i) => i.category === category);
+  COLL_ITEMS.filter((i) => i.category === category).sort(
+    (a, b) => (a.sort ?? 999) - (b.sort ?? 999),
+  );
 
 export const COLL_INITIAL_IDS = COLL_ITEMS.filter((i) => i.initial).map((i) => i.id);
 
@@ -251,6 +253,21 @@ export const backgroundCss = (id?: string) =>
 export const frameRing = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["ring"] ?? null;
 
 export const iconEmoji = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["emoji"] ?? null;
+
+/** 画像素材（あれば絵文字より優先してつかう） */
+export const iconImage = (id?: string) =>
+  COLL_ITEM_BY_ID[id ?? ""]?.image ?? COLL_ITEM_BY_ID[id ?? ""]?.art["image"] ?? null;
+
+/** アイテムのレアリティ段階（演出の豪華さに使う） */
+export const itemTier = (id?: string) =>
+  RARITY_TIER[COLL_ITEM_BY_ID[id ?? ""]?.rarity ?? "N"];
+
+/** 演出キー（fx / tune）からレアリティ段階を引く */
+export const tierOfArt = (key: "fx" | "tune", value?: string | null) => {
+  if (!value) return 1 as const;
+  const item = COLL_ITEMS.find((i) => i.art[key] === value);
+  return RARITY_TIER[item?.rarity ?? "N"];
+};
 
 export const soundTune = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["tune"] ?? null;
 
