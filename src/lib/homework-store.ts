@@ -24,35 +24,41 @@ export const loginNumber = (s: Student) =>
     : "";
 
 /** 提出のようす */
-export type Status = "fixed" | "submitted" | "school" | "declared" | "none";
+export type Status = "fixed" | "redo" | "submitted" | "school" | "declared" | "none";
 
-export const STATUS_ORDER: Status[] = ["none", "submitted", "fixed", "school", "declared"];
+export const STATUS_ORDER: Status[] = ["none", "submitted", "redo", "fixed", "school", "declared"];
 
 export const STATUS_META: Record<
   Status,
   { short: string; label: string; desc: string; tone: string }
 > = {
   fixed: {
-    short: "直",
-    label: "提出＋直し完了",
-    desc: "宿題を出して、直しまで終わらせた",
+    short: "完",
+    label: "直し完了",
+    desc: "直しまで終わらせた",
     tone: "bg-[#1d4ed8] text-white",
   },
+  redo: {
+    short: "直",
+    label: "直しあり",
+    desc: "先生が直しをお願いした（直し待ち）",
+    tone: "bg-[#ca8a04] text-white",
+  },
   submitted: {
-    short: "提",
-    label: "提出（直しまだ）",
-    desc: "宿題を出したが、直しはまだ",
+    short: "✓",
+    label: "提出済み",
+    desc: "ふつうに提出した",
     tone: "bg-[#3b82f6] text-white",
   },
   school: {
     short: "校",
-    label: "学校で終えて提出",
+    label: "学校でやった",
     desc: "学校で終わらせて提出した",
     tone: "bg-[#60a5fa] text-white",
   },
   declared: {
-    short: "申",
-    label: "忘れを申告",
+    short: "忘",
+    label: "忘れた",
     desc: "出していないが、忘れたことを自分で伝えた",
     tone: "bg-[#bfdbfe] text-[#1e3a8a]",
   },
@@ -130,7 +136,7 @@ export const HW_STATE_META: Record<HwState, HwStateMeta> = {
     label: "なおすところがありました",
     icon: "✏️",
     defaultPoints: -3,
-    status: "submitted",
+    status: "redo",
     needsSubmit: true,
     card: "bg-[#fef9c3] text-[#713f12] border-[#eab308]",
     badge: "bg-[#ca8a04] text-white",
@@ -216,6 +222,15 @@ export function parseHwStateQr(text: string): HwState | null {
 /** date -> studentId -> assignmentId -> ようす */
 export type Records = Record<string, Record<string, Record<string, Status | boolean>>>;
 
+/** 先生が手作業でわたしたポイント */
+export type ManualGrant = {
+  id: string;
+  studentId: string;
+  amount: number;
+  note?: string;
+  at: number;
+};
+
 export type AppState = {
   schoolLabel: string;
   assignments: Assignment[];
@@ -231,6 +246,8 @@ export type AppState = {
   hwPointRules: HwPointRules;
   /** 宿題じょうたいQRの記録 */
   hwEvents: HwEvent[];
+  /** 先生が手で足したポイント */
+  manualGrants: ManualGrant[];
   /** 将来用ゲーム設定（公開画面では使用しない） */
   gameSettings: GameSettings;
   /** 児童ごとの合言葉（先生だけが見られる） */
@@ -260,7 +277,7 @@ const defaultState = (): AppState => ({
   ],
   records: {},
   settings: { sound: 1, vibe: true, speak: true, scanStatus: "submitted" },
-  pointRules: { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 },
+  pointRules: { fixed: 5, redo: 0, submitted: 3, school: 2, declared: 1, none: 0 },
   gachaCost: 10,
   prizes: [
     { id: "pz_1", name: "マイページ背景", weight: 20 },
@@ -273,6 +290,7 @@ const defaultState = (): AppState => ({
   rankRules: { ...DEFAULT_RANK_RULES },
   hwPointRules: { ...DEFAULT_HW_POINT_RULES },
   hwEvents: [],
+  manualGrants: [],
   gameSettings: { ...DEFAULT_GAME_SETTINGS },
 });
 
@@ -298,6 +316,7 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     hwPointRules: { ...base.hwPointRules, ...(parsed.hwPointRules ?? {}) },
     gameSettings: { ...base.gameSettings, ...(parsed.gameSettings ?? {}) },
     hwEvents: parsed.hwEvents ?? [],
+    manualGrants: parsed.manualGrants ?? [],
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
   };
@@ -532,6 +551,9 @@ export function earnedPoints(state: AppState, studentId: string) {
   for (const e of state.hwEvents ?? []) {
     if (e.studentId === studentId) total += e.delta;
   }
+  for (const g of state.manualGrants ?? []) {
+    if (g.studentId === studentId) total += g.amount;
+  }
   return total;
 }
 
@@ -572,6 +594,15 @@ export function applyHwState(
       message: "このしゅくだいは、すでに処理されています",
     };
   }
+  // 「提出」「わすれた」「学校でやった」は、どれか1つだけ（ポイントの二重付与をふせぐ）
+  const exclusive: HwState[] = ["SUBMIT", "FORGOT", "SCHOOL_DONE"];
+  if (exclusive.includes(hw) && already.some((a) => exclusive.includes(a))) {
+    return {
+      ok: false,
+      reason: "duplicate",
+      message: "このしゅくだいは、もう記録ずみです",
+    };
+  }
   if (HW_STATE_META[hw].needsSubmit && !already.includes("SUBMIT") && !opts.force) {
     return {
       ok: false,
@@ -606,6 +637,48 @@ export function applyHwState(
   });
 
   return { ok: true, delta, total, state: hw };
+}
+
+/**
+ * 教材QRを1回読み取ったときの処理。
+ * ・まだ何もない → 提出済み（通常提出のポイント）
+ * ・先生が「直しあり」にしていた → 直し完了（直し完了のポイント）
+ * ・それ以外（すでに提出ずみ・直し完了ずみ・忘れた申告ずみ）→ ポイントは動かさない
+ */
+export function applyMaterialScan(
+  studentId: string,
+  assignmentId: string,
+  opts: { date?: string } = {},
+): HwApplyResult {
+  const date = opts.date ?? todayKey();
+  const already = hwStatesFor(state, date, studentId, assignmentId);
+
+  if (already.includes("REDO") && !already.includes("RESUBMIT")) {
+    return applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date });
+  }
+  if (already.length) {
+    return {
+      ok: false,
+      reason: "duplicate",
+      message: "このしゅくだいは、もう記録ずみです",
+    };
+  }
+  return applyHwState(studentId, assignmentId, "SUBMIT", { date });
+}
+
+/** 先生が児童に手でポイントをわたす（マイナスは受け付けない） */
+export function grantManualPoints(studentId: string, amount: number, note?: string) {
+  const value = Math.floor(amount);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  const grant: ManualGrant = {
+    id: `mg_${uid()}`,
+    studentId,
+    amount: value,
+    ...(note ? { note } : {}),
+    at: Date.now(),
+  };
+  setState((s) => ({ ...s, manualGrants: [...(s.manualGrants ?? []), grant] }));
+  return grant;
 }
 
 export const updateGameSettings = (patch: Partial<GameSettings>) =>

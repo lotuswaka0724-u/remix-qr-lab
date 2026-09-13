@@ -22,6 +22,7 @@ import {
 } from "@/lib/feedback";
 import {
   applyHwState,
+  applyMaterialScan,
   clearToday,
   cycleRecord,
   HW_STATE_META,
@@ -153,33 +154,18 @@ function ScanPage() {
     window.setTimeout(() => setFlashRow(null), 1500);
   };
 
-  const record = (
+  /** 記録できたときの共通処理（音・演出・表示） */
+  const afterRecord = (
     student: { id: string; name: string },
     target: { id: string; name: string },
-    hw: HwState,
-    force = false,
+    res: { delta: number; total: number; state: HwState },
+    before: ReturnType<typeof rankOf>,
   ) => {
-    const before = rankOf(state, student.id);
-    const res = applyHwState(student.id, target.id, hw, { force });
-
-    if (!res.ok) {
-      playError();
-      if (state.settings.vibe) vibrate([80, 60, 80]);
-      if (res.reason === "order") {
-        setPendingConfirm({ student, target, hw, message: res.message });
-        toast.warning(res.message, { description: `${student.name}／${target.name}` });
-      } else {
-        toast.info(res.message, {
-          description: `${student.name}／${target.name}／${HW_STATE_META[hw].label}`,
-        });
-      }
-      return;
-    }
-
     setPendingConfirm(null);
     setPendingStudent(null);
     const after = rankOfPoints(state.rankRules, res.total);
     const rankUp = after !== before ? after : null;
+    const hw = res.state;
 
     setLastResult({
       studentName: student.name,
@@ -212,17 +198,80 @@ function ScanPage() {
     );
   };
 
+  const fail = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+    res: { reason: "duplicate" | "order"; message: string },
+    hw?: HwState,
+  ) => {
+    playError();
+    if (state.settings.vibe) vibrate([80, 60, 80]);
+    if (res.reason === "order" && hw) {
+      setPendingConfirm({ student, target, hw, message: res.message });
+      toast.warning(res.message, { description: `${student.name}／${target.name}` });
+    } else {
+      toast.info(res.message, { description: `${student.name}／${target.name}` });
+    }
+  };
+
+  const record = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+    hw: HwState,
+    force = false,
+  ) => {
+    const before = rankOf(state, student.id);
+    const res = applyHwState(student.id, target.id, hw, { force });
+    if (!res.ok) return fail(student, target, res, hw);
+    afterRecord(student, target, res, before);
+  };
+
+  /** 先生が一覧から1タップで「直しあり」「学校でやった」にする */
+  const teacherMark = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+    hw: HwState,
+  ) => {
+    const before = rankOf(state, student.id);
+    const res = applyHwState(student.id, target.id, hw, { force: true });
+    if (!res.ok) {
+      toast.info(res.message, { description: `${student.name}／${target.name}` });
+      return;
+    }
+    afterRecord(student, target, res, before);
+  };
+
+  /** 教材QRだけで提出（2回目は直し完了になる） */
+  const recordMaterial = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+  ) => {
+    const before = rankOf(state, student.id);
+    const res = applyMaterialScan(student.id, target.id);
+    if (!res.ok) return fail(student, target, res);
+    afterRecord(student, target, res, before);
+  };
+
+  const playBadgeFx = (studentId: string) => {
+    const badge = badges[studentId];
+    const myRank = rankOf(state, studentId);
+    const tune = soundTune(badge?.sound);
+    if (tune) playCollectionSound(tune, myRank);
+    const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
+    if (fx) setCollFx({ fx, id: Date.now() });
+  };
+
   const handleDetected = (text: string) => {
     const now = Date.now();
     if (lastScan.current.text === text && now - lastScan.current.at < 2500) return;
     lastScan.current = { text, at: now };
 
-    // ① 宿題じょうたいQR（児童が自分でえらんで持ってくるカード）
+    // ① しゅくだいカードQR（児童がつかうのは「わすれました」だけ）
     const hw = parseHwStateQr(text);
     if (hw) {
       if (!pendingStudent) {
         playError();
-        toast.warning("さきに児童のQRを読み取ってください");
+        toast.warning("さきに教材のQRか、児童のQRを読み取ってください");
         return;
       }
       const target =
@@ -237,7 +286,7 @@ function ScanPage() {
       return;
     }
 
-    // ② 児童QR（だれの宿題かを決める）
+    // ② 教材QR（児童名＋教材名）→ これだけで提出が完了する
     const { student, assignment } = parseQr(text, state);
     if (!student) {
       playError();
@@ -245,18 +294,20 @@ function ScanPage() {
       toast.error("該当する児童が見つかりません", { description: text });
       return;
     }
+    if (assignment) {
+      playBadgeFx(student.id);
+      recordMaterial(student, assignment);
+      return;
+    }
+
+    // ③ 児童QRだけのとき（「わすれました」カードを使うときなど）
     setPendingConfirm(null);
     setPendingStudent({ student, assignment });
-    const badge = badges[student.id];
-    const myRank = rankOf(state, student.id);
-    const tune = soundTune(badge?.sound);
-    if (tune) playCollectionSound(tune, myRank);
-    else playSuccess(state.settings.sound);
-    const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
-    if (fx) setCollFx({ fx, id: Date.now() });
-    if (state.settings.speak) speak(`${student.name}さん、しゅくだいのカードをかざしてください`);
+    playBadgeFx(student.id);
+    playSuccess(state.settings.sound);
+    if (state.settings.speak) speak(`${student.name}さん、カードをかざしてください`);
     toast.success(`${student.name} さん`, {
-      description: "つぎに、しゅくだいのカードを読み取ってください",
+      description: "「わすれました」のカードを読み取ってください",
     });
   };
 
@@ -361,22 +412,26 @@ function ScanPage() {
               </Button>
             </form>
 
-            {/* ---- STEP 表示（児童QR → しゅくだいのカード） ---- */}
+            {/* ---- 読み取りのしかた ---- */}
             <div className="mt-2 rounded-2xl bg-primary/5 p-2.5 text-xs">
               <p className="font-bold">
-                STEP1 児童のQR <span className="mx-1 text-muted-foreground">→</span> STEP2
-                しゅくだいのカード
+                提出は「教材のQR」だけでOK
+                <span className="ml-1 font-medium text-muted-foreground">
+                  ／ 直しが終わったら、同じ教材のQRをもう一度
+                </span>
               </p>
               {pendingStudent ? (
                 <p className="mt-1 font-bold text-primary">
                   {pendingStudent.student.name} さん
                   {pendingStudent.assignment ? `／${pendingStudent.assignment.name}` : ""}
                   <span className="ml-1 font-medium text-muted-foreground">
-                    しゅくだいのカードをかざしてください
+                    「わすれました」のカードをかざしてください
                   </span>
                 </p>
               ) : (
-                <p className="mt-1 text-muted-foreground">児童のQRを読み取ってください</p>
+                <p className="mt-1 text-muted-foreground">
+                  わすれたときだけ、児童のQR →「わすれました」カードの順に読み取ります。
+                </p>
               )}
               {pendingStudent && (
                 <button
@@ -613,19 +668,46 @@ function ScanPage() {
                         const st = toStatus(day[s.id]?.[a.id]);
                         const meta = STATUS_META[st];
                         return (
-                          <td key={a.id} className="px-3 py-1.5 text-center">
-                            <button
-                              type="button"
-                              disabled={locked}
-                              onClick={() => cycleRecord(s.id, a.id)}
-                              title={meta.label}
-                              className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
-                                st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
-                              } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
-                              aria-label={`${s.name} ${a.name} ${meta.label}`}
-                            >
-                              {meta.short}
-                            </button>
+                          <td key={a.id} className="px-2 py-1.5 text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <button
+                                type="button"
+                                disabled={locked}
+                                onClick={() => cycleRecord(s.id, a.id)}
+                                title={meta.label}
+                                className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
+                                  st === "none"
+                                    ? "hover:bg-secondary"
+                                    : "shadow-[var(--shadow-lift)]"
+                                } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
+                                aria-label={`${s.name} ${a.name} ${meta.label}`}
+                              >
+                                {meta.short}
+                              </button>
+                              {st !== "none" && (
+                                <span className="text-[10px] font-bold text-muted-foreground">
+                                  {st === "submitted" ? "" : meta.label}
+                                </span>
+                              )}
+                              <div className="flex gap-1">
+                                <button
+                                  type="button"
+                                  onClick={() => teacherMark(s, a, "REDO")}
+                                  className="rounded-full bg-[#fef9c3] px-1.5 py-0.5 text-[10px] font-bold text-[#713f12]"
+                                  aria-label={`${s.name} ${a.name} 直しあり`}
+                                >
+                                  直しあり
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => teacherMark(s, a, "SCHOOL_DONE")}
+                                  className="rounded-full bg-[#ede9fe] px-1.5 py-0.5 text-[10px] font-bold text-[#4c1d95]"
+                                  aria-label={`${s.name} ${a.name} 学校でやった`}
+                                >
+                                  学校
+                                </button>
+                              </div>
+                            </div>
                           </td>
                         );
                       })}

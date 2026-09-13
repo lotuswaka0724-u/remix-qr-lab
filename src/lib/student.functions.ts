@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 
-import type { AppState, Status } from "@/lib/homework-store";
+import type { AppState, PointRules, Status } from "@/lib/homework-store";
 
 /** 児童用：ログイン番号（年度＋学年＋クラス＋出席番号）でログインし、自分のぶんだけを見る */
 
@@ -28,18 +28,40 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
   const student = (state.students ?? []).find((s) => s.id === studentId);
   if (!student) return null;
 
-  const rules = state.pointRules ?? { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 };
+  const rules: PointRules = state.pointRules ?? {
+    fixed: 5,
+    redo: 0,
+    submitted: 3,
+    school: 2,
+    declared: 1,
+    none: 0,
+  };
   const date = todayKey();
   const day = state.records?.[date]?.[studentId] ?? {};
   const items = (state.assignments ?? [])
     .filter((a) => a.inToday)
     .map((a) => ({ id: a.id, name: a.name, status: toStatus(day[a.id]) }));
 
+  // 宿題カードQRで処理ずみの記録は、そちらの点数を使う（二重加算をふせぐ）
+  const handled = new Set(
+    (state.hwEvents ?? [])
+      .filter((e) => e.studentId === studentId)
+      .map((e) => `${e.date}|${e.assignmentId}`),
+  );
   let earned = 0;
-  for (const d of Object.values(state.records ?? {})) {
-    const mine = d[studentId];
+  for (const [d, rec] of Object.entries(state.records ?? {})) {
+    const mine = rec[studentId];
     if (!mine) continue;
-    for (const v of Object.values(mine)) earned += rules[toStatus(v)] ?? 0;
+    for (const [assignmentId, v] of Object.entries(mine)) {
+      if (handled.has(`${d}|${assignmentId}`)) continue;
+      earned += rules[toStatus(v)] ?? 0;
+    }
+  }
+  for (const e of state.hwEvents ?? []) {
+    if (e.studentId === studentId) earned += e.delta;
+  }
+  for (const g of state.manualGrants ?? []) {
+    if (g.studentId === studentId) earned += g.amount;
   }
   const mineLog = (state.gachaLog ?? []).filter((g) => g.studentId === studentId);
   const spent = mineLog.reduce((a, g) => a + g.cost, 0);
