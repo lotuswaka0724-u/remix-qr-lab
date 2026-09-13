@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import {
-  HW_STATE_META,
-  HW_STATE_ORDER,
-  hwStateQrText,
-  useAppState,
-  type HwState,
-} from "@/lib/homework-store";
+import { HW_STATE_META, hwStateQrText, useAppState, type HwState } from "@/lib/homework-store";
 
 type Card = { state: HwState; url: string };
+
+/** 児童がつかうカードは「わすれました」だけ（提出は教材QRで完了する） */
+const PRINT_STATES: HwState[] = ["FORGOT"];
 
 /** 児童が自分でえらぶ「しゅくだいのカード」を印刷する */
 export default function HwStateQrPrint() {
@@ -21,8 +18,11 @@ export default function HwStateQrPrint() {
     (async () => {
       const QR = await import("qrcode");
       const list: Card[] = [];
-      for (const s of HW_STATE_ORDER) {
-        list.push({ state: s, url: await QR.toDataURL(hwStateQrText(s), { margin: 1, width: 420 }) });
+      for (const s of PRINT_STATES) {
+        list.push({
+          state: s,
+          url: await QR.toDataURL(hwStateQrText(s), { margin: 1, width: 420 }),
+        });
       }
       if (!cancelled) setCards(list);
     })();
@@ -35,8 +35,8 @@ export default function HwStateQrPrint() {
     <section className="paper-card p-4">
       <h2 className="mb-1 font-display text-base font-bold">しゅくだいカード印刷（児童用）</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        児童が自分のようすに合ったカードをえらんで持ってきます。先生は児童のQR →
-        このカードの順に読み取ります。
+        宿題を出すときは、教材のQRを読み取るだけで完了です。このカードは「わすれた」ときだけ使います（児童のQR
+        → わすれましたカードの順）。
       </p>
 
       <div className="mb-3 print:hidden">
@@ -44,6 +44,7 @@ export default function HwStateQrPrint() {
           印刷する
         </Button>
       </div>
+
 
       <div className="grid gap-4 sm:grid-cols-2">
         {cards.map((c) => {
