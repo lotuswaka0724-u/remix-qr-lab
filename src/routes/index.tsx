@@ -271,6 +271,13 @@ function ScanPage() {
     <main className="mx-auto w-full max-w-[1600px] px-3 pb-3 pt-2 lg:h-[calc(100svh-62px)] lg:overflow-hidden">
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
+      <CollectionFx
+        fx={collFx?.fx ?? null}
+        rank={
+          pendingStudent ? (rankOf(state, pendingStudent.student.id) as "NORMAL" | "GOLD" | "BLACK") : "NORMAL"
+        }
+        playId={collFx?.id ?? null}
+      />
 
       {/* ---- 今日の提出状況（横長バー） ---- */}
       <section className="glass-panel mb-3 px-4 py-2.5">
