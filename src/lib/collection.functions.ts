@@ -146,7 +146,8 @@ export const equipCollItem = createServerFn({ method: "POST" })
     const item = COLL_ITEM_BY_ID[data.itemId];
     if (!item) return buildView(studentId);
     const coll = normalizeColl((await readRaw(studentId))["coll"] as Partial<CollData>);
-    if (!coll.owned.includes(item.id)) return { ...(await buildView(studentId, coll)), error: "notowned" as const };
+    if (!coll.owned.includes(item.id))
+      return { ...(await buildView(studentId, coll)), error: "notowned" as const };
     const next: CollData = { ...coll, equipped: { ...coll.equipped, [item.category]: item.id } };
     await writeColl(studentId, next);
     return buildView(studentId, next);
@@ -162,7 +163,8 @@ export const drawCollGacha = createServerFn({ method: "POST" }).handler(async ()
   const cost = state.gachaCost ?? 10;
   const coll = normalizeColl((await readRaw(studentId))["coll"] as Partial<CollData>);
 
-  if (p.available < cost) return { ...(await buildView(studentId, coll)), error: "points" as const };
+  if (p.available < cost)
+    return { ...(await buildView(studentId, coll)), error: "points" as const };
 
   const rankOrder = { NORMAL: 0, GOLD: 1, BLACK: 2 } as const;
   const pool = COLL_ITEMS.filter(
@@ -231,8 +233,7 @@ export const getClassBadges = createServerFn({ method: "GET" }).handler(async ()
   const out: ClassBadge[] = [];
   for (const row of data ?? []) {
     const coll = (row.data as Record<string, unknown> | null)?.["coll"] as
-      | Partial<CollData>
-      | undefined;
+      Partial<CollData> | undefined;
     const eq = coll?.equipped;
     if (!eq) continue;
     out.push({

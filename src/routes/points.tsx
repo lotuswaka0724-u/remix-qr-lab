@@ -79,7 +79,9 @@ function PointsPage() {
             >
               <span className="w-5 shrink-0 text-center tabular-nums opacity-70">{i + 1}</span>
               <span className="min-w-0 flex-1 truncate font-bold">{r.student.name}</span>
-              <span className="shrink-0 tabular-nums">{availablePoints(state, r.student.id)}pt</span>
+              <span className="shrink-0 tabular-nums">
+                {availablePoints(state, r.student.id)}pt
+              </span>
             </button>
           ))}
         </div>
@@ -89,7 +91,8 @@ function PointsPage() {
         <section className="glass-panel p-5 text-center">
           <p className="font-display text-lg font-bold">{student.name} さん</p>
           <p className="mt-1 text-xs text-muted-foreground">
-            ためた {earnedPoints(state, student.id)}pt ／ つかった {spentPoints(state, student.id)}pt
+            ためた {earnedPoints(state, student.id)}pt ／ つかった {spentPoints(state, student.id)}
+            pt
           </p>
           <p className="mt-2 font-display text-5xl font-bold text-primary tabular-nums">
             {available}

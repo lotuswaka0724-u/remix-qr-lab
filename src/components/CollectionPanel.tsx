@@ -77,13 +77,7 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
   );
 }
 
-export default function CollectionPanel({
-  api,
-  screen,
-}: {
-  api: CollectionApi;
-  screen: Screen;
-}) {
+export default function CollectionPanel({ api, screen }: { api: CollectionApi; screen: Screen }) {
   const { view, setView, loading, draw, equip } = api;
   const [busy, setBusy] = useState(false);
   const [prize, setPrize] = useState<CollPrize | null>(null);
@@ -96,7 +90,10 @@ export default function CollectionPanel({
   const equipped = view?.coll.equipped ?? {};
 
   const progress = useMemo(
-    () => ({ have: owned.filter((id) => COLL_ITEMS.some((i) => i.id === id)).length, all: COLL_ITEMS.length }),
+    () => ({
+      have: owned.filter((id) => COLL_ITEMS.some((i) => i.id === id)).length,
+      all: COLL_ITEMS.length,
+    }),
     [owned],
   );
 
@@ -144,11 +141,24 @@ export default function CollectionPanel({
         setPhase("result");
         setBusy(false);
         playCollectionSound(
-          p.rarity === "BLACK" ? "black" : p.rarity === "GOLD" ? "gold" : p.rarity === "N" ? "pico" : "fanfare",
+          p.rarity === "BLACK"
+            ? "black"
+            : p.rarity === "GOLD"
+              ? "gold"
+              : p.rarity === "N"
+                ? "pico"
+                : "fanfare",
           rank,
         );
         setFxPlay({
-          fx: p.rarity === "BLACK" ? "black" : p.rarity === "GOLD" ? "gold" : p.rarity === "SR" ? "starfall" : "glitter",
+          fx:
+            p.rarity === "BLACK"
+              ? "black"
+              : p.rarity === "GOLD"
+                ? "gold"
+                : p.rarity === "SR"
+                  ? "starfall"
+                  : "glitter",
           id: Date.now(),
         });
       }, 520);
@@ -179,7 +189,10 @@ export default function CollectionPanel({
         いまのカードランク：{view.rank}
         {view.rank === "NORMAL" && "（ランクが上がると GOLD・BLACK も出ます）"}
       </p>
-      <div className={`gacha-stage ${phase === "result" ? "gacha-stage-result" : ""}`} aria-live="polite">
+      <div
+        className={`gacha-stage ${phase === "result" ? "gacha-stage-result" : ""}`}
+        aria-live="polite"
+      >
         <div className={`gacha-machine ${phase === "spinning" ? "gacha-machine-spin" : ""}`}>
           <span className="gacha-machine-window" aria-hidden>
             <span className="gacha-capsule">●</span>
@@ -311,7 +324,9 @@ export default function CollectionPanel({
                 >
                   {item.rarity}
                 </span>
-                {inUse && <span className="text-[10px] font-bold text-primary">つかっています</span>}
+                {inUse && (
+                  <span className="text-[10px] font-bold text-primary">つかっています</span>
+                )}
                 {has && dupe > 0 && (
                   <span className="text-[10px] text-muted-foreground">かぶり ×{dupe}</span>
                 )}

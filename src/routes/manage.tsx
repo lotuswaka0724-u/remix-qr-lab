@@ -33,7 +33,8 @@ export const Route = createFileRoute("/manage")({
       { title: "管理 | 宿題チェッカー" },
       {
         name: "description",
-        content: "宿題の項目とクラス名簿を追加・編集。今日の宿題として表示する項目も切り替えられます。",
+        content:
+          "宿題の項目とクラス名簿を追加・編集。今日の宿題として表示する項目も切り替えられます。",
       },
       { property: "og:title", content: "管理 | 宿題チェッカー" },
       {
@@ -96,7 +97,11 @@ function ManagePage() {
             setHwName("");
           }}
         >
-          <Input value={hwName} onChange={(e) => setHwName(e.target.value)} placeholder="新しい宿題名" />
+          <Input
+            value={hwName}
+            onChange={(e) => setHwName(e.target.value)}
+            placeholder="新しい宿題名"
+          />
           <Button type="submit">追加</Button>
         </form>
       </section>
@@ -108,7 +113,10 @@ function ManagePage() {
           {[...state.students]
             .sort((a, b) => a.className.localeCompare(b.className) || a.number - b.number)
             .map((s) => (
-              <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/60 p-2">
+              <li
+                key={s.id}
+                className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/60 p-2"
+              >
                 <Input
                   type="number"
                   value={s.number}
@@ -189,7 +197,6 @@ function ManagePage() {
         </ul>
       </section>
 
-
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">カードランクの設定</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -216,7 +223,6 @@ function ManagePage() {
         </ul>
       </section>
 
-
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">コレクションガチャの設定</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -238,9 +244,7 @@ function ManagePage() {
 
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">QRコード管理・印刷</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          用途に合わせて印刷のしかたを選べます。
-        </p>
+        <p className="mb-3 text-xs text-muted-foreground">用途に合わせて印刷のしかたを選べます。</p>
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -266,8 +270,13 @@ function ManagePage() {
         </div>
       </section>
 
-      {qrMode === "card" ? <QrMaker /> : qrMode === "material" ? <MaterialQrPrint /> : <HwStateQrPrint />}
-
+      {qrMode === "card" ? (
+        <QrMaker />
+      ) : qrMode === "material" ? (
+        <MaterialQrPrint />
+      ) : (
+        <HwStateQrPrint />
+      )}
 
       <MyPageLinks />
 
@@ -277,4 +286,3 @@ function ManagePage() {
     </main>
   );
 }
-

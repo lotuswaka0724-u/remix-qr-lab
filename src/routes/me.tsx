@@ -189,7 +189,9 @@ function MyPage() {
       <p className="mt-1 text-xs text-muted-foreground">
         つうさん {view.earned}pt ／ つかった {view.spent}pt
       </p>
-      {coll.view && <p className="mt-2 text-xs font-bold text-primary">カードランク：{coll.view.rank}</p>}
+      {coll.view && (
+        <p className="mt-2 text-xs font-bold text-primary">カードランク：{coll.view.rank}</p>
+      )}
       <Button className="mt-4 rounded-full px-8" onClick={() => setScreen("gacha")}>
         🎰 ガチャへ
       </Button>

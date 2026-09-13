@@ -213,7 +213,6 @@ export function parseHwStateQr(text: string): HwState | null {
   return all.find((s) => HW_STATE_META[s].label.replace(/[\s　]/g, "") === plain) ?? null;
 }
 
-
 /** date -> studentId -> assignmentId -> ようす */
 export type Records = Record<string, Record<string, Record<string, Status | boolean>>>;
 
@@ -371,7 +370,6 @@ function load() {
 }
 
 function persist() {
-
   try {
     window.localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
@@ -403,7 +401,6 @@ export function useAppState(): AppState {
     () => state,
   );
 }
-
 
 /* ---------- status helpers ---------- */
 
@@ -616,7 +613,6 @@ export const updateGameSettings = (patch: Partial<GameSettings>) =>
 
 export const updateHwPointRules = (patch: Partial<HwPointRules>) =>
   setState((s) => ({ ...s, hwPointRules: { ...s.hwPointRules, ...patch } }));
-
 
 export const spentPoints = (state: AppState, studentId: string) =>
   state.gachaLog.filter((g) => g.studentId === studentId).reduce((a, g) => a + g.cost, 0);
