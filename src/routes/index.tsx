@@ -57,12 +57,12 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "QRコードをかざすだけで宿題の提出を記録。今日の提出状況をその場で確認できます。",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ScanPage,
 });
-
-
 
 function ScanPage() {
   const state = useAppState();
@@ -114,7 +114,6 @@ function ScanPage() {
     };
   }, [loadBadges]);
 
-
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
     [state.students],
@@ -146,7 +145,6 @@ function ScanPage() {
   const pendingCount = students.filter((s) =>
     todayAssignments.some((a) => !isSubmitted(day[s.id]?.[a.id])),
   ).length;
-
 
   const celebrate = (hitData: Omit<Hit, "id">, studentId: string) => {
     setHit({ ...hitData, id: Date.now() });
@@ -262,9 +260,9 @@ function ScanPage() {
     });
   };
 
-
   const doneStudents = students.filter(
-    (s) => todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id])),
+    (s) =>
+      todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id])),
   ).length;
 
   return (
@@ -274,7 +272,9 @@ function ScanPage() {
       <CollectionFx
         fx={collFx?.fx ?? null}
         rank={
-          pendingStudent ? (rankOf(state, pendingStudent.student.id) as "NORMAL" | "GOLD" | "BLACK") : "NORMAL"
+          pendingStudent
+            ? (rankOf(state, pendingStudent.student.id) as "NORMAL" | "GOLD" | "BLACK")
+            : "NORMAL"
         }
         playId={collFx?.id ?? null}
       />
@@ -318,7 +318,6 @@ function ScanPage() {
       </section>
 
       <div className="grid gap-3 lg:h-[calc(100%-84px)] lg:grid-cols-[300px_minmax(0,1fr)]">
-
         {/* ---- 左：スキャナー ---- */}
         <div className="flex min-h-0 flex-col gap-3">
           <section className="glass-panel flex min-h-0 flex-col overflow-hidden p-3">
@@ -362,13 +361,11 @@ function ScanPage() {
               </Button>
             </form>
 
-
-
             {/* ---- STEP 表示（児童QR → しゅくだいのカード） ---- */}
             <div className="mt-2 rounded-2xl bg-primary/5 p-2.5 text-xs">
               <p className="font-bold">
-                STEP1 児童のQR{" "}
-                <span className="mx-1 text-muted-foreground">→</span> STEP2 しゅくだいのカード
+                STEP1 児童のQR <span className="mx-1 text-muted-foreground">→</span> STEP2
+                しゅくだいのカード
               </p>
               {pendingStudent ? (
                 <p className="mt-1 font-bold text-primary">
@@ -407,12 +404,7 @@ function ScanPage() {
                     size="sm"
                     className="rounded-full"
                     onClick={() =>
-                      record(
-                        pendingConfirm.student,
-                        pendingConfirm.target,
-                        pendingConfirm.hw,
-                        true,
-                      )
+                      record(pendingConfirm.student, pendingConfirm.target, pendingConfirm.hw, true)
                     }
                   >
                     先生が確認して記録する
@@ -446,13 +438,9 @@ function ScanPage() {
                 <p className="mt-0.5 font-display text-lg font-bold tabular-nums">
                   {lastResult.delta >= 0 ? `＋${lastResult.delta}` : lastResult.delta}ポイント
                 </p>
-                <p className="text-[11px] opacity-80">
-                  ぜんぶで {lastResult.total} ポイント
-                </p>
+                <p className="text-[11px] opacity-80">ぜんぶで {lastResult.total} ポイント</p>
               </div>
             )}
-
-
 
             <button
               type="button"
@@ -508,7 +496,7 @@ function ScanPage() {
                 href="/points"
                 className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary"
               >
-                ガチャ
+                ポイント
               </a>
             </div>
             <ol className="min-h-0 flex-1 space-y-1 overflow-auto">
@@ -520,6 +508,11 @@ function ScanPage() {
                   }`}
                 >
                   <span className="w-5 shrink-0 text-center tabular-nums">{i + 1}</span>
+                  <CollectionIcon
+                    iconId={badges[r.student.id]?.icon}
+                    frameId={badges[r.student.id]?.frame}
+                    size={22}
+                  />
                   <span className="min-w-0 flex-1 truncate">{r.student.name}</span>
                   <span
                     className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider ${
@@ -592,52 +585,51 @@ function ScanPage() {
               <tbody>
                 {students.map((s) => {
                   const allDone =
-                    todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id]));
+                    todayAssignments.length > 0 &&
+                    todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id]));
                   return (
-                  <tr
-                    key={s.id}
-                    className={`border-t border-border/60 odd:bg-muted/30 ${
-                      allDone ? "bg-primary/5 odd:bg-primary/10" : ""
-                    } ${flashRow === s.id ? "fx-row-hit" : ""}`}
-                  >
-                    <td className="px-3 py-1.5 tabular-nums text-muted-foreground">{s.number}</td>
-                    <td
-                      className={`px-3 py-1.5 font-bold ${
-                        allDone ? "text-primary" : ""
-                      }`}
+                    <tr
+                      key={s.id}
+                      className={`border-t border-border/60 odd:bg-muted/30 ${
+                        allDone ? "bg-primary/5 odd:bg-primary/10" : ""
+                      } ${flashRow === s.id ? "fx-row-hit" : ""}`}
                     >
-                      <span className="inline-flex items-center gap-1.5">
-                        <CollectionIcon
-                          iconId={badges[s.id]?.icon}
-                          frameId={badges[s.id]?.frame}
-                          size={24}
-                        />
-                        {s.name}
-                      </span>
-                      {allDone && <span className="ml-1 text-xs font-bold text-primary">✓完了</span>}
-                    </td>
+                      <td className="px-3 py-1.5 tabular-nums text-muted-foreground">{s.number}</td>
+                      <td className={`px-3 py-1.5 font-bold ${allDone ? "text-primary" : ""}`}>
+                        <span className="inline-flex items-center gap-1.5">
+                          <CollectionIcon
+                            iconId={badges[s.id]?.icon}
+                            frameId={badges[s.id]?.frame}
+                            size={24}
+                          />
+                          {s.name}
+                        </span>
+                        {allDone && (
+                          <span className="ml-1 text-xs font-bold text-primary">✓完了</span>
+                        )}
+                      </td>
 
-                    {todayAssignments.map((a) => {
-                      const st = toStatus(day[s.id]?.[a.id]);
-                      const meta = STATUS_META[st];
-                      return (
-                        <td key={a.id} className="px-3 py-1.5 text-center">
-                          <button
-                            type="button"
-                            disabled={locked}
-                            onClick={() => cycleRecord(s.id, a.id)}
-                            title={meta.label}
-                            className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
-                              st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
-                            } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
-                            aria-label={`${s.name} ${a.name} ${meta.label}`}
-                          >
-                            {meta.short}
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
+                      {todayAssignments.map((a) => {
+                        const st = toStatus(day[s.id]?.[a.id]);
+                        const meta = STATUS_META[st];
+                        return (
+                          <td key={a.id} className="px-3 py-1.5 text-center">
+                            <button
+                              type="button"
+                              disabled={locked}
+                              onClick={() => cycleRecord(s.id, a.id)}
+                              title={meta.label}
+                              className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
+                                st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
+                              } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
+                              aria-label={`${s.name} ${a.name} ${meta.label}`}
+                            >
+                              {meta.short}
+                            </button>
+                          </td>
+                        );
+                      })}
+                    </tr>
                   );
                 })}
 
@@ -655,7 +647,6 @@ function ScanPage() {
             </table>
           </div>
         </section>
-
       </div>
     </main>
   );

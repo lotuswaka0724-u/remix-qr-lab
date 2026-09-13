@@ -209,10 +209,9 @@ export function parseHwStateQr(text: string): HwState | null {
   const all = [...HW_STATE_ORDER, "NO_REPORT" as HwState];
   if (all.includes(id as HwState)) return id as HwState;
   // 児童向けのことばでも判定できるようにする
-  const plain = raw.replace(/[\s　]/g, "");
-  return all.find((s) => HW_STATE_META[s].label.replace(/[\s　]/g, "") === plain) ?? null;
+  const plain = raw.replace(/[\s\u3000]/g, "");
+  return all.find((s) => HW_STATE_META[s].label.replace(/[\s\u3000]/g, "") === plain) ?? null;
 }
-
 
 /** date -> studentId -> assignmentId -> ようす */
 export type Records = Record<string, Record<string, Record<string, Status | boolean>>>;
@@ -232,7 +231,7 @@ export type AppState = {
   hwPointRules: HwPointRules;
   /** 宿題じょうたいQRの記録 */
   hwEvents: HwEvent[];
-  /** アバター・ガチャ・ペット・マイルームの設定（先生が変えられる） */
+  /** 将来用ゲーム設定（公開画面では使用しない） */
   gameSettings: GameSettings;
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
@@ -264,11 +263,11 @@ const defaultState = (): AppState => ({
   pointRules: { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 },
   gachaCost: 10,
   prizes: [
-    { id: "pz_1", name: "きらきらシール", weight: 40 },
-    { id: "pz_2", name: "がんばりカード", weight: 30 },
-    { id: "pz_3", name: "しおり", weight: 20 },
-    { id: "pz_4", name: "先生からのほめことば券", weight: 9 },
-    { id: "pz_5", name: "★レア★ 大きなメダル", weight: 1 },
+    { id: "pz_1", name: "マイページ背景", weight: 20 },
+    { id: "pz_2", name: "アイコン", weight: 20 },
+    { id: "pz_3", name: "アイコンフレーム", weight: 20 },
+    { id: "pz_4", name: "QR読み取り効果音", weight: 20 },
+    { id: "pz_5", name: "QR読み取りエフェクト", weight: 20 },
   ],
   gachaLog: [],
   rankRules: { ...DEFAULT_RANK_RULES },
@@ -371,7 +370,6 @@ function load() {
 }
 
 function persist() {
-
   try {
     window.localStorage.setItem(KEY, JSON.stringify(state));
   } catch {
@@ -403,7 +401,6 @@ export function useAppState(): AppState {
     () => state,
   );
 }
-
 
 /* ---------- status helpers ---------- */
 
@@ -617,7 +614,6 @@ export const updateGameSettings = (patch: Partial<GameSettings>) =>
 export const updateHwPointRules = (patch: Partial<HwPointRules>) =>
   setState((s) => ({ ...s, hwPointRules: { ...s.hwPointRules, ...patch } }));
 
-
 export const spentPoints = (state: AppState, studentId: string) =>
   state.gachaLog.filter((g) => g.studentId === studentId).reduce((a, g) => a + g.cost, 0);
 
@@ -664,12 +660,12 @@ export function drawGacha(studentId: string): GachaResult | null {
 
 /* ---------- helpers ---------- */
 
-const normalize = (v: string) => v.replace(/[\s　]/g, "").toLowerCase();
+const normalize = (v: string) => v.replace(/[\s\u3000]/g, "").toLowerCase();
 
 /** QRの中身「児童名と宿題名」を解析する。区切りは , / ｜ | タブ 改行 を許容 */
 export function parseQr(text: string, state: AppState) {
   const parts = text
-    .split(/[,、\/｜|\t\n]+/)
+    .split(/[,、/｜|\t\n]+/)
     .map((p) => p.trim())
     .filter(Boolean);
 

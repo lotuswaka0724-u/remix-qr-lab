@@ -7,10 +7,7 @@ import { useEffect, useState } from "react";
 
 type Rank = "NORMAL" | "GOLD" | "BLACK";
 
-const FX: Record<
-  string,
-  { emojis: string[]; count: number; wash: string; label?: string }
-> = {
+const FX: Record<string, { emojis: string[]; count: number; wash: string; label?: string }> = {
   spark: { emojis: ["✨"], count: 8, wash: "from-primary/25" },
   pop: { emojis: ["💥", "❕"], count: 10, wash: "from-accent/25" },
   stars: { emojis: ["⭐"], count: 12, wash: "from-warning/25" },
@@ -37,9 +34,12 @@ export default function CollectionFx({ fx, rank = "NORMAL", playId }: Props) {
   useEffect(() => {
     if (!playId) return;
     setShown(playId);
-    const t = window.setTimeout(() => setShown(null), 1600);
+    const t = window.setTimeout(
+      () => setShown(null),
+      rank === "BLACK" ? 2400 : rank === "GOLD" ? 2000 : 1500,
+    );
     return () => window.clearTimeout(t);
-  }, [playId]);
+  }, [playId, rank]);
 
   if (!shown) return null;
   const conf = FX[fx ?? "spark"] ?? FX["spark"]!;
@@ -47,8 +47,15 @@ export default function CollectionFx({ fx, rank = "NORMAL", playId }: Props) {
   const big = rank === "GOLD" || rank === "BLACK";
 
   return (
-    <div key={shown} className="pointer-events-none fixed inset-0 z-[60] overflow-hidden" aria-hidden>
+    <div
+      key={shown}
+      className="pointer-events-none fixed inset-0 z-[60] overflow-hidden"
+      aria-hidden
+    >
       <div className={`fx-wash absolute inset-0 bg-gradient-to-b ${conf.wash} to-transparent`} />
+      {big && (
+        <div className={`fx-special-ring ${rank === "BLACK" ? "fx-special-ring-black" : ""}`} />
+      )}
       {pieces.map((i) => (
         <span
           key={i}

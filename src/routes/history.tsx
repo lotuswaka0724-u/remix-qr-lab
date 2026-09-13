@@ -18,6 +18,8 @@ export const Route = createFileRoute("/history")({
         property: "og:description",
         content: "日ごとの提出率と児童別の提出回数をふりかえれる履歴ページです。",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: HistoryPage,

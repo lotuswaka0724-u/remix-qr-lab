@@ -10,11 +10,12 @@ import {
   type CollRarity,
 } from "@/lib/collection-catalog";
 import {
-  DEFAULT_RANK_RULES,
-  rankOfPoints,
+  availablePoints,
+  earnedPoints,
+  mergeState,
+  rankOf,
   type AppState,
   type Rank,
-  type Status,
 } from "@/lib/homework-store";
 
 /** 児童ごとのコレクション（ガチャで集めるアイテム）の保存データ */
@@ -105,24 +106,13 @@ async function session() {
   return gate.data.studentId;
 }
 
-const toStatus = (v: Status | boolean | undefined): Status =>
-  v === true ? "submitted" : !v ? "none" : (v as Status);
-
 function pointsOf(state: Partial<AppState>, studentId: string) {
-  const rules = state.pointRules ?? { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 };
-  let earned = 0;
-  for (const d of Object.values(state.records ?? {})) {
-    const mine = d[studentId];
-    if (!mine) continue;
-    for (const v of Object.values(mine)) earned += rules[toStatus(v)] ?? 0;
-  }
-  const spent = (state.gachaLog ?? [])
-    .filter((g) => g.studentId === studentId)
-    .reduce((a, g) => a + g.cost, 0);
+  const merged = mergeState(state);
+  const earned = earnedPoints(merged, studentId);
   return {
     earned,
-    available: earned - spent,
-    rank: rankOfPoints(state.rankRules ?? DEFAULT_RANK_RULES, earned),
+    available: availablePoints(merged, studentId),
+    rank: rankOf(merged, studentId),
   };
 }
 
@@ -156,7 +146,8 @@ export const equipCollItem = createServerFn({ method: "POST" })
     const item = COLL_ITEM_BY_ID[data.itemId];
     if (!item) return buildView(studentId);
     const coll = normalizeColl((await readRaw(studentId))["coll"] as Partial<CollData>);
-    if (!coll.owned.includes(item.id)) return { ...(await buildView(studentId, coll)), error: "notowned" as const };
+    if (!coll.owned.includes(item.id))
+      return { ...(await buildView(studentId, coll)), error: "notowned" as const };
     const next: CollData = { ...coll, equipped: { ...coll.equipped, [item.category]: item.id } };
     await writeColl(studentId, next);
     return buildView(studentId, next);
@@ -172,7 +163,8 @@ export const drawCollGacha = createServerFn({ method: "POST" }).handler(async ()
   const cost = state.gachaCost ?? 10;
   const coll = normalizeColl((await readRaw(studentId))["coll"] as Partial<CollData>);
 
-  if (p.available < cost) return { ...(await buildView(studentId, coll)), error: "points" as const };
+  if (p.available < cost)
+    return { ...(await buildView(studentId, coll)), error: "points" as const };
 
   const rankOrder = { NORMAL: 0, GOLD: 1, BLACK: 2 } as const;
   const pool = COLL_ITEMS.filter(
@@ -241,8 +233,7 @@ export const getClassBadges = createServerFn({ method: "GET" }).handler(async ()
   const out: ClassBadge[] = [];
   for (const row of data ?? []) {
     const coll = (row.data as Record<string, unknown> | null)?.["coll"] as
-      | Partial<CollData>
-      | undefined;
+      Partial<CollData> | undefined;
     const eq = coll?.equipped;
     if (!eq) continue;
     out.push({

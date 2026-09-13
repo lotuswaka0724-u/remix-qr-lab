@@ -27,6 +27,7 @@ import {
 import { playCollectionSound, playError } from "@/lib/feedback";
 
 type Screen = "gacha" | "collection";
+type GachaPhase = "idle" | "spinning" | "opening" | "result";
 
 export function useCollection() {
   const load = useServerFn(getCollection);
@@ -76,25 +77,23 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
   );
 }
 
-export default function CollectionPanel({
-  api,
-  screen,
-}: {
-  api: CollectionApi;
-  screen: Screen;
-}) {
+export default function CollectionPanel({ api, screen }: { api: CollectionApi; screen: Screen }) {
   const { view, setView, loading, draw, equip } = api;
   const [busy, setBusy] = useState(false);
   const [prize, setPrize] = useState<CollPrize | null>(null);
   const [msg, setMsg] = useState("");
   const [cat, setCat] = useState<CollCategory>("icon");
   const [fxPlay, setFxPlay] = useState<{ fx: string; id: number } | null>(null);
+  const [phase, setPhase] = useState<GachaPhase>("idle");
 
-  const owned = view?.coll.owned ?? [];
+  const owned = useMemo(() => view?.coll.owned ?? [], [view?.coll.owned]);
   const equipped = view?.coll.equipped ?? {};
 
   const progress = useMemo(
-    () => ({ have: owned.filter((id) => COLL_ITEMS.some((i) => i.id === id)).length, all: COLL_ITEMS.length }),
+    () => ({
+      have: owned.filter((id) => COLL_ITEMS.some((i) => i.id === id)).length,
+      all: COLL_ITEMS.length,
+    }),
     [owned],
   );
 
@@ -106,24 +105,63 @@ export default function CollectionPanel({
     setBusy(true);
     setMsg("");
     setPrize(null);
-    const res = await draw({});
-    setBusy(false);
-    if (!res) return;
+    setPhase("spinning");
+    const started = Date.now();
+    let res: Awaited<ReturnType<typeof draw>>;
+    try {
+      res = await draw({});
+    } catch {
+      setBusy(false);
+      setPhase("idle");
+      setMsg("ガチャを まわせませんでした");
+      playError();
+      return;
+    }
+    const wait = Math.max(0, 900 - (Date.now() - started));
+    if (wait) await new Promise((resolve) => window.setTimeout(resolve, wait));
+    if (!res) {
+      setBusy(false);
+      setPhase("idle");
+      return;
+    }
     setView(res);
     if ("error" in res && res.error) {
+      setBusy(false);
+      setPhase("idle");
       playError();
       setMsg(res.error === "points" ? "ポイントが たりません" : "いまはガチャができません");
       return;
     }
     if ("prize" in res && res.prize) {
       const p = res.prize;
-      setPrize(p);
+      setPhase("opening");
       const rank = p.rarity === "BLACK" ? "BLACK" : p.rarity === "GOLD" ? "GOLD" : "NORMAL";
-      playCollectionSound(p.rarity === "N" ? "pico" : "fanfare", rank);
-      setFxPlay({
-        fx: p.rarity === "BLACK" ? "black" : p.rarity === "GOLD" ? "gold" : "glitter",
-        id: Date.now(),
-      });
+      window.setTimeout(() => {
+        setPrize(p);
+        setPhase("result");
+        setBusy(false);
+        playCollectionSound(
+          p.rarity === "BLACK"
+            ? "black"
+            : p.rarity === "GOLD"
+              ? "gold"
+              : p.rarity === "N"
+                ? "pico"
+                : "fanfare",
+          rank,
+        );
+        setFxPlay({
+          fx:
+            p.rarity === "BLACK"
+              ? "black"
+              : p.rarity === "GOLD"
+                ? "gold"
+                : p.rarity === "SR"
+                  ? "starfall"
+                  : "glitter",
+          id: Date.now(),
+        });
+      }, 520);
     }
   };
 
@@ -151,18 +189,39 @@ export default function CollectionPanel({
         いまのカードランク：{view.rank}
         {view.rank === "NORMAL" && "（ランクが上がると GOLD・BLACK も出ます）"}
       </p>
+      <div
+        className={`gacha-stage ${phase === "result" ? "gacha-stage-result" : ""}`}
+        aria-live="polite"
+      >
+        <div className={`gacha-machine ${phase === "spinning" ? "gacha-machine-spin" : ""}`}>
+          <span className="gacha-machine-window" aria-hidden>
+            <span className="gacha-capsule">●</span>
+          </span>
+          <span className="gacha-machine-base">GACHA</span>
+        </div>
+        {phase === "opening" && (
+          <div className="gacha-opening" aria-label="カプセルがひらきます">
+            <span className="gacha-half gacha-half-top" />
+            <span className="gacha-half gacha-half-bottom" />
+            <span className="gacha-light">✦</span>
+          </div>
+        )}
+        {phase === "idle" && <p className="gacha-stage-label">なにが出るかな？</p>}
+        {phase === "spinning" && <p className="gacha-stage-label">カプセルを えらんでいます…</p>}
+        {phase === "opening" && <p className="gacha-stage-label">オープン！</p>}
+      </div>
       <Button
         className="h-16 w-full max-w-xs rounded-full text-xl"
-        disabled={busy || view.points < view.cost}
+        disabled={busy || !view.gachaOn || view.points < view.cost}
         onClick={onDraw}
       >
-        {busy ? "まわしています…" : "ガチャを まわす"}
+        {busy ? "カプセルを まわしています…" : `ガチャを まわす（${view.cost}pt）`}
       </Button>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
 
       {prize && (
         <div
-          className={`mx-auto max-w-sm space-y-2 rounded-3xl p-5 ring-4 ${COLL_RARITY_META[prize.rarity].ring} ${
+          className={`gacha-prize-card mx-auto max-w-sm space-y-2 rounded-3xl p-5 ring-4 ${COLL_RARITY_META[prize.rarity].ring} ${
             prize.rarity === "BLACK" ? "bg-slate-900 text-amber-200" : "bg-card"
           }`}
         >
@@ -172,7 +231,10 @@ export default function CollectionPanel({
             {prize.rarity}
           </span>
           <div className="flex justify-center">
-            <ItemArt item={COLL_ITEMS.find((i) => i.id === prize.id)!} size={72} />
+            {(() => {
+              const item = COLL_ITEMS.find((i) => i.id === prize.id);
+              return item ? <ItemArt item={item} size={72} /> : null;
+            })()}
           </div>
           <p className="font-display text-2xl font-bold">{prize.name}</p>
           <p className="text-xs opacity-80">
@@ -194,7 +256,7 @@ export default function CollectionPanel({
               setPrize(null);
             }}
           >
-            コレクションで見る
+            アイテムBOXで見る
           </Button>
         </div>
       )}
@@ -204,7 +266,7 @@ export default function CollectionPanel({
   const list = (
     <section className="kid-panel space-y-3 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="mr-auto font-display text-lg font-bold">🗂️ コレクション</h2>
+        <h2 className="mr-auto font-display text-lg font-bold">🗂️ アイテムBOX</h2>
         <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
           {progress.have} / {progress.all} こ
         </span>
@@ -215,16 +277,16 @@ export default function CollectionPanel({
           const items = collItemsOf(c);
           const have = items.filter((i) => owned.includes(i.id)).length;
           return (
-            <button
+            <Button
               key={c}
               type="button"
+              size="sm"
+              variant={cat === c ? "default" : "secondary"}
               onClick={() => setCat(c)}
-              className={`rounded-full px-3 py-1.5 text-xs font-bold ${
-                cat === c ? "bg-primary text-primary-foreground" : "bg-muted"
-              }`}
+              className="h-auto rounded-full px-3 py-1.5 text-xs font-bold"
             >
               {COLL_CATEGORY_ICON[c]} {COLL_CATEGORY_LABEL[c]} {have}/{items.length}
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -236,11 +298,12 @@ export default function CollectionPanel({
           const dupe = view.coll.dupes[item.id] ?? 0;
           return (
             <li key={item.id}>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 disabled={!has}
                 onClick={() => void onEquip(item)}
-                className={`flex w-full flex-col items-center gap-1.5 rounded-2xl p-3 text-center ring-2 transition-all ${
+                className={`h-auto min-h-40 w-full flex-col items-center gap-1.5 rounded-2xl p-3 text-center ring-2 transition-all ${
                   inUse
                     ? "bg-primary/10 ring-primary"
                     : has
@@ -261,11 +324,13 @@ export default function CollectionPanel({
                 >
                   {item.rarity}
                 </span>
-                {inUse && <span className="text-[10px] font-bold text-primary">つかっています</span>}
+                {inUse && (
+                  <span className="text-[10px] font-bold text-primary">つかっています</span>
+                )}
                 {has && dupe > 0 && (
                   <span className="text-[10px] text-muted-foreground">かぶり ×{dupe}</span>
                 )}
-              </button>
+              </Button>
             </li>
           );
         })}

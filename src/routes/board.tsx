@@ -10,13 +10,16 @@ export const Route = createFileRoute("/board")({
       { title: "未提出ボード | 宿題チェッカー" },
       {
         name: "description",
-        content: "未提出の児童と宿題を大きな文字で一覧表示。教室のモニターや黒板前での確認に最適です。",
+        content:
+          "未提出の児童と宿題を大きな文字で一覧表示。教室のモニターや黒板前での確認に最適です。",
       },
       { property: "og:title", content: "未提出ボード | 宿題チェッカー" },
       {
         property: "og:description",
         content: "未提出の児童と宿題を大きな文字で一覧表示。教室での声かけにそのまま使えます。",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: BoardPage,
@@ -37,7 +40,10 @@ function BoardPage() {
   const rows = state.students
     .filter((s) => classFilter === "all" || s.className === classFilter)
     .sort((a, b) => a.className.localeCompare(b.className) || a.number - b.number)
-    .map((s) => ({ student: s, missing: todayAssignments.filter((a) => !isSubmitted(day[s.id]?.[a.id])) }))
+    .map((s) => ({
+      student: s,
+      missing: todayAssignments.filter((a) => !isSubmitted(day[s.id]?.[a.id])),
+    }))
     .filter((r) => r.missing.length > 0);
 
   return (

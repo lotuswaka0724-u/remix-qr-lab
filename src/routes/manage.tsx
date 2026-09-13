@@ -11,25 +11,20 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import {
   addAssignment,
-  addPrize,
   addStudent,
   HW_STATE_META,
   HW_STATE_ORDER,
   removeAssignment,
-  removePrize,
   RANK_ORDER,
   removeStudent,
   setGachaCost,
   updateAssignment,
-  updateGameSettings,
   updateHwPointRules,
   updateRankRules,
-  updatePrize,
   updateStudent,
   useAppState,
   type HwState,
 } from "@/lib/homework-store";
-import { EVENT_LABEL, SEASON_LABEL } from "@/lib/game-settings";
 import { RANK_STYLE } from "@/lib/rank-style";
 
 export const Route = createFileRoute("/manage")({
@@ -38,13 +33,16 @@ export const Route = createFileRoute("/manage")({
       { title: "管理 | 宿題チェッカー" },
       {
         name: "description",
-        content: "宿題の項目とクラス名簿を追加・編集。今日の宿題として表示する項目も切り替えられます。",
+        content:
+          "宿題の項目とクラス名簿を追加・編集。今日の宿題として表示する項目も切り替えられます。",
       },
       { property: "og:title", content: "管理 | 宿題チェッカー" },
       {
         property: "og:description",
         content: "宿題の項目とクラス名簿を追加・編集できる管理画面です。",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ManagePage,
@@ -55,8 +53,6 @@ function ManagePage() {
   const [hwName, setHwName] = useState("");
   const [stName, setStName] = useState("");
   const [stClass, setStClass] = useState(state.students[0]?.className ?? "1年1組");
-  const [prizeName, setPrizeName] = useState("");
-  const [prizeWeight, setPrizeWeight] = useState("1");
   const [qrMode, setQrMode] = useState<"card" | "material" | "hwstate">("card");
 
   return (
@@ -103,7 +99,11 @@ function ManagePage() {
             setHwName("");
           }}
         >
-          <Input value={hwName} onChange={(e) => setHwName(e.target.value)} placeholder="新しい宿題名" />
+          <Input
+            value={hwName}
+            onChange={(e) => setHwName(e.target.value)}
+            placeholder="新しい宿題名"
+          />
           <Button type="submit">追加</Button>
         </form>
       </section>
@@ -115,7 +115,10 @@ function ManagePage() {
           {[...state.students]
             .sort((a, b) => a.className.localeCompare(b.className) || a.number - b.number)
             .map((s) => (
-              <li key={s.id} className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/60 p-2">
+              <li
+                key={s.id}
+                className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/60 p-2"
+              >
                 <Input
                   type="number"
                   value={s.number}
@@ -196,7 +199,6 @@ function ManagePage() {
         </ul>
       </section>
 
-
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">カードランクの設定</h2>
         <p className="mb-3 text-xs text-muted-foreground">
@@ -223,9 +225,11 @@ function ManagePage() {
         </ul>
       </section>
 
-
       <section className="paper-card p-4">
-        <h2 className="mb-1 font-display text-base font-bold">ガチャの設定</h2>
+        <h2 className="mb-1 font-display text-base font-bold">コレクションガチャの設定</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          景品は、マイページ背景・アイコン・アイコンフレーム・読み取り効果音・読み取りエフェクトの5種類です。
+        </p>
         <div className="mb-3 flex items-center gap-2">
           <span className="text-sm">1回にひつようなポイント</span>
           <Input
@@ -236,68 +240,13 @@ function ManagePage() {
           />
           <span className="text-xs text-muted-foreground">pt</span>
         </div>
-
-        <p className="mb-2 text-xs text-muted-foreground">
-          「当たりやすさ」の数字が大きいほど、よく出ます。
-        </p>
-        <ul className="space-y-2">
-          {state.prizes.map((p) => (
-            <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/60 p-2">
-              <Input
-                value={p.name}
-                onChange={(e) => updatePrize(p.id, { name: e.target.value })}
-                className="min-w-[9rem] flex-1 bg-card"
-              />
-              <Input
-                type="number"
-                value={p.weight}
-                onChange={(e) => updatePrize(p.id, { weight: Number(e.target.value) })}
-                className="w-24 bg-card"
-              />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-destructive"
-                onClick={() => removePrize(p.id)}
-              >
-                削除
-              </Button>
-            </li>
-          ))}
-        </ul>
-        <form
-          className="mt-3 flex flex-wrap gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (!prizeName.trim()) return;
-            addPrize(prizeName.trim(), Number(prizeWeight) || 1);
-            setPrizeName("");
-            setPrizeWeight("1");
-          }}
-        >
-          <Input
-            value={prizeName}
-            onChange={(e) => setPrizeName(e.target.value)}
-            placeholder="景品名"
-            className="min-w-[10rem] flex-1"
-          />
-          <Input
-            value={prizeWeight}
-            onChange={(e) => setPrizeWeight(e.target.value)}
-            placeholder="当たりやすさ"
-            className="w-32"
-          />
-          <Button type="submit">追加</Button>
-        </form>
       </section>
 
       <CsvPanel />
 
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">QRコード管理・印刷</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          用途に合わせて印刷のしかたを選べます。
-        </p>
+        <p className="mb-3 text-xs text-muted-foreground">用途に合わせて印刷のしかたを選べます。</p>
         <div className="flex flex-wrap gap-2">
           <Button
             type="button"
@@ -323,8 +272,13 @@ function ManagePage() {
         </div>
       </section>
 
-      {qrMode === "card" ? <QrMaker /> : qrMode === "material" ? <MaterialQrPrint /> : <HwStateQrPrint />}
-
+      {qrMode === "card" ? (
+        <QrMaker />
+      ) : qrMode === "material" ? (
+        <MaterialQrPrint />
+      ) : (
+        <HwStateQrPrint />
+      )}
 
       <MyPageLinks />
 
@@ -334,4 +288,3 @@ function ManagePage() {
     </main>
   );
 }
-
