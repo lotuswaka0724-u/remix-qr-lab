@@ -42,11 +42,22 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
     .filter((a) => a.inToday)
     .map((a) => ({ id: a.id, name: a.name, status: toStatus(day[a.id]) }));
 
+  // 宿題カードQRで処理ずみの記録は、そちらの点数を使う（二重加算をふせぐ）
+  const handled = new Set((state.hwEvents ?? []).map((e) => `${e.date}|${e.assignmentId}`));
   let earned = 0;
-  for (const d of Object.values(state.records ?? {})) {
-    const mine = d[studentId];
+  for (const [d, rec] of Object.entries(state.records ?? {})) {
+    const mine = rec[studentId];
     if (!mine) continue;
-    for (const v of Object.values(mine)) earned += rules[toStatus(v)] ?? 0;
+    for (const [assignmentId, v] of Object.entries(mine)) {
+      if (handled.has(`${d}|${assignmentId}`)) continue;
+      earned += rules[toStatus(v)] ?? 0;
+    }
+  }
+  for (const e of state.hwEvents ?? []) {
+    if (e.studentId === studentId) earned += e.delta;
+  }
+  for (const g of state.manualGrants ?? []) {
+    if (g.studentId === studentId) earned += g.amount;
   }
   const mineLog = (state.gachaLog ?? []).filter((g) => g.studentId === studentId);
   const spent = mineLog.reduce((a, g) => a + g.cost, 0);
