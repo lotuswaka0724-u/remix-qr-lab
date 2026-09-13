@@ -43,7 +43,11 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
     .map((a) => ({ id: a.id, name: a.name, status: toStatus(day[a.id]) }));
 
   // 宿題カードQRで処理ずみの記録は、そちらの点数を使う（二重加算をふせぐ）
-  const handled = new Set((state.hwEvents ?? []).map((e) => `${e.date}|${e.assignmentId}`));
+  const handled = new Set(
+    (state.hwEvents ?? [])
+      .filter((e) => e.studentId === studentId)
+      .map((e) => `${e.date}|${e.assignmentId}`),
+  );
   let earned = 0;
   for (const [d, rec] of Object.entries(state.records ?? {})) {
     const mine = rec[studentId];
