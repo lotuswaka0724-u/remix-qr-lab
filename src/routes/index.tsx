@@ -45,6 +45,16 @@ import { RANK_STYLE } from "@/lib/rank-style";
 
 const QrScanner = lazy(() => import("@/components/QrScanner"));
 
+/** 読み上げ用の言い方（宿題名のあとにつづける） */
+const HW_PHRASE: Record<HwState, string> = {
+  SUBMIT: "を提出しました",
+  REDO: "は なおすところがありました",
+  RESUBMIT: "を なおして出しました",
+  FORGOT: "を わすれました",
+  SCHOOL_DONE: "は 学校でやりました",
+  NO_REPORT: "は まだ出ていません",
+};
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
