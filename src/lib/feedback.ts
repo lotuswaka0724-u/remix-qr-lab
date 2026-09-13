@@ -239,3 +239,17 @@ export function playCollectionSound(
     tone(164, 0.3, 0.8, "sine", 0.07);
   }
 }
+
+/**
+ * アイテムBOXでの「試聴」。
+ * 前になっている音を止めてから鳴らすので、音がかさならない。
+ * ポイントも装備も変えない（音を鳴らすだけ）。
+ */
+export function previewCollectionSound(
+  tune: string | null | undefined,
+  rank: RankKey = "NORMAL",
+  asset?: string | null,
+) {
+  stopAllSounds();
+  playCollectionSound(tune, rank, asset);
+}
