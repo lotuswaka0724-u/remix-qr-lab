@@ -67,7 +67,7 @@ export const COLL_RARITY_META: Record<
   BLACK: { label: "BLACK", tone: "bg-slate-900 text-amber-200", ring: "ring-slate-900", weight: 1, minRank: "BLACK" },
 };
 
-export const COLL_RARITY_ORDER: CollRarity[] = ["N", "R", "SR", "GOLD", "BLACK"];
+export const COLL_RARITY_ORDER: CollRarity[] = ["N", "R", "SR", "SSR", "GOLD", "BLACK"];
 
 const bg = (
   id: string,
@@ -86,14 +86,28 @@ const bg = (
   art: { css },
 });
 
-const icon = (id: string, name: string, rarity: CollRarity, emoji: string, initial = false): CollItem => ({
+/**
+ * アイコン。`image` に画像パス（例: "/icons/cat.png"）を入れると、絵文字ではなく
+ * その画像を表示する。画像を用意するまでは絵文字が仮の見た目になる。
+ */
+const icon = (
+  id: string,
+  name: string,
+  rarity: CollRarity,
+  emoji: string,
+  initial = false,
+  image?: string,
+  sort?: number,
+): CollItem => ({
   id: `ic_${id}`,
   name,
   category: "icon",
   rarity,
   description: `${name}のアイコン`,
   initial,
-  art: { emoji },
+  ...(image ? { image } : {}),
+  ...(sort !== undefined ? { sort } : {}),
+  art: { emoji, ...(image ? { image } : {}) },
 });
 
 const frame = (
