@@ -290,6 +290,7 @@ const defaultState = (): AppState => ({
   rankRules: { ...DEFAULT_RANK_RULES },
   hwPointRules: { ...DEFAULT_HW_POINT_RULES },
   hwEvents: [],
+  manualGrants: [],
   gameSettings: { ...DEFAULT_GAME_SETTINGS },
 });
 
@@ -315,6 +316,7 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     hwPointRules: { ...base.hwPointRules, ...(parsed.hwPointRules ?? {}) },
     gameSettings: { ...base.gameSettings, ...(parsed.gameSettings ?? {}) },
     hwEvents: parsed.hwEvents ?? [],
+    manualGrants: parsed.manualGrants ?? [],
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
   };
