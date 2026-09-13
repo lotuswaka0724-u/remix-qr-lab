@@ -84,7 +84,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "宿題チェッカー | QRで宿題提出をかんたん記録" },
       {
         name: "description",
-        content: "QRコードを読み取るだけで宿題の提出状況を記録・集計できる、先生のための宿題チェックアプリ。",
+        content:
+          "QRコードを読み取るだけで宿題の提出状況を記録・集計できる、先生のための宿題チェックアプリ。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -263,4 +264,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-
