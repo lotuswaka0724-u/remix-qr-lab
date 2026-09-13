@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 
+import { tierOfArt } from "@/lib/collection-catalog";
+
 /**
  * ガチャで手に入る「QR読み取りエフェクト」の演出。
  * fx のキーごとに、とぶ絵と色をかえる。GOLD / BLACK はさらに大きな演出をかさねる。
