@@ -280,15 +280,23 @@ function ScanPage() {
     if (lastScan.current.text === text && now - lastScan.current.at < 2500) return;
     lastScan.current = { text, at: now };
 
-    // ① しゅくだいカードQR（児童がつかうのは「わすれました」だけ）
-    const hw = parseHwStateQr(text);
-    if (hw) {
+    // ① しゅくだいカードQR（児童がつかうのは「わすれました」だけ。宿題名つきに対応）
+    const hwQr = parseHwStateQr(text);
+    if (hwQr) {
       if (!pendingStudent) {
         playError();
         toast.warning("さきに教材のQRか、児童のQRを読み取ってください");
         return;
       }
+      const named = hwQr.assignmentName
+        ? state.assignments.find(
+            (a) =>
+              a.name.replace(/[\s\u3000]/g, "") ===
+              hwQr.assignmentName!.replace(/[\s\u3000]/g, ""),
+          )
+        : undefined;
       const target =
+        named ??
         pendingStudent.assignment ??
         (focusHw === "all" ? todayAssignments[0] : todayAssignments.find((a) => a.id === focusHw));
       if (!target) {
@@ -296,7 +304,7 @@ function ScanPage() {
         toast.error("宿題が特定できません", { description: "管理画面で宿題を登録してください" });
         return;
       }
-      record(pendingStudent.student, target, hw);
+      record(pendingStudent.student, target, hwQr.state);
       return;
     }
 

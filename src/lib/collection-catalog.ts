@@ -405,3 +405,6 @@ export const tierOfArt = (key: "fx" | "tune", value?: string | null) => {
 export const soundTune = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["tune"] ?? null;
 
 export const effectFx = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["fx"] ?? null;
+
+/** 効果音の音声ファイル（未設定なら内蔵の音をつかう） */
+export const soundAsset = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.asset ?? null;
