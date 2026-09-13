@@ -30,6 +30,12 @@ export type CollItem = {
   initial?: boolean;
   /** 将来、画像や音声ファイルに差し替えるための場所。未設定なら内蔵の描画・音をつかう */
   asset?: string;
+  /** 画像素材のパス（例: /icons/cat.png）。入れると絵文字より優先して表示する */
+  image?: string;
+  /** 一覧での表示順（小さいほど先。未設定は登録順） */
+  sort?: number;
+  /** ガチャで手に入るか（false にすると出ない。未設定は true） */
+  obtainable?: boolean;
   art: Record<string, string>;
 };
 
@@ -56,6 +62,7 @@ export const COLL_RARITY_META: Record<
   N: { label: "N", tone: "bg-slate-200 text-slate-700", ring: "ring-slate-300", weight: 55, minRank: "NORMAL" },
   R: { label: "R", tone: "bg-sky-200 text-sky-900", ring: "ring-sky-400", weight: 27, minRank: "NORMAL" },
   SR: { label: "SR", tone: "bg-violet-200 text-violet-900", ring: "ring-violet-400", weight: 13, minRank: "NORMAL" },
+  SSR: { label: "SSR", tone: "bg-fuchsia-200 text-fuchsia-900", ring: "ring-fuchsia-500", weight: 6, minRank: "NORMAL" },
   GOLD: { label: "GOLD", tone: "bg-amber-200 text-amber-900", ring: "ring-amber-400", weight: 4, minRank: "GOLD" },
   BLACK: { label: "BLACK", tone: "bg-slate-900 text-amber-200", ring: "ring-slate-900", weight: 1, minRank: "BLACK" },
 };
