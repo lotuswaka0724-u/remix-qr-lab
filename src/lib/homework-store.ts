@@ -232,7 +232,7 @@ export type AppState = {
   hwPointRules: HwPointRules;
   /** 宿題じょうたいQRの記録 */
   hwEvents: HwEvent[];
-  /** アバター・ガチャ・ペット・マイルームの設定（先生が変えられる） */
+  /** 将来用ゲーム設定（公開画面では使用しない） */
   gameSettings: GameSettings;
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
@@ -264,11 +264,11 @@ const defaultState = (): AppState => ({
   pointRules: { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 },
   gachaCost: 10,
   prizes: [
-    { id: "pz_1", name: "きらきらシール", weight: 40 },
-    { id: "pz_2", name: "がんばりカード", weight: 30 },
-    { id: "pz_3", name: "しおり", weight: 20 },
-    { id: "pz_4", name: "先生からのほめことば券", weight: 9 },
-    { id: "pz_5", name: "★レア★ 大きなメダル", weight: 1 },
+    { id: "pz_1", name: "マイページ背景", weight: 20 },
+    { id: "pz_2", name: "アイコン", weight: 20 },
+    { id: "pz_3", name: "アイコンフレーム", weight: 20 },
+    { id: "pz_4", name: "QR読み取り効果音", weight: 20 },
+    { id: "pz_5", name: "QR読み取りエフェクト", weight: 20 },
   ],
   gachaLog: [],
   rankRules: { ...DEFAULT_RANK_RULES },

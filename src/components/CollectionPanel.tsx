@@ -122,7 +122,11 @@ export default function CollectionPanel({
     }
     const wait = Math.max(0, 900 - (Date.now() - started));
     if (wait) await new Promise((resolve) => window.setTimeout(resolve, wait));
-    if (!res) return;
+    if (!res) {
+      setBusy(false);
+      setPhase("idle");
+      return;
+    }
     setView(res);
     if ("error" in res && res.error) {
       setBusy(false);
