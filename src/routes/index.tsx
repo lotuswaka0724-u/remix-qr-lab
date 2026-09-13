@@ -1,11 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import CollectionFx from "@/components/CollectionFx";
+import CollectionIcon from "@/components/CollectionIcon";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { effectFx, soundTune } from "@/lib/collection-catalog";
+import { getClassBadges, type ClassBadge } from "@/lib/collection.functions";
 import {
+  playCollectionSound,
   playError,
   playRankSuccess,
   playRankUp,
