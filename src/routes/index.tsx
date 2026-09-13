@@ -180,12 +180,18 @@ function ScanPage() {
     if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
     if (state.settings.vibe)
       vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
-    if (state.settings.speak)
+    if (state.settings.speak) {
+      // 宿題名（教材名）を入れて読み上げる。例:「山田さん、音読カードを提出しました。」
+      const hwName = target.name?.trim();
+      const phrase = hwName
+        ? `${hwName}${HW_PHRASE[hw]}`
+        : HW_STATE_META[hw].label;
       speak(
         rankUp
           ? `${student.name}さん、${RANK_STYLE[rankUp].jp}カードになりました`
-          : `${student.name}さん、${HW_STATE_META[hw].label}`,
+          : `${student.name}さん、${phrase}`,
       );
+    }
     celebrate(
       {
         student: student.name,
