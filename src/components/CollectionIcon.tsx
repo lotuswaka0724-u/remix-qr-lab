@@ -1,4 +1,4 @@
-import { frameRing, iconEmoji } from "@/lib/collection-catalog";
+import { frameRing, iconEmoji, iconImage } from "@/lib/collection-catalog";
 
 type Props = {
   iconId?: string | undefined;
@@ -10,8 +10,9 @@ type Props = {
 /** アイコン＋フレーム。どちらも未設定ならなにも描かない（既存の表示をそのまま残せる） */
 export default function CollectionIcon({ iconId, frameId, size = 26, className = "" }: Props) {
   const emoji = iconEmoji(iconId);
+  const image = iconImage(iconId);
   const ring = frameRing(frameId);
-  if (!emoji && !ring) return null;
+  if (!emoji && !image && !ring) return null;
 
   const pad = Math.max(2, Math.round(size * 0.1));
   return (
