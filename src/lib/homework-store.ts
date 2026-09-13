@@ -551,6 +551,9 @@ export function earnedPoints(state: AppState, studentId: string) {
   for (const e of state.hwEvents ?? []) {
     if (e.studentId === studentId) total += e.delta;
   }
+  for (const g of state.manualGrants ?? []) {
+    if (g.studentId === studentId) total += g.amount;
+  }
   return total;
 }
 
