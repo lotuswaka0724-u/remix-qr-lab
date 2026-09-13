@@ -22,6 +22,7 @@ import {
 } from "@/lib/feedback";
 import {
   applyHwState,
+  applyMaterialScan,
   clearToday,
   cycleRecord,
   HW_STATE_META,
