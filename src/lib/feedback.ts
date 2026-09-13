@@ -11,19 +11,44 @@ function audio() {
   return ctx;
 }
 
-function tone(freq: number, start: number, dur: number, type: OscillatorType = "sine", gain = 0.12) {
+/** 今なっている音（試聴のとき、前の音を止めるために持っておく） */
+const live = new Set<OscillatorNode>();
+
+/** なっている音をすべて止める（試聴で音がかさならないようにする） */
+export function stopAllSounds() {
+  for (const osc of live) {
+    try {
+      osc.stop();
+    } catch {
+      /* すでに止まっている */
+    }
+  }
+  live.clear();
+}
+
+function tone(
+  freq: number,
+  start: number,
+  dur: number,
+  type: OscillatorType = "sine",
+  gain = 0.12,
+  slideTo?: number,
+) {
   const c = audio();
   if (!c) return;
   const osc = c.createOscillator();
   const g = c.createGain();
   osc.type = type;
-  osc.frequency.value = freq;
+  osc.frequency.setValueAtTime(freq, c.currentTime + start);
+  if (slideTo) osc.frequency.exponentialRampToValueAtTime(slideTo, c.currentTime + start + dur);
   g.gain.setValueAtTime(0.0001, c.currentTime + start);
   g.gain.exponentialRampToValueAtTime(gain, c.currentTime + start + 0.01);
   g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + start + dur);
   osc.connect(g).connect(c.destination);
   osc.start(c.currentTime + start);
   osc.stop(c.currentTime + start + dur + 0.02);
+  live.add(osc);
+  osc.onended = () => live.delete(osc);
 }
 
 export const SOUND_PRESETS = [
