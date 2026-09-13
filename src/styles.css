@@ -743,3 +743,57 @@
     -webkit-print-color-adjust: exact;
   }
 }
+
+/* ---------- QR読み取りエフェクトの追加演出（レアリティ段階つき） ---------- */
+.fx-flash {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgb(255 255 255 / 0.95), transparent 60%);
+  animation: fx-flash 420ms ease-out forwards;
+}
+@keyframes fx-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  25% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.25);
+  }
+}
+.fx-burst-ring {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  width: 120px;
+  height: 120px;
+  margin: -60px 0 0 -60px;
+  border-radius: 9999px;
+  border: 6px solid rgb(255 255 255 / 0.9);
+  box-shadow: 0 0 40px rgb(255 255 255 / 0.7);
+  animation: fx-burst-ring 720ms cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+.fx-burst-ring-late {
+  animation-delay: 180ms;
+  border-color: rgb(250 204 21 / 0.9);
+}
+@keyframes fx-burst-ring {
+  0% {
+    opacity: 0.95;
+    transform: scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(3.2);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fx-flash,
+  .fx-burst-ring {
+    animation-duration: 1ms;
+    opacity: 0;
+  }
+}

@@ -3,7 +3,9 @@ let ctx: AudioContext | null = null;
 function audio() {
   if (typeof window === "undefined") return null;
   if (!ctx) {
-    const Ctor = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    const Ctor =
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!Ctor) return null;
     ctx = new Ctor();
   }
@@ -233,7 +235,8 @@ export function playCollectionSound(
       tone(1046, 0, 0.12);
       break;
   }
-  if (rank === "GOLD") [0, 0.09].forEach((t, i) => tone(1318 + i * 262, 0.3 + t, 0.2, "sine", 0.06));
+  if (rank === "GOLD")
+    [0, 0.09].forEach((t, i) => tone(1318 + i * 262, 0.3 + t, 0.2, "sine", 0.06));
   if (rank === "BLACK") {
     [0, 0.08, 0.16].forEach((t, i) => tone(784 + i * 262, 0.32 + t, 0.26, "triangle", 0.07));
     tone(164, 0.3, 0.8, "sine", 0.07);

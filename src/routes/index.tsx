@@ -193,9 +193,7 @@ function ScanPage() {
     if (state.settings.speak) {
       // 宿題名（教材名）を入れて読み上げる。例:「山田さん、音読カードを提出しました。」
       const hwName = target.name?.trim();
-      const phrase = hwName
-        ? `${hwName}${HW_PHRASE[hw]}`
-        : HW_STATE_META[hw].label;
+      const phrase = hwName ? `${hwName}${HW_PHRASE[hw]}` : HW_STATE_META[hw].label;
       speak(
         rankUp
           ? `${student.name}さん、${RANK_STYLE[rankUp].jp}カードになりました`

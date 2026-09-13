@@ -28,7 +28,11 @@ export default function CollectionIcon({ iconId, frameId, size = 26, className =
     >
       <span
         className="grid place-content-center rounded-full bg-card leading-none"
-        style={{ width: size - (ring ? pad * 2 : 0), height: size - (ring ? pad * 2 : 0), fontSize: size * 0.55 }}
+        style={{
+          width: size - (ring ? pad * 2 : 0),
+          height: size - (ring ? pad * 2 : 0),
+          fontSize: size * 0.55,
+        }}
       >
         {image ? (
           <img
