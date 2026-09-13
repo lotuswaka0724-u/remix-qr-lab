@@ -2,8 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 
 import CsvPanel from "@/components/CsvPanel";
-import { GameHub } from "@/components/GamePanel";
-import { createDemoEngine } from "@/lib/demo-game";
 import HwStateQrPrint from "@/components/HwStateQrPrint";
 import MaterialQrPrint from "@/components/MaterialQrPrint";
 import MyPageLinks from "@/components/MyPageLinks";
@@ -225,92 +223,6 @@ function ManagePage() {
         </ul>
       </section>
 
-      <section className="paper-card p-4">
-        <h2 className="mb-1 font-display text-base font-bold">アバター・アイテムガチャの設定</h2>
-        <p className="mb-3 text-xs text-muted-foreground">
-          児童のアバター・ペット・マイルームで使う設定です。宿題やポイントの計算には影響しません。
-        </p>
-        <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2 text-sm">
-            <Switch
-              checked={state.gameSettings.gachaOn}
-              onCheckedChange={(v) => updateGameSettings({ gachaOn: v })}
-            />
-            アイテムガチャを使えるようにする
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            1回にひつようなポイント
-            <Input
-              type="number"
-              value={state.gameSettings.itemGachaCost}
-              onChange={(e) => updateGameSettings({ itemGachaCost: Number(e.target.value) })}
-              className="w-20 bg-card"
-            />
-          </label>
-          <label className="flex items-center gap-2 text-sm">
-            1日のきせかえ回数
-            <Input
-              type="number"
-              value={state.gameSettings.dailyCustomizeLimit}
-              onChange={(e) => updateGameSettings({ dailyCustomizeLimit: Number(e.target.value) })}
-              className="w-20 bg-card"
-            />
-          </label>
-        </div>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          <div>
-            <p className="mb-1 text-xs font-bold text-muted-foreground">公開する季節アイテム</p>
-            <div className="flex flex-wrap gap-1.5">
-              {Object.entries(SEASON_LABEL).map(([k, label]) => {
-                const on = state.gameSettings.seasons.includes(k);
-                return (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() =>
-                      updateGameSettings({
-                        seasons: on
-                          ? state.gameSettings.seasons.filter((x) => x !== k)
-                          : [...state.gameSettings.seasons, k],
-                      })
-                    }
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          <div>
-            <p className="mb-1 text-xs font-bold text-muted-foreground">公開するイベントアイテム</p>
-            <div className="flex flex-wrap gap-1.5">
-              {Object.entries(EVENT_LABEL).map(([k, label]) => {
-                const on = state.gameSettings.events.includes(k);
-                return (
-                  <button
-                    key={k}
-                    type="button"
-                    onClick={() =>
-                      updateGameSettings({
-                        events: on
-                          ? state.gameSettings.events.filter((x) => x !== k)
-                          : [...state.gameSettings.events, k],
-                      })
-                    }
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${on ? "bg-primary text-primary-foreground" : "bg-muted"}`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <TeacherDemoSection />
-
 
       <section className="paper-card p-4">
         <h2 className="mb-1 font-display text-base font-bold">ガチャの設定</h2>
@@ -423,28 +335,3 @@ function ManagePage() {
   );
 }
 
-/** 先生用：動作確認・児童説明デモ（ブラウザ内だけで動き、児童データは変わりません） */
-function TeacherDemoSection() {
-  const [open, setOpen] = useState(false);
-  const [nonce, setNonce] = useState(0);
-  const engine = useMemo(() => createDemoEngine(), [nonce]);
-
-  return (
-    <section className="paper-card p-4">
-      <div className="flex flex-wrap items-center gap-2">
-        <h2 className="mr-auto font-display text-base font-bold">先生用 動作確認・児童説明モード</h2>
-        <Button size="sm" variant={open ? "secondary" : "default"} onClick={() => setOpen((v) => !v)}>
-          {open ? "とじる" : "デモをひらく"}
-        </Button>
-      </div>
-      <p className="mt-1 text-xs text-muted-foreground">
-        すべてのアイテムを試着でき、きせかえ回数の制限もありません。ここでの操作は児童のポイント・アイテム・アバターには保存されません。
-      </p>
-      {open && (
-        <div className="mt-4">
-          <GameHub engine={engine} onReset={() => setNonce((n) => n + 1)} />
-        </div>
-      )}
-    </section>
-  );
-}

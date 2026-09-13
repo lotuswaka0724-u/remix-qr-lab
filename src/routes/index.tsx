@@ -1,11 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { lazy, Suspense, useMemo, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
+import CollectionFx from "@/components/CollectionFx";
+import CollectionIcon from "@/components/CollectionIcon";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { effectFx, soundTune } from "@/lib/collection-catalog";
+import { getClassBadges, type ClassBadge } from "@/lib/collection.functions";
 import {
+  playCollectionSound,
   playError,
   playRankSuccess,
   playRankUp,
@@ -89,6 +95,25 @@ function ScanPage() {
     total: number;
   } | null>(null);
   const [manual, setManual] = useState("");
+
+  /** 児童がガチャで手に入れた アイコン・フレーム・音・エフェクト */
+  const loadBadges = useServerFn(getClassBadges);
+  const [badges, setBadges] = useState<Record<string, ClassBadge>>({});
+  const [collFx, setCollFx] = useState<{ fx: string; id: number } | null>(null);
+
+  useEffect(() => {
+    let off = false;
+    void loadBadges({})
+      .then((rows) => {
+        if (off) return;
+        setBadges(Object.fromEntries((rows ?? []).map((b) => [b.studentId, b])));
+      })
+      .catch(() => {});
+    return () => {
+      off = true;
+    };
+  }, [loadBadges]);
+
 
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
@@ -224,7 +249,13 @@ function ScanPage() {
     }
     setPendingConfirm(null);
     setPendingStudent({ student, assignment });
-    playSuccess(state.settings.sound);
+    const badge = badges[student.id];
+    const myRank = rankOf(state, student.id);
+    const tune = soundTune(badge?.sound);
+    if (tune) playCollectionSound(tune, myRank);
+    else playSuccess(state.settings.sound);
+    const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
+    if (fx) setCollFx({ fx, id: Date.now() });
     if (state.settings.speak) speak(`${student.name}さん、しゅくだいのカードをかざしてください`);
     toast.success(`${student.name} さん`, {
       description: "つぎに、しゅくだいのカードを読み取ってください",
@@ -240,6 +271,13 @@ function ScanPage() {
     <main className="mx-auto w-full max-w-[1600px] px-3 pb-3 pt-2 lg:h-[calc(100svh-62px)] lg:overflow-hidden">
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
+      <CollectionFx
+        fx={collFx?.fx ?? null}
+        rank={
+          pendingStudent ? (rankOf(state, pendingStudent.student.id) as "NORMAL" | "GOLD" | "BLACK") : "NORMAL"
+        }
+        playId={collFx?.id ?? null}
+      />
 
       {/* ---- 今日の提出状況（横長バー） ---- */}
       <section className="glass-panel mb-3 px-4 py-2.5">
@@ -568,7 +606,14 @@ function ScanPage() {
                         allDone ? "text-primary" : ""
                       }`}
                     >
-                      {s.name}
+                      <span className="inline-flex items-center gap-1.5">
+                        <CollectionIcon
+                          iconId={badges[s.id]?.icon}
+                          frameId={badges[s.id]?.frame}
+                          size={24}
+                        />
+                        {s.name}
+                      </span>
                       {allDone && <span className="ml-1 text-xs font-bold text-primary">✓完了</span>}
                     </td>
 

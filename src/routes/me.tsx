@@ -1,20 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-import { AvatarView, type Equipped } from "@/components/AvatarView";
-import {
-  AvatarCreate,
-  GameMenu,
-  GameScreen,
-  useGame,
-  type GameScreenId,
-} from "@/components/GamePanel";
+import CollectionIcon from "@/components/CollectionIcon";
+import CollectionPanel, { useCollection } from "@/components/CollectionPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import type { GameEngine } from "@/lib/demo-game";
+import { backgroundCss } from "@/lib/collection-catalog";
 import { playError } from "@/lib/feedback";
-import { createAvatar, drawItemGacha, equipItem, getGame } from "@/lib/game.functions";
 import { STATUS_META } from "@/lib/homework-store";
 import {
   getStudentView,
@@ -30,12 +23,12 @@ export const Route = createFileRoute("/me")({
       {
         name: "description",
         content:
-          "ログイン番号を入れると、自分の今日の宿題・ポイント・アバター・ガチャが見られるページです。",
+          "ログイン番号を入れると、自分の今日の宿題・ポイント・ガチャ・コレクションが見られるページです。",
       },
       { property: "og:title", content: "わたしのページ | 宿題チェッカー" },
       {
         property: "og:description",
-        content: "ログイン番号でひらく、自分だけの宿題とポイントとアバターのページ。",
+        content: "ログイン番号でひらく、自分だけの宿題とポイントとコレクションのページ。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -44,16 +37,12 @@ export const Route = createFileRoute("/me")({
   component: MyPage,
 });
 
-type Screen = "home" | "homework" | "points" | GameScreenId;
+type Screen = "home" | "homework" | "points" | "gacha" | "collection";
 
 function MyPage() {
   const login = useServerFn(studentLogin);
   const fetchView = useServerFn(getStudentView);
   const logout = useServerFn(studentLogout);
-  const fetchGame = useServerFn(getGame);
-  const createFn = useServerFn(createAvatar);
-  const equipFn = useServerFn(equipItem);
-  const drawFn = useServerFn(drawItemGacha);
 
   const [view, setView] = useState<StudentView | null>(null);
   const [ready, setReady] = useState(false);
@@ -62,16 +51,7 @@ function MyPage() {
   const [busy, setBusy] = useState(false);
   const [screen, setScreen] = useState<Screen>("home");
 
-  const engine: GameEngine = useMemo(
-    () => ({
-      load: () => fetchGame({}),
-      create: (equipped) => createFn({ data: { equipped } }),
-      equip: (itemId, off) => equipFn({ data: { itemId, off } }),
-      draw: () => drawFn({}),
-    }),
-    [fetchGame, createFn, equipFn, drawFn],
-  );
-  const game = useGame(engine);
+  const coll = useCollection();
 
   useEffect(() => {
     let off = false;
@@ -145,8 +125,9 @@ function MyPage() {
     (i) => i.status === "fixed" || i.status === "submitted" || i.status === "school",
   ).length;
   const allDone = view.items.length > 0 && done === view.items.length;
-  const gv = game.view;
-  const created = !!gv?.data.created;
+  const equipped = coll.view?.coll.equipped ?? {};
+  const ownedCount = coll.view?.coll.owned.length ?? 0;
+  const totalCount = coll.view?.totalItems ?? 0;
 
   const homeworkCard = (
     <section className="kid-panel p-4">
@@ -208,9 +189,7 @@ function MyPage() {
       <p className="mt-1 text-xs text-muted-foreground">
         つうさん {view.earned}pt ／ つかった {view.spent}pt
       </p>
-      {gv && (
-        <p className="mt-2 text-xs font-bold text-primary">カードランク：{gv.rank}</p>
-      )}
+      {coll.view && <p className="mt-2 text-xs font-bold text-primary">カードランク：{coll.view.rank}</p>}
       <Button className="mt-4 rounded-full px-8" onClick={() => setScreen("gacha")}>
         🎰 ガチャへ
       </Button>
@@ -234,148 +213,132 @@ function MyPage() {
     { id: "homework", label: "宿題", icon: "📚" },
     { id: "points", label: "ポイント", icon: "🪙" },
     { id: "gacha", label: "ガチャ", icon: "🎁" },
-    { id: "avatar", label: "アバター", icon: "🧑‍🎤" },
-    { id: "pet", label: "ペット", icon: "🐾" },
-    { id: "room", label: "マイルーム", icon: "🛏️" },
-    { id: "box", label: "アイテムBOX", icon: "🎒" },
+    { id: "collection", label: "コレクション", icon: "🗂️" },
   ];
 
   return (
-    <main className="mx-auto max-w-5xl space-y-4 px-3 py-5 pb-28">
-      <header className="kid-panel flex flex-wrap items-center gap-3 p-3">
-        <span className="grid h-12 w-12 place-content-center overflow-hidden rounded-full bg-secondary">
-          {created && gv ? (
-            <AvatarView equipped={gv.data.equipped as Equipped} size={48} crop={{ x: 46, y: 40, w: 108, h: 108 }} />
-          ) : (
-            <span className="text-2xl">🙂</span>
-          )}
-        </span>
-        <div className="mr-auto">
-          <p className="font-display text-lg font-bold">{view.name} さん</p>
-          <p className="text-xs text-muted-foreground">
-            {view.className} ／ {view.date}
-          </p>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--primary),var(--accent))] px-4 py-2 font-display text-sm font-bold text-primary-foreground tabular-nums">
-          🪙 ポイント {view.available.toLocaleString()} pt
-        </span>
-        {gv && (
-          <span className="rounded-full bg-warning-soft px-4 py-2 font-display text-sm font-bold text-warning-foreground">
-            👑 ランク {gv.rank}
+    <div className="min-h-svh" style={{ background: backgroundCss(equipped.background) }}>
+      <main className="mx-auto max-w-5xl space-y-4 px-3 py-5 pb-28">
+        <header className="kid-panel flex flex-wrap items-center gap-3 p-3">
+          <CollectionIcon iconId={equipped.icon} frameId={equipped.frame} size={48} />
+          <div className="mr-auto">
+            <p className="font-display text-lg font-bold">{view.name} さん</p>
+            <p className="text-xs text-muted-foreground">
+              {view.className} ／ {view.date}
+            </p>
+          </div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--primary),var(--accent))] px-4 py-2 font-display text-sm font-bold text-primary-foreground tabular-nums">
+            🪙 ポイント {view.available.toLocaleString()} pt
           </span>
-        )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={async () => {
-            await logout({});
-            setView(null);
-            setScreen("home");
-          }}
-        >
-          とじる
-        </Button>
-      </header>
-
-      {screen === "home" && (
-        <>
-          <section className="kid-stage relative overflow-hidden p-4">
-            <span className="kid-sparkle" aria-hidden>
-              ✨
+          {coll.view && (
+            <span className="rounded-full bg-warning-soft px-4 py-2 font-display text-sm font-bold text-warning-foreground">
+              👑 ランク {coll.view.rank}
             </span>
-            <div className="flex flex-wrap items-end gap-4">
-              <button
-                type="button"
-                onClick={() => setScreen("avatar")}
-                aria-label="アバターをかえる"
-                className="transition-transform hover:-translate-y-1"
-              >
-                {created && gv ? (
-                  <AvatarView equipped={gv.data.equipped as Equipped} size={190} />
-                ) : (
-                  <span className="grid h-[190px] w-[130px] place-content-center text-6xl">🧑‍🎤</span>
-                )}
-              </button>
+          )}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={async () => {
+              await logout({});
+              setView(null);
+              setScreen("home");
+            }}
+          >
+            とじる
+          </Button>
+        </header>
 
-              <div className="min-w-[220px] flex-1 space-y-3">
-                <div className="relative rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
-                  <p className="font-display text-lg font-bold">こんにちは！</p>
-                  <p className="text-sm text-muted-foreground">
-                    {created ? "今日も がんばろう！" : "さいしょに じぶんのアバターを作ろう！"}
-                  </p>
-                </div>
-
-                <div className="rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
-                  <p className="flex items-center text-sm font-bold">
-                    今日の宿題
-                    <span className="ml-auto font-display text-lg text-primary tabular-nums">
-                      {done} / {view.items.length}
-                    </span>
-                  </p>
-                  <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))] transition-all"
-                      style={{ width: `${view.items.length ? (done / view.items.length) * 100 : 0}%` }}
-                    />
-                  </div>
-                </div>
-
+        {screen === "home" && (
+          <>
+            <section className="kid-stage relative overflow-hidden p-4">
+              <span className="kid-sparkle" aria-hidden>
+                ✨
+              </span>
+              <div className="flex flex-wrap items-center gap-4">
                 <button
                   type="button"
-                  onClick={() => setScreen("avatar")}
-                  className="flex w-full items-center gap-3 rounded-3xl bg-card px-4 py-3 text-left shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5"
+                  onClick={() => setScreen("collection")}
+                  aria-label="コレクションをひらく"
+                  className="transition-transform hover:-translate-y-1"
                 >
-                  <span className="text-3xl">🧑‍🎤</span>
-                  <span>
-                    <span className="block font-display text-base font-bold">アバターをかえる</span>
-                    <span className="block text-xs text-muted-foreground">自分だけのキャラを作ろう！</span>
-                  </span>
-                  <span className="ml-auto text-xl">→</span>
+                  <CollectionIcon iconId={equipped.icon} frameId={equipped.frame} size={110} />
                 </button>
+
+                <div className="min-w-[220px] flex-1 space-y-3">
+                  <div className="rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
+                    <p className="font-display text-lg font-bold">こんにちは！</p>
+                    <p className="text-sm text-muted-foreground">
+                      宿題を出して ポイントをためて ガチャを まわそう！
+                    </p>
+                  </div>
+
+                  <div className="rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
+                    <p className="flex items-center text-sm font-bold">
+                      今日の宿題
+                      <span className="ml-auto font-display text-lg text-primary tabular-nums">
+                        {done} / {view.items.length}
+                      </span>
+                    </p>
+                    <div className="mt-2 h-3 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))] transition-all"
+                        style={{
+                          width: `${view.items.length ? (done / view.items.length) * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setScreen("collection")}
+                    className="flex w-full items-center gap-3 rounded-3xl bg-card px-4 py-3 text-left shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5"
+                  >
+                    <span className="text-3xl">🗂️</span>
+                    <span>
+                      <span className="block font-display text-base font-bold">コレクション</span>
+                      <span className="block text-xs text-muted-foreground">
+                        あつめた {ownedCount} / {totalCount} こ
+                      </span>
+                    </span>
+                    <span className="ml-auto text-xl">→</span>
+                  </button>
+                </div>
               </div>
+            </section>
+
+            <div className="grid gap-3 lg:grid-cols-2">
+              {homeworkCard}
+              {pointsCard}
             </div>
-          </section>
+          </>
+        )}
 
-          <GameMenu onSelect={(id) => setScreen(id)} />
+        {screen === "homework" && homeworkCard}
+        {screen === "points" && pointsCard}
+        {(screen === "gacha" || screen === "collection") && (
+          <CollectionPanel api={coll} screen={screen} />
+        )}
 
-          <div className="grid gap-3 lg:grid-cols-2">
-            {homeworkCard}
-            {pointsCard}
-          </div>
-        </>
-      )}
-
-      {screen === "homework" && homeworkCard}
-      {screen === "points" && pointsCard}
-
-      {screen !== "home" && screen !== "homework" && screen !== "points" && (
-        game.loading ? (
-          <p className="p-6 text-center text-sm text-muted-foreground">よみこみ中…</p>
-        ) : !created ? (
-          <AvatarCreate game={game} />
-        ) : (
-          <GameScreen game={game} screen={screen} onBack={() => setScreen("home")} />
-        )
-      )}
-
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
-        <ul className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 py-2">
-          {navItems.map((n) => (
-            <li key={n.id} className="flex-1">
-              <button
-                type="button"
-                onClick={() => setScreen(n.id)}
-                className={`flex w-full min-w-[64px] flex-col items-center rounded-2xl px-2 py-1.5 text-[11px] font-bold transition-all ${
-                  screen === n.id ? "bg-primary text-primary-foreground" : "hover:bg-secondary"
-                }`}
-              >
-                <span className="text-xl">{n.icon}</span>
-                {n.label}
-              </button>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </main>
+        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
+          <ul className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 py-2">
+            {navItems.map((n) => (
+              <li key={n.id} className="flex-1">
+                <button
+                  type="button"
+                  onClick={() => setScreen(n.id)}
+                  className={`flex w-full min-w-[64px] flex-col items-center rounded-2xl px-2 py-1.5 text-[11px] font-bold transition-all ${
+                    screen === n.id ? "bg-primary text-primary-foreground" : "hover:bg-secondary"
+                  }`}
+                >
+                  <span className="text-xl">{n.icon}</span>
+                  {n.label}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </main>
+    </div>
   );
 }
