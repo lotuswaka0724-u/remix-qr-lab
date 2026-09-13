@@ -136,7 +136,7 @@ export const HW_STATE_META: Record<HwState, HwStateMeta> = {
     label: "なおすところがありました",
     icon: "✏️",
     defaultPoints: -3,
-    status: "submitted",
+    status: "redo",
     needsSubmit: true,
     card: "bg-[#fef9c3] text-[#713f12] border-[#eab308]",
     badge: "bg-[#ca8a04] text-white",
