@@ -153,33 +153,18 @@ function ScanPage() {
     window.setTimeout(() => setFlashRow(null), 1500);
   };
 
-  const record = (
+  /** 記録できたときの共通処理（音・演出・表示） */
+  const afterRecord = (
     student: { id: string; name: string },
     target: { id: string; name: string },
-    hw: HwState,
-    force = false,
+    res: { delta: number; total: number; state: HwState },
+    before: ReturnType<typeof rankOf>,
   ) => {
-    const before = rankOf(state, student.id);
-    const res = applyHwState(student.id, target.id, hw, { force });
-
-    if (!res.ok) {
-      playError();
-      if (state.settings.vibe) vibrate([80, 60, 80]);
-      if (res.reason === "order") {
-        setPendingConfirm({ student, target, hw, message: res.message });
-        toast.warning(res.message, { description: `${student.name}／${target.name}` });
-      } else {
-        toast.info(res.message, {
-          description: `${student.name}／${target.name}／${HW_STATE_META[hw].label}`,
-        });
-      }
-      return;
-    }
-
     setPendingConfirm(null);
     setPendingStudent(null);
     const after = rankOfPoints(state.rankRules, res.total);
     const rankUp = after !== before ? after : null;
+    const hw = res.state;
 
     setLastResult({
       studentName: student.name,
@@ -212,17 +197,65 @@ function ScanPage() {
     );
   };
 
+  const fail = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+    res: { reason: "duplicate" | "order"; message: string },
+    hw?: HwState,
+  ) => {
+    playError();
+    if (state.settings.vibe) vibrate([80, 60, 80]);
+    if (res.reason === "order" && hw) {
+      setPendingConfirm({ student, target, hw, message: res.message });
+      toast.warning(res.message, { description: `${student.name}／${target.name}` });
+    } else {
+      toast.info(res.message, { description: `${student.name}／${target.name}` });
+    }
+  };
+
+  const record = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+    hw: HwState,
+    force = false,
+  ) => {
+    const before = rankOf(state, student.id);
+    const res = applyHwState(student.id, target.id, hw, { force });
+    if (!res.ok) return fail(student, target, res, hw);
+    afterRecord(student, target, res, before);
+  };
+
+  /** 教材QRだけで提出（2回目は直し完了になる） */
+  const recordMaterial = (
+    student: { id: string; name: string },
+    target: { id: string; name: string },
+  ) => {
+    const before = rankOf(state, student.id);
+    const res = applyMaterialScan(student.id, target.id);
+    if (!res.ok) return fail(student, target, res);
+    afterRecord(student, target, res, before);
+  };
+
+  const playBadgeFx = (studentId: string) => {
+    const badge = badges[studentId];
+    const myRank = rankOf(state, studentId);
+    const tune = soundTune(badge?.sound);
+    if (tune) playCollectionSound(tune, myRank);
+    const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
+    if (fx) setCollFx({ fx, id: Date.now() });
+  };
+
   const handleDetected = (text: string) => {
     const now = Date.now();
     if (lastScan.current.text === text && now - lastScan.current.at < 2500) return;
     lastScan.current = { text, at: now };
 
-    // ① 宿題じょうたいQR（児童が自分でえらんで持ってくるカード）
+    // ① しゅくだいカードQR（児童がつかうのは「わすれました」だけ）
     const hw = parseHwStateQr(text);
     if (hw) {
       if (!pendingStudent) {
         playError();
-        toast.warning("さきに児童のQRを読み取ってください");
+        toast.warning("さきに教材のQRか、児童のQRを読み取ってください");
         return;
       }
       const target =
@@ -237,7 +270,7 @@ function ScanPage() {
       return;
     }
 
-    // ② 児童QR（だれの宿題かを決める）
+    // ② 教材QR（児童名＋教材名）→ これだけで提出が完了する
     const { student, assignment } = parseQr(text, state);
     if (!student) {
       playError();
@@ -245,18 +278,20 @@ function ScanPage() {
       toast.error("該当する児童が見つかりません", { description: text });
       return;
     }
+    if (assignment) {
+      playBadgeFx(student.id);
+      recordMaterial(student, assignment);
+      return;
+    }
+
+    // ③ 児童QRだけのとき（「わすれました」カードを使うときなど）
     setPendingConfirm(null);
     setPendingStudent({ student, assignment });
-    const badge = badges[student.id];
-    const myRank = rankOf(state, student.id);
-    const tune = soundTune(badge?.sound);
-    if (tune) playCollectionSound(tune, myRank);
-    else playSuccess(state.settings.sound);
-    const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
-    if (fx) setCollFx({ fx, id: Date.now() });
-    if (state.settings.speak) speak(`${student.name}さん、しゅくだいのカードをかざしてください`);
+    playBadgeFx(student.id);
+    playSuccess(state.settings.sound);
+    if (state.settings.speak) speak(`${student.name}さん、カードをかざしてください`);
     toast.success(`${student.name} さん`, {
-      description: "つぎに、しゅくだいのカードを読み取ってください",
+      description: "「わすれました」のカードを読み取ってください",
     });
   };
 
