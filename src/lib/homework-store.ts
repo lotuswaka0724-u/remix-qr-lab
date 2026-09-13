@@ -204,6 +204,8 @@ export type HwEvent = {
   /** 処理後の通算ポイント */
   total: number;
   at: number;
+  /** 「今日の記録をリセット」で無効にした記録（履歴は残すが、判定・点数には使わない） */
+  voided?: boolean;
 };
 
 /** 宿題じょうたいQRの中身。例: HW:SUBMIT */
@@ -520,8 +522,20 @@ export const updatePrize = (id: string, patch: Partial<GachaPrize>) =>
 export const removePrize = (id: string) =>
   setState((s) => ({ ...s, prizes: s.prizes.filter((p) => p.id !== id) }));
 
+/**
+ * 今日の記録をリセットする。
+ * その日のQR記録（hwEvents）も無効にして、リセット後の教材QRが
+ * 「直して出しました」と判定されないようにする（履歴自体は残す）。
+ */
 export const clearToday = () =>
-  setState((s) => ({ ...s, records: { ...s.records, [todayKey()]: {} } }));
+  setState((s) => {
+    const date = todayKey();
+    return {
+      ...s,
+      records: { ...s.records, [date]: {} },
+      hwEvents: (s.hwEvents ?? []).map((e) => (e.date === date ? { ...e, voided: true } : e)),
+    };
+  });
 
 /* ---------- points ---------- */
 
@@ -530,7 +544,11 @@ const hwKey = (date: string, studentId: string, assignmentId: string) =>
 
 /** 宿題じょうたいQRで処理ずみの「日付・児童・宿題」 */
 const hwHandledKeys = (state: AppState) =>
-  new Set((state.hwEvents ?? []).map((e) => hwKey(e.date, e.studentId, e.assignmentId)));
+  new Set(
+    (state.hwEvents ?? [])
+      .filter((e) => !e.voided)
+      .map((e) => hwKey(e.date, e.studentId, e.assignmentId)),
+  );
 
 /**
  * これまでに貯めた合計ポイント（使った分は含まない）。
@@ -549,7 +567,7 @@ export function earnedPoints(state: AppState, studentId: string) {
     }
   }
   for (const e of state.hwEvents ?? []) {
-    if (e.studentId === studentId) total += e.delta;
+    if (e.studentId === studentId && !e.voided) total += e.delta;
   }
   for (const g of state.manualGrants ?? []) {
     if (g.studentId === studentId) total += g.amount;
@@ -571,7 +589,13 @@ export const hwStatesFor = (
   assignmentId: string,
 ): HwState[] =>
   (state.hwEvents ?? [])
-    .filter((e) => e.date === date && e.studentId === studentId && e.assignmentId === assignmentId)
+    .filter(
+      (e) =>
+        !e.voided &&
+        e.date === date &&
+        e.studentId === studentId &&
+        e.assignmentId === assignmentId,
+    )
     .map((e) => e.state);
 
 /**

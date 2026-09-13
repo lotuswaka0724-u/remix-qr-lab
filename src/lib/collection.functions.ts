@@ -168,7 +168,10 @@ export const drawCollGacha = createServerFn({ method: "POST" }).handler(async ()
 
   const rankOrder = { NORMAL: 0, GOLD: 1, BLACK: 2 } as const;
   const pool = COLL_ITEMS.filter(
-    (i) => !i.initial && rankOrder[COLL_RARITY_META[i.rarity].minRank] <= rankOrder[p.rank],
+    (i) =>
+      !i.initial &&
+      i.obtainable !== false &&
+      rankOrder[COLL_RARITY_META[i.rarity].minRank] <= rankOrder[p.rank],
   );
   if (!pool.length) return { ...(await buildView(studentId, coll)), error: "off" as const };
 
