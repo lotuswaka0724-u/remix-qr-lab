@@ -567,7 +567,7 @@ export function earnedPoints(state: AppState, studentId: string) {
     }
   }
   for (const e of state.hwEvents ?? []) {
-    if (e.studentId === studentId) total += e.delta;
+    if (e.studentId === studentId && !e.voided) total += e.delta;
   }
   for (const g of state.manualGrants ?? []) {
     if (g.studentId === studentId) total += g.amount;
@@ -589,7 +589,13 @@ export const hwStatesFor = (
   assignmentId: string,
 ): HwState[] =>
   (state.hwEvents ?? [])
-    .filter((e) => e.date === date && e.studentId === studentId && e.assignmentId === assignmentId)
+    .filter(
+      (e) =>
+        !e.voided &&
+        e.date === date &&
+        e.studentId === studentId &&
+        e.assignmentId === assignmentId,
+    )
     .map((e) => e.state);
 
 /**
