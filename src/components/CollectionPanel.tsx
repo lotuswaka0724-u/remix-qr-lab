@@ -86,7 +86,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
   const [fxPlay, setFxPlay] = useState<{ fx: string; id: number } | null>(null);
   const [phase, setPhase] = useState<GachaPhase>("idle");
 
-  const owned = view?.coll.owned ?? [];
+  const owned = useMemo(() => view?.coll.owned ?? [], [view?.coll.owned]);
   const equipped = view?.coll.equipped ?? {};
 
   const progress = useMemo(
