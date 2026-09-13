@@ -208,17 +208,43 @@ export type HwEvent = {
   voided?: boolean;
 };
 
-/** 宿題じょうたいQRの中身。例: HW:SUBMIT */
-export const hwStateQrText = (s: HwState) => `HW:${s}`;
+/**
+ * 宿題じょうたいQRの中身。
+ * 例: HW:SUBMIT ／ 宿題名つきは HW:FORGOT:漢字ドリル
+ */
+export const hwStateQrText = (s: HwState, assignmentName?: string) =>
+  assignmentName && assignmentName.trim() ? `HW:${s}:${assignmentName.trim()}` : `HW:${s}`;
 
-export function parseHwStateQr(text: string): HwState | null {
+export type HwStateQr = { state: HwState; assignmentName?: string };
+
+export function parseHwStateQr(text: string): HwStateQr | null {
   const raw = text.trim();
-  const id = raw.toUpperCase().replace(/^HW[:：]/, "");
   const all = [...HW_STATE_ORDER, "NO_REPORT" as HwState];
-  if (all.includes(id as HwState)) return id as HwState;
-  // 児童向けのことばでも判定できるようにする
+
+  // HW:STATE もしくは HW:STATE:宿題名
+  const m = /^HW[:：]\s*([A-Za-z_]+)\s*(?:[:：]\s*(.+))?$/.exec(raw);
+  if (m) {
+    const id = (m[1] ?? "").toUpperCase() as HwState;
+    if (all.includes(id)) {
+      const name = m[2]?.trim();
+      return name ? { state: id, assignmentName: name } : { state: id };
+    }
+  }
+
+  const bare = raw.toUpperCase();
+  if (all.includes(bare as HwState)) return { state: bare as HwState };
+
+  // 児童向けのことばでも判定できるようにする（例:「漢字ドリルをわすれました」）
   const plain = raw.replace(/[\s\u3000]/g, "");
-  return all.find((s) => HW_STATE_META[s].label.replace(/[\s\u3000]/g, "") === plain) ?? null;
+  for (const s of all) {
+    const label = HW_STATE_META[s].label.replace(/[\s\u3000]/g, "");
+    if (plain === label) return { state: s };
+    if (plain.endsWith(label)) {
+      const name = plain.slice(0, plain.length - label.length).replace(/[をはの]$/, "");
+      return name ? { state: s, assignmentName: name } : { state: s };
+    }
+  }
+  return null;
 }
 
 /** date -> studentId -> assignmentId -> ようす */

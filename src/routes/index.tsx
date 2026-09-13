@@ -8,7 +8,7 @@ import CollectionIcon from "@/components/CollectionIcon";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { effectFx, soundTune } from "@/lib/collection-catalog";
+import { effectFx, soundAsset, soundTune } from "@/lib/collection-catalog";
 import { getClassBadges, type ClassBadge } from "@/lib/collection.functions";
 import {
   playCollectionSound,
@@ -17,6 +17,7 @@ import {
   playRankUp,
   playSuccess,
   SOUND_PRESETS,
+  primeAudio,
   speak,
   vibrate,
 } from "@/lib/feedback";
@@ -270,7 +271,8 @@ function ScanPage() {
     const badge = badges[studentId];
     const myRank = rankOf(state, studentId);
     const tune = soundTune(badge?.sound);
-    if (tune) playCollectionSound(tune, myRank);
+    const asset = soundAsset(badge?.sound);
+    if (tune || asset) playCollectionSound(tune, myRank, asset);
     const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
     if (fx) setCollFx({ fx, id: Date.now() });
   };
@@ -280,15 +282,22 @@ function ScanPage() {
     if (lastScan.current.text === text && now - lastScan.current.at < 2500) return;
     lastScan.current = { text, at: now };
 
-    // ① しゅくだいカードQR（児童がつかうのは「わすれました」だけ）
-    const hw = parseHwStateQr(text);
-    if (hw) {
+    // ① しゅくだいカードQR（児童がつかうのは「わすれました」だけ。宿題名つきに対応）
+    const hwQr = parseHwStateQr(text);
+    if (hwQr) {
       if (!pendingStudent) {
         playError();
         toast.warning("さきに教材のQRか、児童のQRを読み取ってください");
         return;
       }
+      const named = hwQr.assignmentName
+        ? state.assignments.find(
+            (a) =>
+              a.name.replace(/[\s\u3000]/g, "") === hwQr.assignmentName!.replace(/[\s\u3000]/g, ""),
+          )
+        : undefined;
       const target =
+        named ??
         pendingStudent.assignment ??
         (focusHw === "all" ? todayAssignments[0] : todayAssignments.find((a) => a.id === focusHw));
       if (!target) {
@@ -296,7 +305,7 @@ function ScanPage() {
         toast.error("宿題が特定できません", { description: "管理画面で宿題を登録してください" });
         return;
       }
-      record(pendingStudent.student, target, hw);
+      record(pendingStudent.student, target, hwQr.state);
       return;
     }
 
@@ -392,7 +401,10 @@ function ScanPage() {
                 size="sm"
                 className="rounded-full"
                 variant={scanning ? "secondary" : "default"}
-                onClick={() => setScanning((v) => !v)}
+                onClick={() => {
+                  primeAudio();
+                  setScanning((v) => !v);
+                }}
               >
                 {scanning ? "停止" : "開始"}
               </Button>
