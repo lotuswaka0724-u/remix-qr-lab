@@ -30,7 +30,16 @@ export default function CollectionIcon({ iconId, frameId, size = 26, className =
         className="grid place-content-center rounded-full bg-card leading-none"
         style={{ width: size - (ring ? pad * 2 : 0), height: size - (ring ? pad * 2 : 0), fontSize: size * 0.55 }}
       >
-        {emoji ?? "🙂"}
+        {image ? (
+          <img
+            src={image}
+            alt=""
+            className="h-full w-full rounded-full object-cover"
+            loading="lazy"
+          />
+        ) : (
+          (emoji ?? "🙂")
+        )}
       </span>
     </span>
   );
