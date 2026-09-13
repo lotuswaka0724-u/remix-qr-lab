@@ -24,7 +24,7 @@ import {
   type CollPrize,
   type CollView,
 } from "@/lib/collection.functions";
-import { playCollectionSound, playError } from "@/lib/feedback";
+import { playCollectionSound, playError, previewCollectionSound } from "@/lib/feedback";
 
 type Screen = "gacha" | "collection";
 type GachaPhase = "idle" | "spinning" | "opening" | "result";
@@ -331,6 +331,20 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
                   <span className="text-[10px] text-muted-foreground">かぶり ×{dupe}</span>
                 )}
               </Button>
+              {cat === "sound" && has && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="mt-1 w-full rounded-xl text-xs font-bold"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    previewCollectionSound(soundTune(item.id), view.rank, item.asset);
+                  }}
+                >
+                  ▶ 試聴
+                </Button>
+              )}
             </li>
           );
         })}
