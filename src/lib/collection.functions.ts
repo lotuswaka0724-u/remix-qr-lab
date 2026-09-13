@@ -85,7 +85,7 @@ async function readRaw(studentId: string): Promise<Record<string, unknown>> {
     .select("data")
     .eq("student_id", studentId)
     .maybeSingle();
-  return ((data?.data ?? {}) as Record<string, unknown>) ?? {};
+  return (data?.data ?? {}) as Record<string, unknown>;
 }
 
 async function writeColl(studentId: string, coll: CollData) {
