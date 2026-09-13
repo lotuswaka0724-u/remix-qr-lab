@@ -37,6 +37,8 @@ function PointsPage() {
   const state = useAppState();
   const [classFilter, setClassFilter] = useState("all");
   const [studentId, setStudentId] = useState<string | null>(null);
+  const [grant, setGrant] = useState("5");
+  const [grantNote, setGrantNote] = useState("");
 
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
