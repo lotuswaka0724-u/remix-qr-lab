@@ -124,3 +124,60 @@ export function playRankUp(rank: RankKey) {
     tone(base / 2, 0.36, 0.9, "sine", 0.08);
   }
 }
+
+/* ---------- コレクションの読み取り効果音（ガチャで手に入る音） ---------- */
+
+/** アイテムの音を鳴らす。ランクが GOLD / BLACK のときは、うしろに豪華な音をかさねる */
+export function playCollectionSound(tune: string | null | undefined, rank: RankKey = "NORMAL") {
+  switch (tune) {
+    case "pico":
+      tone(1046, 0, 0.12);
+      break;
+    case "pon":
+      tone(520, 0, 0.14, "sine", 0.14);
+      tone(880, 0.04, 0.1, "sine", 0.05);
+      break;
+    case "kira":
+      tone(1568, 0, 0.08);
+      tone(2093, 0.07, 0.18);
+      break;
+    case "chime":
+      tone(784, 0, 0.5, "triangle", 0.1);
+      tone(1174, 0.05, 0.5, "sine", 0.06);
+      break;
+    case "coin":
+      tone(988, 0, 0.07, "square", 0.08);
+      tone(1319, 0.07, 0.22, "square", 0.08);
+      break;
+    case "sparkle":
+      [0, 0.05, 0.1, 0.15, 0.2].forEach((t, i) => tone(1200 + i * 220, t, 0.25, "sine", 0.05));
+      break;
+    case "levelup":
+      [0, 0.08, 0.16, 0.24].forEach((t, i) => tone(660 + i * 165, t, 0.18, "triangle", 0.09));
+      break;
+    case "fanfare":
+      [0, 0.12, 0.24].forEach((t, i) => tone(523 * (1 + i * 0.25), t, 0.22, "triangle", 0.12));
+      tone(1046, 0.36, 0.7, "sine", 0.1);
+      break;
+    case "gold":
+      [0, 0.1, 0.2, 0.3].forEach((t, i) => tone(659 + i * 165, t, 0.26, "triangle", 0.12));
+      tone(1318, 0.42, 0.8, "sine", 0.09);
+      tone(330, 0.0, 0.9, "sine", 0.07);
+      break;
+    case "black":
+      [0, 0.07, 0.14, 0.21, 0.28, 0.35].forEach((t, i) =>
+        tone(523 + i * 196, t, 0.3, "triangle", 0.11),
+      );
+      tone(196, 0.05, 1.0, "sine", 0.09);
+      tone(2093, 0.5, 0.6, "sine", 0.06);
+      break;
+    default:
+      tone(1046, 0, 0.12);
+      break;
+  }
+  if (rank === "GOLD") [0, 0.09].forEach((t, i) => tone(1318 + i * 262, 0.3 + t, 0.2, "sine", 0.06));
+  if (rank === "BLACK") {
+    [0, 0.08, 0.16].forEach((t, i) => tone(784 + i * 262, 0.32 + t, 0.26, "triangle", 0.07));
+    tone(164, 0.3, 0.8, "sine", 0.07);
+  }
+}
