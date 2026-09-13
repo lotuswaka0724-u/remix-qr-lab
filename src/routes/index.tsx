@@ -96,6 +96,25 @@ function ScanPage() {
   } | null>(null);
   const [manual, setManual] = useState("");
 
+  /** 児童がガチャで手に入れた アイコン・フレーム・音・エフェクト */
+  const loadBadges = useServerFn(getClassBadges);
+  const [badges, setBadges] = useState<Record<string, ClassBadge>>({});
+  const [collFx, setCollFx] = useState<{ fx: string; id: number } | null>(null);
+
+  useEffect(() => {
+    let off = false;
+    void loadBadges({})
+      .then((rows) => {
+        if (off) return;
+        setBadges(Object.fromEntries((rows ?? []).map((b) => [b.studentId, b])));
+      })
+      .catch(() => {});
+    return () => {
+      off = true;
+    };
+  }, [loadBadges]);
+
+
   const classes = useMemo(
     () => Array.from(new Set(state.students.map((s) => s.className))),
     [state.students],
