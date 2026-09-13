@@ -37,7 +37,7 @@ export default function CollectionFx({ fx, rank = "NORMAL", playId }: Props) {
   useEffect(() => {
     if (!playId) return;
     setShown(playId);
-    const t = window.setTimeout(() => setShown(null), 1600);
+    const t = window.setTimeout(() => setShown(null), rank === "BLACK" ? 2400 : rank === "GOLD" ? 2000 : 1500);
     return () => window.clearTimeout(t);
   }, [playId]);
 
@@ -49,6 +49,7 @@ export default function CollectionFx({ fx, rank = "NORMAL", playId }: Props) {
   return (
     <div key={shown} className="pointer-events-none fixed inset-0 z-[60] overflow-hidden" aria-hidden>
       <div className={`fx-wash absolute inset-0 bg-gradient-to-b ${conf.wash} to-transparent`} />
+      {big && <div className={`fx-special-ring ${rank === "BLACK" ? "fx-special-ring-black" : ""}`} />}
       {pieces.map((i) => (
         <span
           key={i}

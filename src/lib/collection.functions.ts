@@ -10,11 +10,12 @@ import {
   type CollRarity,
 } from "@/lib/collection-catalog";
 import {
-  DEFAULT_RANK_RULES,
-  rankOfPoints,
+  availablePoints,
+  earnedPoints,
+  mergeState,
+  rankOf,
   type AppState,
   type Rank,
-  type Status,
 } from "@/lib/homework-store";
 
 /** 児童ごとのコレクション（ガチャで集めるアイテム）の保存データ */
@@ -105,24 +106,13 @@ async function session() {
   return gate.data.studentId;
 }
 
-const toStatus = (v: Status | boolean | undefined): Status =>
-  v === true ? "submitted" : !v ? "none" : (v as Status);
-
 function pointsOf(state: Partial<AppState>, studentId: string) {
-  const rules = state.pointRules ?? { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 };
-  let earned = 0;
-  for (const d of Object.values(state.records ?? {})) {
-    const mine = d[studentId];
-    if (!mine) continue;
-    for (const v of Object.values(mine)) earned += rules[toStatus(v)] ?? 0;
-  }
-  const spent = (state.gachaLog ?? [])
-    .filter((g) => g.studentId === studentId)
-    .reduce((a, g) => a + g.cost, 0);
+  const merged = mergeState(state);
+  const earned = earnedPoints(merged, studentId);
   return {
     earned,
-    available: earned - spent,
-    rank: rankOfPoints(state.rankRules ?? DEFAULT_RANK_RULES, earned),
+    available: availablePoints(merged, studentId),
+    rank: rankOf(merged, studentId),
   };
 }
 

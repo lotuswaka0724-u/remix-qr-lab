@@ -215,6 +215,41 @@
   50% { transform: scale(1.25) rotate(12deg); opacity: 1; }
 }
 
+@keyframes gacha-wobble {
+  0%, 100% { transform: rotate(0deg) translateY(0); }
+  20% { transform: rotate(-7deg) translateY(-3px); }
+  40% { transform: rotate(7deg) translateY(0); }
+  60% { transform: rotate(-5deg) translateY(-2px); }
+  80% { transform: rotate(5deg) translateY(0); }
+}
+
+@keyframes gacha-capsule-roll {
+  0% { transform: translate(-28px, -12px) rotate(0deg); }
+  50% { transform: translate(24px, 18px) rotate(240deg); }
+  100% { transform: translate(-28px, -12px) rotate(480deg); }
+}
+
+@keyframes gacha-open-top {
+  0% { transform: translate(-50%, 0) rotate(0); }
+  100% { transform: translate(-80%, -34px) rotate(-32deg); }
+}
+
+@keyframes gacha-open-bottom {
+  0% { transform: translate(-50%, 0) rotate(0); }
+  100% { transform: translate(-20%, 28px) rotate(28deg); }
+}
+
+@keyframes gacha-reveal {
+  0% { opacity: 0; transform: scale(0.72) translateY(18px); }
+  65% { opacity: 1; transform: scale(1.05) translateY(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes special-ring {
+  0% { opacity: 0.85; transform: translate(-50%, -50%) scale(0.2); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(3); }
+}
+
 @utility fx-shake { animation: kid-shake 0.5s ease-in-out infinite; }
 @utility fx-popin { animation: kid-popin 0.45s cubic-bezier(0.2, 1.2, 0.3, 1) both; }
 @utility fx-rays {
@@ -269,6 +304,83 @@
 }
 @utility fx-confetti { animation: confetti-fall 1.3s linear forwards; }
 @utility fx-row-hit { animation: row-hit 1.4s ease-out forwards; }
+
+.gacha-stage {
+  position: relative;
+  display: grid;
+  min-height: 12rem;
+  place-items: center;
+  overflow: hidden;
+  border: 2px solid color-mix(in oklab, var(--primary) 18%, var(--border));
+  border-radius: 1.5rem;
+  background: color-mix(in oklab, var(--primary-soft) 55%, var(--card));
+}
+.gacha-machine { position: relative; width: 8rem; height: 8.6rem; }
+.gacha-machine-spin { animation: gacha-wobble 0.48s ease-in-out infinite; }
+.gacha-machine-window {
+  display: grid;
+  width: 7rem;
+  height: 6.4rem;
+  margin-inline: auto;
+  place-content: center;
+  overflow: hidden;
+  border: 0.45rem solid var(--primary);
+  border-radius: 50% 50% 44% 44%;
+  background: color-mix(in oklab, var(--card) 65%, var(--accent-soft));
+  box-shadow: inset 0 0 0 0.25rem color-mix(in oklab, var(--primary) 14%, transparent);
+}
+.gacha-capsule {
+  display: grid;
+  width: 2.8rem;
+  height: 2.8rem;
+  place-content: center;
+  border: 0.25rem solid var(--card);
+  border-radius: 999px;
+  background: linear-gradient(180deg, var(--warning) 0 50%, var(--accent) 50%);
+  color: transparent;
+  box-shadow: var(--shadow-card);
+}
+.gacha-machine-spin .gacha-capsule { animation: gacha-capsule-roll 0.6s linear infinite; }
+.gacha-machine-base {
+  display: grid;
+  width: 8rem;
+  height: 2.6rem;
+  margin-top: -0.25rem;
+  place-content: center;
+  border-radius: 0.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 900;
+}
+.gacha-stage-label { position: absolute; bottom: 0.45rem; font-size: 0.75rem; font-weight: 700; color: var(--muted-foreground); }
+.gacha-opening { position: absolute; inset: 0; }
+.gacha-half { position: absolute; left: 50%; top: 45%; width: 4.5rem; height: 2.25rem; border: 0.3rem solid var(--card); background: var(--accent); }
+.gacha-half-top { border-radius: 4rem 4rem 0 0; animation: gacha-open-top 0.52s ease-out forwards; }
+.gacha-half-bottom { border-radius: 0 0 4rem 4rem; background: var(--warning); animation: gacha-open-bottom 0.52s ease-out forwards; }
+.gacha-light { position: absolute; left: 50%; top: 45%; color: var(--warning); font-size: 4rem; transform: translate(-50%, -50%); animation: kid-sparkle 0.35s ease-in-out infinite; }
+.gacha-prize-card { animation: gacha-reveal 0.5s cubic-bezier(0.2, 1.2, 0.3, 1) both; }
+.fx-special-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14rem;
+  height: 14rem;
+  border: 0.8rem solid var(--warning);
+  border-radius: 999px;
+  animation: special-ring 1.25s ease-out 2;
+}
+.fx-special-ring-black { border-color: color-mix(in oklab, var(--warning) 70%, var(--foreground)); box-shadow: 0 0 3rem var(--warning); }
+
+@media (prefers-reduced-motion: reduce) {
+  .gacha-machine-spin,
+  .gacha-machine-spin .gacha-capsule,
+  .gacha-half,
+  .gacha-light,
+  .gacha-prize-card,
+  .fx-special-ring { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}
 
 
 /* 教材貼付用QR印刷 */
