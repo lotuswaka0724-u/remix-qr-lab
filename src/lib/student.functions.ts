@@ -28,7 +28,14 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
   const student = (state.students ?? []).find((s) => s.id === studentId);
   if (!student) return null;
 
-  const rules = state.pointRules ?? { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 };
+  const rules: PointRules = state.pointRules ?? {
+    fixed: 5,
+    redo: 0,
+    submitted: 3,
+    school: 2,
+    declared: 1,
+    none: 0,
+  };
   const date = todayKey();
   const day = state.records?.[date]?.[studentId] ?? {};
   const items = (state.assignments ?? [])

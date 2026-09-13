@@ -266,7 +266,7 @@ const defaultState = (): AppState => ({
   ],
   records: {},
   settings: { sound: 1, vibe: true, speak: true, scanStatus: "submitted" },
-  pointRules: { fixed: 5, submitted: 3, school: 2, declared: 1, none: 0 },
+  pointRules: { fixed: 5, redo: 0, submitted: 3, school: 2, declared: 1, none: 0 },
   gachaCost: 10,
   prizes: [
     { id: "pz_1", name: "マイページ背景", weight: 20 },
