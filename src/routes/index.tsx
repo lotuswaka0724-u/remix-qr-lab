@@ -249,7 +249,13 @@ function ScanPage() {
     }
     setPendingConfirm(null);
     setPendingStudent({ student, assignment });
-    playSuccess(state.settings.sound);
+    const badge = badges[student.id];
+    const myRank = rankOf(state, student.id);
+    const tune = soundTune(badge?.sound);
+    if (tune) playCollectionSound(tune, myRank);
+    else playSuccess(state.settings.sound);
+    const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
+    if (fx) setCollFx({ fx, id: Date.now() });
     if (state.settings.speak) speak(`${student.name}さん、しゅくだいのカードをかざしてください`);
     toast.success(`${student.name} さん`, {
       description: "つぎに、しゅくだいのカードを読み取ってください",
