@@ -152,49 +152,82 @@ export function playRankUp(rank: RankKey) {
 
 /* ---------- コレクションの読み取り効果音（ガチャで手に入る音） ---------- */
 
-/** アイテムの音を鳴らす。ランクが GOLD / BLACK のときは、うしろに豪華な音をかさねる */
-export function playCollectionSound(tune: string | null | undefined, rank: RankKey = "NORMAL") {
+/**
+ * アイテムの音を鳴らす。
+ * ・音ごとに はっきり ちがう鳴り方にしてある
+ * ・ランクが GOLD / BLACK のときは、うしろに豪華な音をかさねる
+ * 将来、音声ファイル（mp3など）に差しかえるときは、この関数の中だけを変えればよい。
+ * アイテムの `asset` に音声ファイルのパスが入っていれば、それを優先して鳴らす。
+ */
+export function playCollectionSound(
+  tune: string | null | undefined,
+  rank: RankKey = "NORMAL",
+  asset?: string | null,
+) {
+  if (asset) {
+    try {
+      const el = new Audio(asset);
+      el.volume = 0.8;
+      void el.play();
+      return;
+    } catch {
+      /* 再生できなければ内蔵の音にもどる */
+    }
+  }
   switch (tune) {
     case "pico":
-      tone(1046, 0, 0.12);
+      // みじかい電子音ひとつ
+      tone(1400, 0, 0.07, "square", 0.1);
       break;
     case "pon":
-      tone(520, 0, 0.14, "sine", 0.14);
-      tone(880, 0.04, 0.1, "sine", 0.05);
+      // ひくい やわらかい ポン
+      tone(300, 0, 0.22, "sine", 0.18, 180);
       break;
     case "kira":
-      tone(1568, 0, 0.08);
-      tone(2093, 0.07, 0.18);
+      // 上へすべる たかい音
+      tone(1200, 0, 0.28, "sine", 0.1, 3000);
       break;
     case "chime":
-      tone(784, 0, 0.5, "triangle", 0.1);
-      tone(1174, 0.05, 0.5, "sine", 0.06);
+      // 鐘のような ながい ひびき
+      tone(659, 0, 0.9, "triangle", 0.12);
+      tone(988, 0.02, 0.9, "sine", 0.07);
+      tone(1318, 0.04, 0.7, "sine", 0.04);
       break;
     case "coin":
-      tone(988, 0, 0.07, "square", 0.08);
-      tone(1319, 0.07, 0.22, "square", 0.08);
+      // ゲームのコイン（2音のスタッカート）
+      tone(988, 0, 0.06, "square", 0.12);
+      tone(1568, 0.06, 0.26, "square", 0.12);
       break;
     case "sparkle":
-      [0, 0.05, 0.1, 0.15, 0.2].forEach((t, i) => tone(1200 + i * 220, t, 0.25, "sine", 0.05));
+      // こまかい粒が上へ
+      [0, 0.04, 0.08, 0.12, 0.16, 0.2, 0.24].forEach((t, i) =>
+        tone(1400 + i * 260, t, 0.18, "sine", 0.06),
+      );
       break;
     case "levelup":
-      [0, 0.08, 0.16, 0.24].forEach((t, i) => tone(660 + i * 165, t, 0.18, "triangle", 0.09));
+      // 階段のように のぼる
+      [0, 0.07, 0.14, 0.21, 0.3].forEach((t, i) =>
+        tone(523 * Math.pow(2, i / 4), t, 0.2, "square", 0.08),
+      );
       break;
     case "fanfare":
-      [0, 0.12, 0.24].forEach((t, i) => tone(523 * (1 + i * 0.25), t, 0.22, "triangle", 0.12));
-      tone(1046, 0.36, 0.7, "sine", 0.1);
+      // 和音のファンファーレ
+      [0, 0.12, 0.24].forEach((t, i) => tone(523 * (1 + i * 0.25), t, 0.24, "triangle", 0.13));
+      [523, 659, 784].forEach((f) => tone(f, 0.38, 0.8, "triangle", 0.08));
       break;
     case "gold":
-      [0, 0.1, 0.2, 0.3].forEach((t, i) => tone(659 + i * 165, t, 0.26, "triangle", 0.12));
-      tone(1318, 0.42, 0.8, "sine", 0.09);
-      tone(330, 0.0, 0.9, "sine", 0.07);
+      // 低音＋のぼる和音＋きらめき
+      tone(220, 0, 1.0, "sine", 0.1);
+      [0, 0.1, 0.2, 0.3].forEach((t, i) => tone(659 + i * 165, t, 0.3, "triangle", 0.13));
+      [0, 0.06, 0.12].forEach((t, i) => tone(1760 + i * 220, 0.45 + t, 0.35, "sine", 0.07));
       break;
     case "black":
-      [0, 0.07, 0.14, 0.21, 0.28, 0.35].forEach((t, i) =>
-        tone(523 + i * 196, t, 0.3, "triangle", 0.11),
+      // いちばん豪華：うなり＋和音の連なり＋ながい残響
+      tone(110, 0, 1.3, "sawtooth", 0.07);
+      [0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42].forEach((t, i) =>
+        tone(392 * Math.pow(2, i / 6), t, 0.34, "triangle", 0.12),
       );
-      tone(196, 0.05, 1.0, "sine", 0.09);
-      tone(2093, 0.5, 0.6, "sine", 0.06);
+      [1046, 1568, 2093].forEach((f, i) => tone(f, 0.6 + i * 0.05, 0.9, "sine", 0.06));
       break;
     default:
       tone(1046, 0, 0.12);
