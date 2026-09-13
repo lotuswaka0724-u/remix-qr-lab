@@ -630,6 +630,50 @@ export function applyHwState(
   return { ok: true, delta, total, state: hw };
 }
 
+/**
+ * 教材QRを1回読み取ったときの処理。
+ * ・まだ何もない → 提出済み（通常提出のポイント）
+ * ・先生が「直しあり」にしていた → 直し完了（直し完了のポイント）
+ * ・それ以外（すでに提出ずみ・直し完了ずみ・忘れた申告ずみ）→ ポイントは動かさない
+ */
+export function applyMaterialScan(
+  studentId: string,
+  assignmentId: string,
+  opts: { date?: string } = {},
+): HwApplyResult {
+  const date = opts.date ?? todayKey();
+  const already = hwStatesFor(state, date, studentId, assignmentId);
+
+  if (already.includes("REDO") && !already.includes("RESUBMIT")) {
+    return applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date });
+  }
+  if (already.length) {
+    return {
+      ok: false,
+      reason: "duplicate",
+      message: "このしゅくだいは、もう記録ずみです",
+    };
+  }
+  return applyHwState(studentId, assignmentId, "SUBMIT", { date });
+}
+
+/** 先生が児童に手でポイントをわたす（マイナスは受け付けない） */
+export function grantManualPoints(studentId: string, amount: number, note?: string) {
+  const value = Math.floor(amount);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  const grant: ManualGrant = {
+    id: `mg_${uid()}`,
+    studentId,
+    amount: value,
+    ...(note ? { note } : {}),
+    at: Date.now(),
+  };
+  setState((s) => ({ ...s, manualGrants: [...(s.manualGrants ?? []), grant] }));
+  return grant;
+}
+
+
+
 export const updateGameSettings = (patch: Partial<GameSettings>) =>
   setState((p) => ({ ...p, gameSettings: { ...p.gameSettings, ...patch } }));
 
