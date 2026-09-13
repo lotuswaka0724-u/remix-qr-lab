@@ -594,6 +594,15 @@ export function applyHwState(
       message: "このしゅくだいは、すでに処理されています",
     };
   }
+  // 「提出」「わすれた」「学校でやった」は、どれか1つだけ（ポイントの二重付与をふせぐ）
+  const exclusive: HwState[] = ["SUBMIT", "FORGOT", "SCHOOL_DONE"];
+  if (exclusive.includes(hw) && already.some((a) => exclusive.includes(a))) {
+    return {
+      ok: false,
+      reason: "duplicate",
+      message: "このしゅくだいは、もう記録ずみです",
+    };
+  }
   if (HW_STATE_META[hw].needsSubmit && !already.includes("SUBMIT") && !opts.force) {
     return {
       ok: false,
