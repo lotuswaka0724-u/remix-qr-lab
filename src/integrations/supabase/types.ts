@@ -32,6 +32,45 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_prizes: {
+        Row: {
+          asset_url: string
+          category: string
+          created_at: string
+          description: string
+          id: string
+          name: string
+          obtainable: boolean
+          rarity: string
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          asset_url: string
+          category: string
+          created_at?: string
+          description?: string
+          id: string
+          name: string
+          obtainable?: boolean
+          rarity?: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          asset_url?: string
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          name?: string
+          obtainable?: boolean
+          rarity?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       login_attempts: {
         Row: {
           count: number
