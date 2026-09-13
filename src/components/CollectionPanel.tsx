@@ -341,7 +341,11 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
                   className="mt-1 w-full rounded-xl text-xs font-bold"
                   onClick={(e) => {
                     e.stopPropagation();
-                    previewCollectionSound(soundTune(item.id), view.rank, item.asset ?? soundAsset(item.id));
+                    previewCollectionSound(
+                      soundTune(item.id),
+                      view.rank,
+                      item.asset ?? soundAsset(item.id),
+                    );
                   }}
                 >
                   ▶ 試聴

@@ -293,8 +293,7 @@ function ScanPage() {
       const named = hwQr.assignmentName
         ? state.assignments.find(
             (a) =>
-              a.name.replace(/[\s\u3000]/g, "") ===
-              hwQr.assignmentName!.replace(/[\s\u3000]/g, ""),
+              a.name.replace(/[\s\u3000]/g, "") === hwQr.assignmentName!.replace(/[\s\u3000]/g, ""),
           )
         : undefined;
       const target =

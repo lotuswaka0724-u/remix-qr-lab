@@ -61,7 +61,9 @@ export default function HwStateQrPrint() {
           variant="secondary"
           size="sm"
           onClick={() =>
-            setSelected(Object.fromEntries(cards.map((c) => [c.key, true])) as Record<string, boolean>)
+            setSelected(
+              Object.fromEntries(cards.map((c) => [c.key, true])) as Record<string, boolean>,
+            )
           }
         >
           すべて選ぶ
@@ -105,9 +107,7 @@ export default function HwStateQrPrint() {
           >
             <span className="text-4xl leading-none">{META.icon}</span>
             <figcaption className="text-center font-display text-2xl font-bold leading-tight">
-              {c.assignmentName && (
-                <span className="block text-xl">{c.assignmentName}</span>
-              )}
+              {c.assignmentName && <span className="block text-xl">{c.assignmentName}</span>}
               {META.label}
             </figcaption>
             <div className="rounded-2xl bg-white p-2">
