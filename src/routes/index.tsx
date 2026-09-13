@@ -8,7 +8,7 @@ import CollectionIcon from "@/components/CollectionIcon";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { effectFx, soundTune } from "@/lib/collection-catalog";
+import { effectFx, soundAsset, soundTune } from "@/lib/collection-catalog";
 import { getClassBadges, type ClassBadge } from "@/lib/collection.functions";
 import {
   playCollectionSound,
@@ -17,6 +17,7 @@ import {
   playRankUp,
   playSuccess,
   SOUND_PRESETS,
+  primeAudio,
   speak,
   vibrate,
 } from "@/lib/feedback";
@@ -270,7 +271,8 @@ function ScanPage() {
     const badge = badges[studentId];
     const myRank = rankOf(state, studentId);
     const tune = soundTune(badge?.sound);
-    if (tune) playCollectionSound(tune, myRank);
+    const asset = soundAsset(badge?.sound);
+    if (tune || asset) playCollectionSound(tune, myRank, asset);
     const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
     if (fx) setCollFx({ fx, id: Date.now() });
   };
@@ -400,7 +402,10 @@ function ScanPage() {
                 size="sm"
                 className="rounded-full"
                 variant={scanning ? "secondary" : "default"}
-                onClick={() => setScanning((v) => !v)}
+                onClick={() => {
+                  primeAudio();
+                  setScanning((v) => !v);
+                }}
               >
                 {scanning ? "停止" : "開始"}
               </Button>

@@ -13,6 +13,7 @@ import {
   COLL_RARITY_META,
   collItemsOf,
   effectFx,
+  soundAsset,
   soundTune,
   type CollCategory,
   type CollItem,
@@ -171,7 +172,8 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     const res = await equip({ data: { itemId: item.id } });
     setBusy(false);
     if (res) setView(res);
-    if (item.category === "sound") playCollectionSound(soundTune(item.id), view.rank);
+    if (item.category === "sound")
+      playCollectionSound(soundTune(item.id), view.rank, item.asset ?? soundAsset(item.id));
     if (item.category === "effect") setFxPlay({ fx: effectFx(item.id) ?? "spark", id: Date.now() });
   };
 
@@ -339,7 +341,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
                   className="mt-1 w-full rounded-xl text-xs font-bold"
                   onClick={(e) => {
                     e.stopPropagation();
-                    previewCollectionSound(soundTune(item.id), view.rank, item.asset);
+                    previewCollectionSound(soundTune(item.id), view.rank, item.asset ?? soundAsset(item.id));
                   }}
                 >
                   ▶ 試聴

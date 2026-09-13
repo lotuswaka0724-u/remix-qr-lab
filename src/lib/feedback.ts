@@ -13,6 +13,11 @@ function audio() {
   return ctx;
 }
 
+/** 画面タップのタイミングで音を使えるようにしておく（ブラウザの自動再生制限対策） */
+export function primeAudio() {
+  audio();
+}
+
 /** 今なっている音（試聴のとき、前の音を止めるために持っておく） */
 const live = new Set<OscillatorNode>();
 
