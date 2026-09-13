@@ -23,12 +23,12 @@ export const Route = createFileRoute("/me")({
       {
         name: "description",
         content:
-          "ログイン番号を入れると、自分の今日の宿題・ポイント・ガチャ・コレクションが見られるページです。",
+          "ログイン番号を入れると、自分の今日の宿題・ポイント・ガチャ・アイテムBOXが見られるページです。",
       },
       { property: "og:title", content: "わたしのページ | 宿題チェッカー" },
       {
         property: "og:description",
-        content: "ログイン番号でひらく、自分だけの宿題とポイントとコレクションのページ。",
+        content: "ログイン番号でひらく、自分だけの宿題とポイントとアイテムBOXのページ。",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -213,7 +213,7 @@ function MyPage() {
     { id: "homework", label: "宿題", icon: "📚" },
     { id: "points", label: "ポイント", icon: "🪙" },
     { id: "gacha", label: "ガチャ", icon: "🎁" },
-    { id: "collection", label: "コレクション", icon: "🗂️" },
+    { id: "collection", label: "アイテムBOX", icon: "🗂️" },
   ];
 
   return (
@@ -258,7 +258,7 @@ function MyPage() {
                 <button
                   type="button"
                   onClick={() => setScreen("collection")}
-                  aria-label="コレクションをひらく"
+                  aria-label="アイテムBOXをひらく"
                   className="transition-transform hover:-translate-y-1"
                 >
                   <CollectionIcon iconId={equipped.icon} frameId={equipped.frame} size={110} />
@@ -296,7 +296,7 @@ function MyPage() {
                   >
                     <span className="text-3xl">🗂️</span>
                     <span>
-                      <span className="block font-display text-base font-bold">コレクション</span>
+                      <span className="block font-display text-base font-bold">アイテムBOX</span>
                       <span className="block text-xs text-muted-foreground">
                         あつめた {ownedCount} / {totalCount} こ
                       </span>

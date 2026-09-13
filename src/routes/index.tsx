@@ -508,7 +508,7 @@ function ScanPage() {
                 href="/points"
                 className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary"
               >
-                ガチャ
+                ポイント
               </a>
             </div>
             <ol className="min-h-0 flex-1 space-y-1 overflow-auto">
@@ -520,6 +520,11 @@ function ScanPage() {
                   }`}
                 >
                   <span className="w-5 shrink-0 text-center tabular-nums">{i + 1}</span>
+                  <CollectionIcon
+                    iconId={badges[r.student.id]?.icon}
+                    frameId={badges[r.student.id]?.frame}
+                    size={22}
+                  />
                   <span className="min-w-0 flex-1 truncate">{r.student.name}</span>
                   <span
                     className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider ${
