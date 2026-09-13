@@ -544,7 +544,11 @@ const hwKey = (date: string, studentId: string, assignmentId: string) =>
 
 /** 宿題じょうたいQRで処理ずみの「日付・児童・宿題」 */
 const hwHandledKeys = (state: AppState) =>
-  new Set((state.hwEvents ?? []).map((e) => hwKey(e.date, e.studentId, e.assignmentId)));
+  new Set(
+    (state.hwEvents ?? [])
+      .filter((e) => !e.voided)
+      .map((e) => hwKey(e.date, e.studentId, e.assignmentId)),
+  );
 
 /**
  * これまでに貯めた合計ポイント（使った分は含まない）。
