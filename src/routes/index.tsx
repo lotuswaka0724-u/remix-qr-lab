@@ -397,22 +397,26 @@ function ScanPage() {
               </Button>
             </form>
 
-            {/* ---- STEP 表示（児童QR → しゅくだいのカード） ---- */}
+            {/* ---- 読み取りのしかた ---- */}
             <div className="mt-2 rounded-2xl bg-primary/5 p-2.5 text-xs">
               <p className="font-bold">
-                STEP1 児童のQR <span className="mx-1 text-muted-foreground">→</span> STEP2
-                しゅくだいのカード
+                提出は「教材のQR」だけでOK
+                <span className="ml-1 font-medium text-muted-foreground">
+                  ／ 直しが終わったら、同じ教材のQRをもう一度
+                </span>
               </p>
               {pendingStudent ? (
                 <p className="mt-1 font-bold text-primary">
                   {pendingStudent.student.name} さん
                   {pendingStudent.assignment ? `／${pendingStudent.assignment.name}` : ""}
                   <span className="ml-1 font-medium text-muted-foreground">
-                    しゅくだいのカードをかざしてください
+                    「わすれました」のカードをかざしてください
                   </span>
                 </p>
               ) : (
-                <p className="mt-1 text-muted-foreground">児童のQRを読み取ってください</p>
+                <p className="mt-1 text-muted-foreground">
+                  わすれたときだけ、児童のQR →「わすれました」カードの順に読み取ります。
+                </p>
               )}
               {pendingStudent && (
                 <button
