@@ -6,7 +6,17 @@
  * 同じ構造（id / category / rarity / name / asset / art）で足せるようにしてある。
  */
 
-export type CollRarity = "N" | "R" | "SR" | "GOLD" | "BLACK";
+export type CollRarity = "N" | "R" | "SR" | "SSR" | "GOLD" | "BLACK";
+
+/** 演出の豪華さの段階（1=シンプル … 4=最高） */
+export const RARITY_TIER: Record<CollRarity, 1 | 2 | 3 | 4> = {
+  N: 1,
+  R: 2,
+  SR: 3,
+  SSR: 4,
+  GOLD: 4,
+  BLACK: 4,
+};
 
 export type CollCategory = "background" | "icon" | "frame" | "sound" | "effect";
 
