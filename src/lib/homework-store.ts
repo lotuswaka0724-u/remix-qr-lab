@@ -222,6 +222,15 @@ export function parseHwStateQr(text: string): HwState | null {
 /** date -> studentId -> assignmentId -> ようす */
 export type Records = Record<string, Record<string, Record<string, Status | boolean>>>;
 
+/** 先生が手作業でわたしたポイント */
+export type ManualGrant = {
+  id: string;
+  studentId: string;
+  amount: number;
+  note?: string;
+  at: number;
+};
+
 export type AppState = {
   schoolLabel: string;
   assignments: Assignment[];
@@ -237,6 +246,8 @@ export type AppState = {
   hwPointRules: HwPointRules;
   /** 宿題じょうたいQRの記録 */
   hwEvents: HwEvent[];
+  /** 先生が手で足したポイント */
+  manualGrants: ManualGrant[];
   /** 将来用ゲーム設定（公開画面では使用しない） */
   gameSettings: GameSettings;
   /** 児童ごとの合言葉（先生だけが見られる） */
