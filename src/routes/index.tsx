@@ -606,7 +606,14 @@ function ScanPage() {
                         allDone ? "text-primary" : ""
                       }`}
                     >
-                      {s.name}
+                      <span className="inline-flex items-center gap-1.5">
+                        <CollectionIcon
+                          iconId={badges[s.id]?.icon}
+                          frameId={badges[s.id]?.frame}
+                          size={24}
+                        />
+                        {s.name}
+                      </span>
                       {allDone && <span className="ml-1 text-xs font-bold text-primary">✓完了</span>}
                     </td>
 
