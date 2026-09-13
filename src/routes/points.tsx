@@ -105,7 +105,47 @@ function PointsPage() {
             <span className="ml-1 text-base">pt</span>
           </p>
 
-          <p className="mx-auto mt-5 max-w-md rounded-2xl bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
+          <form
+            className="mx-auto mt-5 flex max-w-md flex-wrap items-center justify-center gap-2 rounded-2xl bg-muted/60 p-3"
+            onSubmit={(e) => {
+              e.preventDefault();
+              const amount = Number(grant);
+              if (!Number.isFinite(amount) || amount <= 0) {
+                toast.error("1以上の数字を入れてください");
+                return;
+              }
+              const res = grantManualPoints(student.id, amount, grantNote.trim() || undefined);
+              if (!res) {
+                toast.error("ポイントをわたせませんでした");
+                return;
+              }
+              setGrantNote("");
+              toast.success(`${student.name} さんに ${res.amount}pt わたしました`);
+            }}
+          >
+            <span className="w-full text-xs font-bold text-muted-foreground">
+              先生からポイントをわたす
+            </span>
+            <Input
+              type="number"
+              min={1}
+              step={1}
+              value={grant}
+              onChange={(e) => setGrant(e.target.value)}
+              className="w-24 bg-card"
+              aria-label="わたすポイント"
+            />
+            <Input
+              value={grantNote}
+              onChange={(e) => setGrantNote(e.target.value)}
+              placeholder="りゆう（にんい）"
+              maxLength={40}
+              className="min-w-[8rem] flex-1 bg-card"
+            />
+            <Button type="submit">わたす</Button>
+          </form>
+
+          <p className="mx-auto mt-3 max-w-md rounded-2xl bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
             ガチャとアイテムBOXは、児童本人のマイページから利用できます。
           </p>
         </section>
