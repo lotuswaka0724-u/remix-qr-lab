@@ -24,35 +24,41 @@ export const loginNumber = (s: Student) =>
     : "";
 
 /** 提出のようす */
-export type Status = "fixed" | "submitted" | "school" | "declared" | "none";
+export type Status = "fixed" | "redo" | "submitted" | "school" | "declared" | "none";
 
-export const STATUS_ORDER: Status[] = ["none", "submitted", "fixed", "school", "declared"];
+export const STATUS_ORDER: Status[] = ["none", "submitted", "redo", "fixed", "school", "declared"];
 
 export const STATUS_META: Record<
   Status,
   { short: string; label: string; desc: string; tone: string }
 > = {
   fixed: {
-    short: "直",
-    label: "提出＋直し完了",
-    desc: "宿題を出して、直しまで終わらせた",
+    short: "完",
+    label: "直し完了",
+    desc: "直しまで終わらせた",
     tone: "bg-[#1d4ed8] text-white",
   },
+  redo: {
+    short: "直",
+    label: "直しあり",
+    desc: "先生が直しをお願いした（直し待ち）",
+    tone: "bg-[#ca8a04] text-white",
+  },
   submitted: {
-    short: "提",
-    label: "提出（直しまだ）",
-    desc: "宿題を出したが、直しはまだ",
+    short: "✓",
+    label: "提出済み",
+    desc: "ふつうに提出した",
     tone: "bg-[#3b82f6] text-white",
   },
   school: {
     short: "校",
-    label: "学校で終えて提出",
+    label: "学校でやった",
     desc: "学校で終わらせて提出した",
     tone: "bg-[#60a5fa] text-white",
   },
   declared: {
-    short: "申",
-    label: "忘れを申告",
+    short: "忘",
+    label: "忘れた",
     desc: "出していないが、忘れたことを自分で伝えた",
     tone: "bg-[#bfdbfe] text-[#1e3a8a]",
   },
