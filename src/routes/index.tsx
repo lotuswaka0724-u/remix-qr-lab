@@ -57,6 +57,8 @@ export const Route = createFileRoute("/")({
         property: "og:description",
         content: "QRコードをかざすだけで宿題の提出を記録。今日の提出状況をその場で確認できます。",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ScanPage,

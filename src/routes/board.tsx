@@ -17,6 +17,8 @@ export const Route = createFileRoute("/board")({
         property: "og:description",
         content: "未提出の児童と宿題を大きな文字で一覧表示。教室での声かけにそのまま使えます。",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: BoardPage,

@@ -41,6 +41,8 @@ export const Route = createFileRoute("/manage")({
         property: "og:description",
         content: "宿題の項目とクラス名簿を追加・編集できる管理画面です。",
       },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
   component: ManagePage,
