@@ -39,7 +39,7 @@ export default function CollectionFx({ fx, rank = "NORMAL", playId }: Props) {
       rank === "BLACK" ? 2400 : rank === "GOLD" ? 2000 : 1500,
     );
     return () => window.clearTimeout(t);
-  }, [playId]);
+  }, [playId, rank]);
 
   if (!shown) return null;
   const conf = FX[fx ?? "spark"] ?? FX["spark"]!;
