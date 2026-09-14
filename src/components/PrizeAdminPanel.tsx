@@ -135,7 +135,9 @@ export default function PrizeAdminPanel() {
         setName("");
         setDescription("");
         setFile(null);
+        setThumb(null);
         if (fileRef.current) fileRef.current.value = "";
+        if (thumbRef.current) thumbRef.current.value = "";
       }
     } catch {
       setMsg("登録できませんでした");
