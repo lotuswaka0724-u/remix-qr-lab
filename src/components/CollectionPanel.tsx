@@ -170,27 +170,26 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         setPrize(p);
         setPhase("result");
         setBusy(false);
-        playCollectionSound(
+        const tune =
           p.rarity === "BLACK"
             ? "black"
             : p.rarity === "GOLD"
               ? "gold"
-              : p.rarity === "N"
-                ? "pico"
-                : "fanfare",
-          rank,
-        );
-        setFxPlay({
-          fx:
-            p.rarity === "BLACK"
-              ? "black"
-              : p.rarity === "GOLD"
-                ? "gold"
-                : p.rarity === "SR"
-                  ? "starfall"
-                  : "glitter",
-          id: Date.now(),
-        });
+              : p.rarity === "SSR"
+                ? "levelup"
+                : p.rarity === "N"
+                  ? "pico"
+                  : "fanfare";
+        playCollectionSound(tune, rank, tuneAsset(tune));
+        const fx =
+          p.rarity === "BLACK"
+            ? "black"
+            : p.rarity === "GOLD"
+              ? "gold"
+              : p.rarity === "SSR" || p.rarity === "SR"
+                ? "starfall"
+                : "glitter";
+        setFxPlay({ fx, id: Date.now(), image: fxImage(fx) });
       }, 520);
     }
   };
