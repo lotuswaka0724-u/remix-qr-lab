@@ -774,7 +774,7 @@ export const tuneAsset = (tune?: string | null) =>
 
 /** 演出キー（fx）からアニメ素材をひく。なければ内蔵のアニメにもどる */
 export const fxImage = (fx?: string | null) =>
-  (fx ? (COLL_ITEMS.find((i) => i.art["fx"] === fx)?.image ?? null) : null) ?? null;
+  fx ? (COLL_ITEMS.find((i) => i.art["fx"] === fx)?.image ?? null) : null;
 
 /* ============================================================
  * 先生が管理画面から登録した景品を、上のマスターに合流させる仕組み。
