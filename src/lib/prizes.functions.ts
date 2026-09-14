@@ -9,6 +9,8 @@ export type CustomPrize = {
   category: CollCategory;
   rarity: CollRarity;
   assetUrl: string;
+  /** 一覧表示用のサムネイル（本体の素材とは別に登録できる。未設定なら本体を使う） */
+  thumbUrl: string | null;
   description: string;
   obtainable: boolean;
   sort: number;
@@ -71,6 +73,7 @@ type Row = {
   category: string;
   rarity: string;
   asset_url: string;
+  thumb_url?: string | null;
   description: string | null;
   obtainable: boolean;
   sort: number;
@@ -87,6 +90,7 @@ function toPrize(r: Row): CustomPrize {
     category,
     rarity,
     assetUrl: r.asset_url,
+    thumbUrl: r.thumb_url ?? null,
     description: r.description ?? "",
     obtainable: r.obtainable,
     sort: r.sort,
@@ -99,7 +103,7 @@ export async function readCustomPrizes(): Promise<CustomPrize[]> {
     const db = await admin();
     const { data } = await db
       .from("custom_prizes")
-      .select("id, name, category, rarity, asset_url, description, obtainable, sort")
+      .select("id, name, category, rarity, asset_url, thumb_url, description, obtainable, sort")
       .order("sort", { ascending: true });
     return (data ?? []).map((r) => toPrize(r as Row));
   } catch {
@@ -122,7 +126,15 @@ export type AddPrizeInput = {
   fileName: string;
   contentType: string;
   dataBase64: string;
+  /** 一覧用サムネイル（なくてもよい。PNG/JPG・1MBまで） */
+  thumbFileName?: string;
+  thumbContentType?: string;
+  thumbBase64?: string;
 };
+
+const THUMB_TYPES = ["image/png", "image/jpeg"];
+const THUMB_EXT = ["png", "jpg", "jpeg"];
+const THUMB_MAX = 1024 * 1024;
 
 export const addCustomPrize = createServerFn({ method: "POST" })
   .inputValidator((data: AddPrizeInput) => data)
@@ -159,6 +171,28 @@ export const addCustomPrize = createServerFn({ method: "POST" })
       .upload(path, bytes, { contentType: data.contentType, upsert: false });
     if (up.error) return { error: "upload" as const };
 
+    // サムネイルは「あれば使う」おまけ。失敗しても景品の登録は続ける。
+    let thumbPath: string | null = null;
+    if (data.thumbBase64 && data.thumbFileName) {
+      const tExt = (data.thumbFileName.split(".").pop() ?? "").toLowerCase();
+      const tType = (data.thumbContentType ?? "").toLowerCase();
+      if (THUMB_EXT.includes(tExt) && THUMB_TYPES.includes(tType)) {
+        try {
+          const raw = atob(data.thumbBase64);
+          const tBytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+          if (tBytes.length && tBytes.length <= THUMB_MAX) {
+            const p = `${id}_thumb.${tExt}`;
+            const upT = await db.storage
+              .from("prize-assets")
+              .upload(p, tBytes, { contentType: tType, upsert: false });
+            if (!upT.error) thumbPath = p;
+          }
+        } catch {
+          thumbPath = null;
+        }
+      }
+    }
+
     const rarity = (RARITIES as string[]).includes(data.rarity) ? data.rarity : "N";
     const { error } = await db.from("custom_prizes").insert({
       id,
@@ -166,6 +200,7 @@ export const addCustomPrize = createServerFn({ method: "POST" })
       category,
       rarity,
       asset_url: `/api/public/prize-asset/${path}`,
+      thumb_url: thumbPath ? `/api/public/prize-asset/${thumbPath}` : null,
       description: String(data.description ?? "").slice(0, 200),
       obtainable: !!data.obtainable,
       sort: Number.isFinite(data.sort) ? Math.trunc(data.sort) : 100,
@@ -199,11 +234,13 @@ export const removeCustomPrize = createServerFn({ method: "POST" })
     const db = await admin();
     const { data: row } = await db
       .from("custom_prizes")
-      .select("asset_url")
+      .select("asset_url, thumb_url")
       .eq("id", data.id)
       .maybeSingle();
     await db.from("custom_prizes").delete().eq("id", data.id);
-    const file = row?.asset_url?.split("/").pop();
-    if (file) await db.storage.from("prize-assets").remove([file]);
+    const files = [row?.asset_url, row?.thumb_url]
+      .map((u) => (u ? u.split("/").pop() : null))
+      .filter((f): f is string => !!f);
+    if (files.length) await db.storage.from("prize-assets").remove(files);
     return { prizes: await readCustomPrizes() };
   });

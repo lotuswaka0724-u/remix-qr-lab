@@ -32,6 +32,8 @@ export type CollItem = {
   asset?: string;
   /** 画像素材のパス（例: /icons/cat.png）。入れると絵文字より優先して表示する */
   image?: string;
+  /** 一覧表示だけに使うサムネイル画像。本体の素材とは別に管理する */
+  thumb?: string;
   /** 一覧での表示順（小さいほど先。未設定は登録順） */
   sort?: number;
   /** ガチャで手に入るか（false にすると出ない。未設定は true） */
@@ -424,6 +426,7 @@ export type CustomPrizeLike = {
   category: CollCategory;
   rarity: CollRarity;
   assetUrl: string;
+  thumbUrl?: string | null;
   description: string;
   obtainable: boolean;
   sort: number;
@@ -438,6 +441,7 @@ function toCollItem(p: CustomPrizeLike): CollItem {
     description: p.description || p.name,
     obtainable: p.obtainable,
     sort: p.sort,
+    ...(p.thumbUrl ? { thumb: p.thumbUrl } : {}),
   };
   switch (p.category) {
     case "background":
@@ -454,14 +458,35 @@ function toCollItem(p: CustomPrizeLike): CollItem {
   }
 }
 
-/** 先生が登録した景品をマスターに反映する（何度呼んでも安全） */
+/** これまでに登録した「先生が追加した景品」のid（消されたときに取りのぞくため） */
+const customIds = new Set<string>();
+
+/**
+ * 先生が登録した景品をマスターに反映する（何度呼んでも安全）。
+ * 渡された一覧にない「先生が追加した景品」はマスターから取りのぞく（削除に追従する）。
+ * もともと内蔵のアイテムには一切さわらない。
+ */
 export function registerCustomItems(list: CustomPrizeLike[]) {
+  const alive = new Set<string>();
   for (const p of list) {
     if (!p?.id || !p.assetUrl) continue;
     const item = toCollItem(p);
+    alive.add(item.id);
+    customIds.add(item.id);
     const at = COLL_ITEMS.findIndex((i) => i.id === item.id);
     if (at >= 0) COLL_ITEMS[at] = item;
     else COLL_ITEMS.push(item);
     COLL_ITEM_BY_ID[item.id] = item;
   }
+  for (const id of [...customIds]) {
+    if (alive.has(id)) continue;
+    const at = COLL_ITEMS.findIndex((i) => i.id === id);
+    if (at >= 0) COLL_ITEMS.splice(at, 1);
+    delete COLL_ITEM_BY_ID[id];
+    customIds.delete(id);
+  }
 }
+
+/** 一覧用のサムネイル（未設定なら本体の画像をつかう） */
+export const itemThumb = (id?: string) =>
+  COLL_ITEM_BY_ID[id ?? ""]?.thumb ?? COLL_ITEM_BY_ID[id ?? ""]?.image ?? null;

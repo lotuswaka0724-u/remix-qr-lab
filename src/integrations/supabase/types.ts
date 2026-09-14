@@ -43,6 +43,7 @@ export type Database = {
           obtainable: boolean
           rarity: string
           sort: number
+          thumb_url: string | null
           updated_at: string
         }
         Insert: {
@@ -55,6 +56,7 @@ export type Database = {
           obtainable?: boolean
           rarity?: string
           sort?: number
+          thumb_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -67,6 +69,7 @@ export type Database = {
           obtainable?: boolean
           rarity?: string
           sort?: number
+          thumb_url?: string | null
           updated_at?: string
         }
         Relationships: []

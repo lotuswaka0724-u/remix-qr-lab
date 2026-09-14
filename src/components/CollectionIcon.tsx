@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import { frameRing, iconEmoji, iconImage } from "@/lib/collection-catalog";
 
 type Props = {
@@ -12,6 +14,13 @@ export default function CollectionIcon({ iconId, frameId, size = 26, className =
   const emoji = iconEmoji(iconId);
   const image = iconImage(iconId);
   const ring = frameRing(frameId);
+  // 画像が壊れている・消されている場合は絵文字にもどす（画面は止めない）
+  const [broken, setBroken] = useState(false);
+  useEffect(() => {
+    setBroken(false);
+  }, [image]);
+  const showImage = image && !broken;
+
   if (!emoji && !image && !ring) return null;
 
   const pad = Math.max(2, Math.round(size * 0.1));
@@ -34,12 +43,13 @@ export default function CollectionIcon({ iconId, frameId, size = 26, className =
           fontSize: size * 0.55,
         }}
       >
-        {image ? (
+        {showImage ? (
           <img
             src={image}
             alt=""
             className="h-full w-full rounded-full object-cover"
             loading="lazy"
+            onError={() => setBroken(true)}
           />
         ) : (
           (emoji ?? "🙂")

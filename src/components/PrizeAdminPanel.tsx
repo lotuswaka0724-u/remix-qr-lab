@@ -65,9 +65,11 @@ export default function PrizeAdminPanel() {
   const [obtainable, setObtainable] = useState(true);
   const [sort, setSort] = useState(100);
   const [file, setFile] = useState<File | null>(null);
+  const [thumb, setThumb] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const thumbRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const apply = (rows: CustomPrize[]) => {
@@ -99,6 +101,19 @@ export default function PrizeAdminPanel() {
     setBusy(true);
     try {
       const dataBase64 = await readBase64(file);
+      // サムネイルは任意。読めなかったときは本体だけで登録する。
+      let thumbFields = {};
+      if (thumb) {
+        try {
+          thumbFields = {
+            thumbFileName: thumb.name,
+            thumbContentType: thumb.type,
+            thumbBase64: await readBase64(thumb),
+          };
+        } catch {
+          thumbFields = {};
+        }
+      }
       const res = await add({
         data: {
           name: name.trim(),
@@ -110,6 +125,7 @@ export default function PrizeAdminPanel() {
           fileName: file.name,
           contentType: file.type,
           dataBase64,
+          ...thumbFields,
         },
       });
       if ("error" in res && res.error) setMsg(ERROR_TEXT[res.error] ?? "登録できませんでした");
@@ -119,7 +135,9 @@ export default function PrizeAdminPanel() {
         setName("");
         setDescription("");
         setFile(null);
+        setThumb(null);
         if (fileRef.current) fileRef.current.value = "";
+        if (thumbRef.current) thumbRef.current.value = "";
       }
     } catch {
       setMsg("登録できませんでした");
@@ -201,6 +219,16 @@ export default function PrizeAdminPanel() {
             className="mt-1"
           />
         </label>
+        <label className="text-xs sm:col-span-2">
+          一覧用サムネイル（任意・PNG/JPG・最大1MB／入れないときは素材をそのまま表示）
+          <Input
+            ref={thumbRef}
+            type="file"
+            accept="image/png,image/jpeg"
+            onChange={(e) => setThumb(e.target.files?.[0] ?? null)}
+            className="mt-1"
+          />
+        </label>
         <div className="flex items-center gap-2 text-xs sm:col-span-2">
           <Switch checked={obtainable} onCheckedChange={setObtainable} aria-label="ガチャに出す" />
           <span>ガチャに出す</span>
@@ -226,7 +254,7 @@ export default function PrizeAdminPanel() {
               </Button>
             ) : (
               <img
-                src={p.assetUrl}
+                src={p.thumbUrl ?? p.assetUrl}
                 alt=""
                 className="h-10 w-10 rounded-md bg-card object-contain"
                 onError={(e) => {

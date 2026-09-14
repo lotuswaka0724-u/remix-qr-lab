@@ -1,0 +1,1 @@
+ALTER TABLE public.custom_prizes ADD COLUMN IF NOT EXISTS thumb_url text;
