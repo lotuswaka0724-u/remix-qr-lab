@@ -20,12 +20,14 @@ import {
   type CustomPrize,
 } from "@/lib/prizes.functions";
 
-/** 先生が選ぶレアリティ（中の値は既存データと同じ N / R / SR / SSR） */
+/** 先生が選ぶレアリティ（中の値は既存データと同じ N / R / SR / SSR / GOLD / BLACK） */
 const RARITY_CHOICES: { value: CollRarity; label: string }[] = [
   { value: "N", label: "NORMAL" },
   { value: "R", label: "RARE" },
   { value: "SR", label: "SR" },
   { value: "SSR", label: "SSR" },
+  { value: "GOLD", label: "GOLD（とくべつ）" },
+  { value: "BLACK", label: "BLACK（さいこう）" },
 ];
 
 const ERROR_TEXT: Record<string, string> = {
