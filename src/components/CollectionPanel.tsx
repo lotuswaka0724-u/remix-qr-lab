@@ -61,11 +61,22 @@ export function useCollection() {
 export type CollectionApi = ReturnType<typeof useCollection>;
 
 function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
+  // 一覧ではサムネイルがあればそれを、なければ本体の画像を出す
+  const preview = item.thumb ?? item.image ?? null;
+  const [broken, setBroken] = useState(false);
+  useEffect(() => {
+    setBroken(false);
+  }, [preview]);
+
   if (item.category === "background")
     return (
       <span
-        className="block rounded-xl"
-        style={{ width: size, height: size, background: item.art["css"] }}
+        className="block rounded-xl bg-muted"
+        style={{
+          width: size,
+          height: size,
+          background: item.thumb ? `url("${item.thumb}") center / cover no-repeat` : item.art["css"],
+        }}
       />
     );
   if (item.category === "frame")
@@ -76,8 +87,13 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
       className="grid place-content-center rounded-xl bg-muted"
       style={{ width: size, height: size, fontSize: size * 0.5 }}
     >
-      {item.image ? (
-        <img src={item.image} alt="" className="h-full w-full rounded-xl object-contain" />
+      {preview && !broken ? (
+        <img
+          src={preview}
+          alt=""
+          className="h-full w-full rounded-xl object-contain"
+          onError={() => setBroken(true)}
+        />
       ) : item.category === "sound" ? (
         "🔔"
       ) : (
