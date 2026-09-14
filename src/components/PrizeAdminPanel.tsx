@@ -65,9 +65,11 @@ export default function PrizeAdminPanel() {
   const [obtainable, setObtainable] = useState(true);
   const [sort, setSort] = useState(100);
   const [file, setFile] = useState<File | null>(null);
+  const [thumb, setThumb] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const thumbRef = useRef<HTMLInputElement>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const apply = (rows: CustomPrize[]) => {
