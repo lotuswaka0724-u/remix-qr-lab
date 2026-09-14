@@ -38,6 +38,8 @@ export type CollItem = {
   sort?: number;
   /** ガチャで手に入るか（false にすると出ない。未設定は true） */
   obtainable?: boolean;
+  /** 素材の出どころ（lovable-ai / elevenlabs / klipy / teacher など） */
+  provider?: string;
   art: Record<string, string>;
 };
 
@@ -593,9 +595,136 @@ export const COLL_ITEMS: CollItem[] = [
   frame("neon", "ネオンリング", "SSR", "linear-gradient(135deg,#22d3ee,#f0abfc)", "光るネオン"),
 ];
 
+/* ============================================================
+ * 実素材（本物の画像・音・アニメ）を内蔵景品にわりあてる。
+ * id・名前・カテゴリー・レアリティ・排出設定は一切かえない。素材だけを足す。
+ * 素材が読めないときは、もとの絵文字・グラデーション・内蔵音にもどる。
+ * ============================================================ */
+
+type RealAsset = { id: string; url: string; provider?: string };
+
+/** 画像がよめなかったときのために、もとの見た目をうしろにかさねる */
+const layered = (url: string, base?: string) =>
+  `url("${url}") center / cover no-repeat${base ? `, ${base}` : ""}`;
+
+const REAL_ASSETS: RealAsset[] = [
+  // アイコン（AI画像生成 / PNG透過）
+  { id: "ic_trophy", url: "/prizes/icons/trophy.png", provider: "lovable-ai" },
+  { id: "ic_crown", url: "/prizes/icons/crown.png", provider: "lovable-ai" },
+  { id: "ic_starhero", url: "/prizes/icons/starhero.png", provider: "lovable-ai" },
+  { id: "ic_galaxywhale", url: "/prizes/icons/galaxywhale.png", provider: "lovable-ai" },
+  { id: "ic_golddragon", url: "/prizes/icons/golddragon.png", provider: "lovable-ai" },
+  { id: "ic_blackstar", url: "/prizes/icons/blackstar.png", provider: "lovable-ai" },
+  // フレーム（AI画像生成 / PNG透過）
+  { id: "fr_gold", url: "/prizes/frames/gold.png", provider: "lovable-ai" },
+  { id: "fr_black", url: "/prizes/frames/black.png", provider: "lovable-ai" },
+  { id: "fr_prism", url: "/prizes/frames/prism.png", provider: "lovable-ai" },
+  { id: "fr_neon", url: "/prizes/frames/neon.png", provider: "lovable-ai" },
+  // 背景（AI画像生成 / JPG）
+  { id: "bg_gold", url: "/prizes/bg/gold.jpg", provider: "lovable-ai" },
+  { id: "bg_black", url: "/prizes/bg/black.jpg", provider: "lovable-ai" },
+  { id: "bg_crystal", url: "/prizes/bg/crystal.jpg", provider: "lovable-ai" },
+  { id: "bg_dragonlair", url: "/prizes/bg/dragonlair.jpg", provider: "lovable-ai" },
+  // 効果音（ElevenLabs 効果音生成 / MP3）
+  { id: "sd_pico", url: "/prizes/sounds/pico.mp3", provider: "elevenlabs" },
+  { id: "sd_pon", url: "/prizes/sounds/pon.mp3", provider: "elevenlabs" },
+  { id: "sd_kira", url: "/prizes/sounds/kira.mp3", provider: "elevenlabs" },
+  { id: "sd_chime", url: "/prizes/sounds/chime.mp3", provider: "elevenlabs" },
+  { id: "sd_coin", url: "/prizes/sounds/coin.mp3", provider: "elevenlabs" },
+  { id: "sd_sparkle", url: "/prizes/sounds/sparkle.mp3", provider: "elevenlabs" },
+  { id: "sd_levelup", url: "/prizes/sounds/levelup.mp3", provider: "elevenlabs" },
+  { id: "sd_fanfare", url: "/prizes/sounds/fanfare.mp3", provider: "elevenlabs" },
+  { id: "sd_gold", url: "/prizes/sounds/gold.mp3", provider: "elevenlabs" },
+  { id: "sd_black", url: "/prizes/sounds/black.mp3", provider: "elevenlabs" },
+  // 読み取りエフェクト（KLIPY のアニメ素材。保存せず配信URLをそのまま表示する）
+  {
+    id: "ef_stars",
+    url: "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/d3/a6/gLOdk4fv.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_bubble",
+    url: "https://static.klipy.com/ii/a5166a66b33e26d783bf95ac62ea3cdb/4f/fe/wfDKG8JB.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_glitter",
+    url: "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/d5/84/JAqu2L8b.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_ring",
+    url: "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/11/58/eY5etlLo.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_coin",
+    url: "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/70/cf/aB9r1qed.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_confetti",
+    url: "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/bf/a3/Lr5yHhPq.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_starfall",
+    url: "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/10/8a/Hs1j9E7Y.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_gold",
+    url: "https://static.klipy.com/ii/4bbcf901ea0d5dec489bd8c608d7f1fd/8a/e9/ysRbo5x5T8f5qZ.gif",
+    provider: "klipy",
+  },
+  {
+    id: "ef_black",
+    url: "https://static.klipy.com/ii/40e5f3c9157feea5d28a6b4ad3880d85/9e/d7/f7hlhIFw.gif",
+    provider: "klipy",
+  },
+];
+
+/** 実素材のわりあて（id・レアリティ等は変えない） */
+for (const a of REAL_ASSETS) {
+  const at = COLL_ITEMS.findIndex((i) => i.id === a.id);
+  if (at < 0) continue;
+  const base = COLL_ITEMS[at]!;
+  const provider = a.provider ? { provider: a.provider } : {};
+  switch (base.category) {
+    case "background":
+      COLL_ITEMS[at] = {
+        ...base,
+        ...provider,
+        art: { ...base.art, css: layered(a.url, base.art["css"]) },
+      };
+      break;
+    case "frame":
+      COLL_ITEMS[at] = {
+        ...base,
+        ...provider,
+        art: { ...base.art, ring: layered(a.url, base.art["ring"]) },
+      };
+      break;
+    case "sound":
+      COLL_ITEMS[at] = { ...base, ...provider, asset: a.url };
+      break;
+    case "icon":
+    case "effect":
+    default:
+      COLL_ITEMS[at] = { ...base, ...provider, image: a.url, art: { ...base.art, image: a.url } };
+      break;
+  }
+}
+
 export const COLL_ITEM_BY_ID: Record<string, CollItem> = Object.fromEntries(
   COLL_ITEMS.map((i) => [i.id, i]),
 );
+
+/** その景品の素材の出どころ（KLIPY などの表示に使う） */
+export const itemProvider = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.provider ?? null;
+
+/** 実素材が入っている景品の数（カテゴリー別） */
+export const REAL_ASSET_IDS = REAL_ASSETS.map((a) => a.id);
 
 export const collItemsOf = (category: CollCategory) =>
   COLL_ITEMS.filter((i) => i.category === category).sort(
