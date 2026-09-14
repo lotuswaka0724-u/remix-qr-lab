@@ -182,10 +182,12 @@ export const updateCustomPrize = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     if (!(await isTeacher())) return { error: "auth" as const };
     const db = await admin();
-    const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
-    if (typeof data.obtainable === "boolean") patch["obtainable"] = data.obtainable;
+    const patch: { updated_at: string; obtainable?: boolean; sort?: number } = {
+      updated_at: new Date().toISOString(),
+    };
+    if (typeof data.obtainable === "boolean") patch.obtainable = data.obtainable;
     if (typeof data.sort === "number" && Number.isFinite(data.sort))
-      patch["sort"] = Math.trunc(data.sort);
+      patch.sort = Math.trunc(data.sort);
     await db.from("custom_prizes").update(patch).eq("id", String(data.id));
     return { prizes: await readCustomPrizes() };
   });

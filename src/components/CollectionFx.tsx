@@ -28,9 +28,15 @@ const FX: Record<string, { emojis: string[]; count: number; wash: string; label?
   },
 };
 
-type Props = { fx?: string | null | undefined; rank?: Rank; playId?: number | null };
+type Props = {
+  fx?: string | null | undefined;
+  rank?: Rank;
+  playId?: number | null;
+  /** 先生が登録したPNG素材。あれば中央にかさねて表示する */
+  image?: string | null | undefined;
+};
 
-export default function CollectionFx({ fx, rank = "NORMAL", playId }: Props) {
+export default function CollectionFx({ fx, rank = "NORMAL", playId, image }: Props) {
   const [shown, setShown] = useState<number | null>(null);
   // レアリティの段階（1=シンプル / 2=光＋粒 / 3=強い光＋リング / 4=いちばん豪華）
   const tier = Math.max(tierOfArt("fx", fx), rank === "BLACK" ? 4 : rank === "GOLD" ? 3 : 1);
@@ -55,6 +61,18 @@ export default function CollectionFx({ fx, rank = "NORMAL", playId }: Props) {
       className={`pointer-events-none fixed inset-0 z-[60] overflow-hidden fx-tier-${tier}`}
       aria-hidden
     >
+      {image && (
+        <div className="absolute inset-0 grid place-content-center">
+          <img
+            src={image}
+            alt=""
+            className="fx-pop max-h-[60vh] max-w-[80vw] object-contain"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        </div>
+      )}
       <div className={`fx-wash absolute inset-0 bg-gradient-to-b ${conf.wash} to-transparent`} />
       {tier >= 2 && <div className="fx-flash" />}
       {tier >= 3 && <div className="fx-burst-ring" />}
