@@ -33,6 +33,7 @@ import {
   applyHwState,
   applyMaterialScan,
   clearToday,
+  correctHwState,
   cycleRecord,
   HW_STATE_META,
   isSubmitted,
@@ -254,14 +255,17 @@ function ScanPage() {
     afterRecord(student, target, res, before);
   };
 
-  /** 先生が一覧から1タップで「直しあり」「学校でやった」にする */
+  /**
+   * 先生が一覧から1タップで「直しあり」「学校でやった」にする。
+   * すでに「わすれました」などが記録ずみのときは、古い記録を無効にして訂正する。
+   */
   const teacherMark = (
     student: { id: string; name: string },
     target: { id: string; name: string },
     hw: HwState,
   ) => {
     const before = rankOf(state, student.id);
-    const res = applyHwState(student.id, target.id, hw, { force: true });
+    const res = correctHwState(student.id, target.id, hw);
     if (!res.ok) {
       toast.info(res.message, { description: `${student.name}／${target.name}` });
       return;

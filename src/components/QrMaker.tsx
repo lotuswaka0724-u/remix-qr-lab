@@ -261,7 +261,7 @@ export default function QrMaker() {
                   <span className="min-w-0 flex-1 truncate text-sm">
                     <span className="font-bold">{c.name}</span>
                     <span className="ml-2 text-xs text-muted-foreground">
-                      {c.gradeClass} {c.number}番／{c.romaji}／{c.points}pt・{c.rank}
+                      {c.gradeClass} {c.number}番／{c.romaji}／{c.rank}
                     </span>
                   </span>
                 </label>
@@ -301,7 +301,6 @@ function PrintCard({ c }: { c: CardData }) {
           <p className="id-card-pass">PASSWORD : {c.password || "-----"}</p>
           <div className="id-card-foot">
             <span className={`id-card-badge ${style.badge}`}>{style.label}</span>
-            <span className="id-card-pt">{c.points} pt</span>
           </div>
         </div>
         <div className="id-card-qr">
