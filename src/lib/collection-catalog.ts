@@ -609,6 +609,7 @@ const layered = (url: string, base?: string) =>
 
 const REAL_ASSETS: RealAsset[] = [
   // アイコン（AI画像生成 / PNG透過）
+  { id: "ic_cat", url: "/prizes/icons/cat.png", provider: "lovable-ai" },
   { id: "ic_trophy", url: "/prizes/icons/trophy.png", provider: "lovable-ai" },
   { id: "ic_crown", url: "/prizes/icons/crown.png", provider: "lovable-ai" },
   { id: "ic_starhero", url: "/prizes/icons/starhero.png", provider: "lovable-ai" },
