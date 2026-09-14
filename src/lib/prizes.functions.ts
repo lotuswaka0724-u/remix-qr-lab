@@ -234,11 +234,13 @@ export const removeCustomPrize = createServerFn({ method: "POST" })
     const db = await admin();
     const { data: row } = await db
       .from("custom_prizes")
-      .select("asset_url")
+      .select("asset_url, thumb_url")
       .eq("id", data.id)
       .maybeSingle();
     await db.from("custom_prizes").delete().eq("id", data.id);
-    const file = row?.asset_url?.split("/").pop();
-    if (file) await db.storage.from("prize-assets").remove([file]);
+    const files = [row?.asset_url, row?.thumb_url]
+      .map((u) => (u ? u.split("/").pop() : null))
+      .filter((f): f is string => !!f);
+    if (files.length) await db.storage.from("prize-assets").remove(files);
     return { prizes: await readCustomPrizes() };
   });
