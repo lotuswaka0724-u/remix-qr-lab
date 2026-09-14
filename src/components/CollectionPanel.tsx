@@ -113,6 +113,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
   const [prize, setPrize] = useState<CollPrize | null>(null);
   const [msg, setMsg] = useState("");
   const [cat, setCat] = useState<CollCategory>("icon");
+  const [sortBy, setSortBy] = useState<"rarity" | "owned">("rarity");
   const [fxPlay, setFxPlay] = useState<{ fx: string; id: number; image?: string | null } | null>(
     null,
   );

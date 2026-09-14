@@ -108,7 +108,7 @@ function MyPage() {
             inputMode="numeric"
             autoComplete="off"
             maxLength={8}
-            placeholder="83112"
+            placeholder="パスワードを入力"
             className="h-16 text-center font-display text-3xl tracking-[0.3em]"
             aria-label="ログイン番号"
           />
