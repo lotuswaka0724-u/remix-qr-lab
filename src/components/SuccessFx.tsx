@@ -75,7 +75,14 @@ export default function SuccessFx({ hit }: Props) {
             <p className={`text-sm font-bold ${style.fxText}`}>
               {hit.assignment} を記録しました
             </p>
-            <p className="text-xs font-bold opacity-80">つうさん {hit.points} pt</p>
+            <p
+              className={`fx-pop font-display text-2xl font-bold tabular-nums ${
+                hit.points >= 0 ? "text-success" : "text-destructive"
+              }`}
+            >
+              {hit.points >= 0 ? `+${hit.points}` : hit.points}
+              <span className="ml-1 text-sm">pt</span>
+            </p>
 
             {hit.rankUp && (
               <p
