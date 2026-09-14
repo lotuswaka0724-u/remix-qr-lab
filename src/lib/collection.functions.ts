@@ -75,13 +75,20 @@ function normalizeColl(raw: Partial<CollData> | null | undefined): CollData {
   return { owned, dupes: raw?.dupes ?? {}, equipped };
 }
 
-/** 先生が登録した景品をマスターに合流させる（毎回よびだしても安全） */
+/** 先生が登録した景品と素材差し替えをマスターに合流させる（毎回よびだしても安全） */
 async function syncCustom() {
   try {
     const { readCustomPrizes } = await import("@/lib/prizes.functions");
     registerCustomItems(await readCustomPrizes());
   } catch {
     /* 景品テーブルが読めなくても既存アイテムはそのまま使う */
+  }
+  try {
+    const { readPrizeOverrides } = await import("@/lib/prizes.functions");
+    const { applyAssetOverrides } = await import("@/lib/collection-catalog");
+    applyAssetOverrides(await readPrizeOverrides());
+  } catch {
+    /* 差し替えが読めなくても内蔵の見た目でそのまま動く */
   }
 }
 

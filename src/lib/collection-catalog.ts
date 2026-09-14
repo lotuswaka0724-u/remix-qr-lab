@@ -413,21 +413,93 @@ export const COLL_ITEMS: CollItem[] = [
   /* ---------- 追加マイページ背景（23） ---------- */
   bg("dawn", "あさやけ", "N", "linear-gradient(160deg,#fde68a,#fb923c 60%,#f472b6)", "朝のそら"),
   bg("cloud", "くもぞら", "N", "linear-gradient(160deg,#f1f5f9,#cbd5e1 60%,#94a3b8)", "しろい雲"),
-  bg("meadow", "そうげん", "N", "linear-gradient(160deg,#d9f99d,#65a30d 70%,#365314)", "ひろい草原"),
-  bg("desert", "さばく", "N", "linear-gradient(160deg,#fef3c7,#fbbf24 65%,#b45309)", "あつい砂ばく"),
-  bg("snow", "ゆきげしき", "N", "linear-gradient(160deg,#ffffff,#dbeafe 60%,#93c5fd)", "しずかな雪"),
-  bg("bamboo", "たけばやし", "N", "linear-gradient(160deg,#dcfce7,#16a34a 70%,#14532d)", "竹のみち"),
+  bg(
+    "meadow",
+    "そうげん",
+    "N",
+    "linear-gradient(160deg,#d9f99d,#65a30d 70%,#365314)",
+    "ひろい草原",
+  ),
+  bg(
+    "desert",
+    "さばく",
+    "N",
+    "linear-gradient(160deg,#fef3c7,#fbbf24 65%,#b45309)",
+    "あつい砂ばく",
+  ),
+  bg(
+    "snow",
+    "ゆきげしき",
+    "N",
+    "linear-gradient(160deg,#ffffff,#dbeafe 60%,#93c5fd)",
+    "しずかな雪",
+  ),
+  bg(
+    "bamboo",
+    "たけばやし",
+    "N",
+    "linear-gradient(160deg,#dcfce7,#16a34a 70%,#14532d)",
+    "竹のみち",
+  ),
   bg("pond", "みずべ", "N", "linear-gradient(160deg,#cffafe,#22d3ee 65%,#0e7490)", "すずしい水べ"),
   bg("field", "はたけ", "N", "linear-gradient(160deg,#fef9c3,#a3e635 60%,#4d7c0f)", "みのりの畑"),
-  bg("strawberry", "いちご", "R", "linear-gradient(135deg,#fee2e2,#fb7185 60%,#be123c)", "あまいいちご"),
-  bg("mint", "ミント", "R", "linear-gradient(135deg,#ecfdf5,#6ee7b7 60%,#0d9488)", "ひんやりミント"),
-  bg("lemon", "レモン", "R", "linear-gradient(135deg,#fefce8,#facc15 60%,#ca8a04)", "さわやかレモン"),
-  bg("island", "そらのしま", "R", "linear-gradient(160deg,#bfdbfe,#38bdf8 55%,#15803d)", "空にうかぶ島"),
-  bg("deepsea", "かいてい", "R", "linear-gradient(160deg,#0ea5e9,#0c4a6e 65%,#082f49)", "ふかい海のなか"),
+  bg(
+    "strawberry",
+    "いちご",
+    "R",
+    "linear-gradient(135deg,#fee2e2,#fb7185 60%,#be123c)",
+    "あまいいちご",
+  ),
+  bg(
+    "mint",
+    "ミント",
+    "R",
+    "linear-gradient(135deg,#ecfdf5,#6ee7b7 60%,#0d9488)",
+    "ひんやりミント",
+  ),
+  bg(
+    "lemon",
+    "レモン",
+    "R",
+    "linear-gradient(135deg,#fefce8,#facc15 60%,#ca8a04)",
+    "さわやかレモン",
+  ),
+  bg(
+    "island",
+    "そらのしま",
+    "R",
+    "linear-gradient(160deg,#bfdbfe,#38bdf8 55%,#15803d)",
+    "空にうかぶ島",
+  ),
+  bg(
+    "deepsea",
+    "かいてい",
+    "R",
+    "linear-gradient(160deg,#0ea5e9,#0c4a6e 65%,#082f49)",
+    "ふかい海のなか",
+  ),
   bg("morning", "もりのあさ", "R", "linear-gradient(160deg,#fef9c3,#86efac 55%,#166534)", "朝の森"),
-  bg("stadium", "スタジアム", "R", "linear-gradient(135deg,#bbf7d0,#22c55e 55%,#1e3a8a)", "しあいの日"),
-  bg("circuit", "サーキット", "R", "linear-gradient(135deg,#e2e8f0,#475569 55%,#dc2626)", "スピードの世界"),
-  bg("galaxy", "ぎんが", "SR", "radial-gradient(circle at 40% 35%,#a78bfa,#1e1b4b 70%)", "うずまく銀河"),
+  bg(
+    "stadium",
+    "スタジアム",
+    "R",
+    "linear-gradient(135deg,#bbf7d0,#22c55e 55%,#1e3a8a)",
+    "しあいの日",
+  ),
+  bg(
+    "circuit",
+    "サーキット",
+    "R",
+    "linear-gradient(135deg,#e2e8f0,#475569 55%,#dc2626)",
+    "スピードの世界",
+  ),
+  bg(
+    "galaxy",
+    "ぎんが",
+    "SR",
+    "radial-gradient(circle at 40% 35%,#a78bfa,#1e1b4b 70%)",
+    "うずまく銀河",
+  ),
   bg(
     "meteor",
     "りゅうせいぐん",
@@ -504,7 +576,13 @@ export const COLL_ITEMS: CollItem[] = [
   ),
   frame("aurorafr", "オーロラ", "SR", "linear-gradient(135deg,#34d399,#818cf8)", "ゆれる光のふち"),
   frame("dragonfr", "ドラゴン", "SR", "linear-gradient(135deg,#f97316,#7f1d1d)", "ドラゴンのふち"),
-  frame("storm", "サンダーストーム", "SR", "linear-gradient(135deg,#93c5fd,#1e293b)", "あらしのふち"),
+  frame(
+    "storm",
+    "サンダーストーム",
+    "SR",
+    "linear-gradient(135deg,#93c5fd,#1e293b)",
+    "あらしのふち",
+  ),
   frame(
     "prism",
     "プリズム",
@@ -514,7 +592,6 @@ export const COLL_ITEMS: CollItem[] = [
   ),
   frame("neon", "ネオンリング", "SSR", "linear-gradient(135deg,#22d3ee,#f0abfc)", "光るネオン"),
 ];
-
 
 export const COLL_ITEM_BY_ID: Record<string, CollItem> = Object.fromEntries(
   COLL_ITEMS.map((i) => [i.id, i]),
@@ -637,3 +714,76 @@ export function registerCustomItems(list: CustomPrizeLike[]) {
 /** 一覧用のサムネイル（未設定なら本体の画像をつかう） */
 export const itemThumb = (id?: string) =>
   COLL_ITEM_BY_ID[id ?? ""]?.thumb ?? COLL_ITEM_BY_ID[id ?? ""]?.image ?? null;
+
+/* ============================================================
+ * 内蔵景品（154種類）の「素材だけ」を差し替える仕組み。
+ * id・名前・カテゴリー・レアリティ・排出設定は変えず、見た目／音だけを上書きする。
+ * 差し替えをやめたら、もとの内蔵の見た目にもどる。
+ * ============================================================ */
+
+export type PrizeOverrideLike = {
+  prizeId: string;
+  assetUrl: string;
+  thumbUrl?: string | null;
+};
+
+/** 差し替え前のすがた（もどすときに使う） */
+const originalItems = new Map<string, CollItem>();
+const overriddenIds = new Set<string>();
+
+function withAsset(base: CollItem, assetUrl: string, thumbUrl?: string | null): CollItem {
+  const thumb = thumbUrl ? { thumb: thumbUrl } : {};
+  switch (base.category) {
+    case "background":
+      return {
+        ...base,
+        ...thumb,
+        art: { ...base.art, css: `url("${assetUrl}") center / cover no-repeat` },
+      };
+    case "icon":
+      return { ...base, ...thumb, image: assetUrl, art: { ...base.art, image: assetUrl } };
+    case "frame":
+      return {
+        ...base,
+        ...thumb,
+        art: { ...base.art, ring: `url("${assetUrl}") center / cover no-repeat` },
+      };
+    case "sound":
+      return { ...base, ...thumb, asset: assetUrl };
+    case "effect":
+    default:
+      return { ...base, ...thumb, image: assetUrl, art: { ...base.art, image: assetUrl } };
+  }
+}
+
+/**
+ * 素材の差し替えを反映する（何度呼んでも安全）。
+ * 一覧にない差し替えはもとにもどす。先生が追加した景品（cx_）には手を出さない。
+ */
+export function applyAssetOverrides(list: PrizeOverrideLike[]) {
+  const alive = new Set<string>();
+  for (const o of list) {
+    if (!o?.prizeId || !o.assetUrl) continue;
+    const base = originalItems.get(o.prizeId) ?? COLL_ITEM_BY_ID[o.prizeId];
+    if (!base) continue;
+    if (!originalItems.has(o.prizeId)) originalItems.set(o.prizeId, base);
+    const next = withAsset(base, o.assetUrl, o.thumbUrl ?? null);
+    const at = COLL_ITEMS.findIndex((i) => i.id === o.prizeId);
+    if (at >= 0) COLL_ITEMS[at] = next;
+    COLL_ITEM_BY_ID[o.prizeId] = next;
+    overriddenIds.add(o.prizeId);
+    alive.add(o.prizeId);
+  }
+  for (const id of [...overriddenIds]) {
+    if (alive.has(id)) continue;
+    const base = originalItems.get(id);
+    overriddenIds.delete(id);
+    if (!base) continue;
+    const at = COLL_ITEMS.findIndex((i) => i.id === id);
+    if (at >= 0) COLL_ITEMS[at] = base;
+    COLL_ITEM_BY_ID[id] = base;
+  }
+}
+
+/** その景品が先生の素材に差し替え済みかどうか */
+export const isOverridden = (id: string) => overriddenIds.has(id);
