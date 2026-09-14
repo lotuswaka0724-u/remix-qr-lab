@@ -637,3 +637,76 @@ export function registerCustomItems(list: CustomPrizeLike[]) {
 /** 一覧用のサムネイル（未設定なら本体の画像をつかう） */
 export const itemThumb = (id?: string) =>
   COLL_ITEM_BY_ID[id ?? ""]?.thumb ?? COLL_ITEM_BY_ID[id ?? ""]?.image ?? null;
+
+/* ============================================================
+ * 内蔵景品（154種類）の「素材だけ」を差し替える仕組み。
+ * id・名前・カテゴリー・レアリティ・排出設定は変えず、見た目／音だけを上書きする。
+ * 差し替えをやめたら、もとの内蔵の見た目にもどる。
+ * ============================================================ */
+
+export type PrizeOverrideLike = {
+  prizeId: string;
+  assetUrl: string;
+  thumbUrl?: string | null;
+};
+
+/** 差し替え前のすがた（もどすときに使う） */
+const originalItems = new Map<string, CollItem>();
+const overriddenIds = new Set<string>();
+
+function withAsset(base: CollItem, assetUrl: string, thumbUrl?: string | null): CollItem {
+  const thumb = thumbUrl ? { thumb: thumbUrl } : {};
+  switch (base.category) {
+    case "background":
+      return {
+        ...base,
+        ...thumb,
+        art: { ...base.art, css: `url("${assetUrl}") center / cover no-repeat` },
+      };
+    case "icon":
+      return { ...base, ...thumb, image: assetUrl, art: { ...base.art, image: assetUrl } };
+    case "frame":
+      return {
+        ...base,
+        ...thumb,
+        art: { ...base.art, ring: `url("${assetUrl}") center / cover no-repeat` },
+      };
+    case "sound":
+      return { ...base, ...thumb, asset: assetUrl };
+    case "effect":
+    default:
+      return { ...base, ...thumb, image: assetUrl, art: { ...base.art, image: assetUrl } };
+  }
+}
+
+/**
+ * 素材の差し替えを反映する（何度呼んでも安全）。
+ * 一覧にない差し替えはもとにもどす。先生が追加した景品（cx_）には手を出さない。
+ */
+export function applyAssetOverrides(list: PrizeOverrideLike[]) {
+  const alive = new Set<string>();
+  for (const o of list) {
+    if (!o?.prizeId || !o.assetUrl) continue;
+    const base = originalItems.get(o.prizeId) ?? COLL_ITEM_BY_ID[o.prizeId];
+    if (!base) continue;
+    if (!originalItems.has(o.prizeId)) originalItems.set(o.prizeId, base);
+    const next = withAsset(base, o.assetUrl, o.thumbUrl ?? null);
+    const at = COLL_ITEMS.findIndex((i) => i.id === o.prizeId);
+    if (at >= 0) COLL_ITEMS[at] = next;
+    COLL_ITEM_BY_ID[o.prizeId] = next;
+    overriddenIds.add(o.prizeId);
+    alive.add(o.prizeId);
+  }
+  for (const id of [...overriddenIds]) {
+    if (alive.has(id)) continue;
+    const base = originalItems.get(id);
+    overriddenIds.delete(id);
+    if (!base) continue;
+    const at = COLL_ITEMS.findIndex((i) => i.id === id);
+    if (at >= 0) COLL_ITEMS[at] = base;
+    COLL_ITEM_BY_ID[id] = base;
+  }
+}
+
+/** その景品が先生の素材に差し替え済みかどうか */
+export const isOverridden = (id: string) => overriddenIds.has(id);
