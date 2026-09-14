@@ -8,8 +8,9 @@ import CollectionIcon from "@/components/CollectionIcon";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { effectFx, soundAsset, soundTune } from "@/lib/collection-catalog";
+import { effectFx, effectImage, soundAsset, soundTune } from "@/lib/collection-catalog";
 import { getClassBadges, type ClassBadge } from "@/lib/collection.functions";
+import { useCustomPrizes } from "@/lib/use-custom-prizes";
 import {
   playCollectionSound,
   playError,
@@ -111,7 +112,11 @@ function ScanPage() {
   /** 児童がガチャで手に入れた アイコン・フレーム・音・エフェクト */
   const loadBadges = useServerFn(getClassBadges);
   const [badges, setBadges] = useState<Record<string, ClassBadge>>({});
-  const [collFx, setCollFx] = useState<{ fx: string; id: number } | null>(null);
+  const [collFx, setCollFx] = useState<{ fx: string; id: number; image?: string | null } | null>(
+    null,
+  );
+  // 先生が登録した景品（アイコン・効果音・エフェクト）も使えるようにする
+  useCustomPrizes();
 
   useEffect(() => {
     let off = false;
@@ -274,7 +279,7 @@ function ScanPage() {
     const asset = soundAsset(badge?.sound);
     if (tune || asset) playCollectionSound(tune, myRank, asset);
     const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
-    if (fx) setCollFx({ fx, id: Date.now() });
+    if (fx) setCollFx({ fx, id: Date.now(), image: effectImage(badge?.effect) });
   };
 
   const handleDetected = (text: string) => {
@@ -351,6 +356,7 @@ function ScanPage() {
             : "NORMAL"
         }
         playId={collFx?.id ?? null}
+        image={collFx?.image ?? null}
       />
 
       {/* ---- 今日の提出状況（横長バー） ---- */}
