@@ -51,6 +51,7 @@ import {
   type HwState,
   type Student,
 } from "@/lib/homework-store";
+import { verifyForgotToken } from "@/lib/hwqr.functions";
 import { RANK_STYLE } from "@/lib/rank-style";
 
 const QrScanner = lazy(() => import("@/components/QrScanner"));
@@ -87,6 +88,7 @@ export const Route = createFileRoute("/")({
 
 function ScanPage() {
   const state = useAppState();
+  const verifyForgot = useServerFn(verifyForgotToken);
   const [scanning, setScanning] = useState(false);
   const [locked, setLocked] = useState(true);
   const [classFilter, setClassFilter] = useState("all");
@@ -298,6 +300,29 @@ function ScanPage() {
     const now = Date.now();
     if (lastScan.current.text === text && now - lastScan.current.at < 2500) return;
     lastScan.current = { text, at: now };
+
+    // ⓪ 署名つきの「わすれました」カード（1回の読み取りだけで完結する）
+    if (text.trim().startsWith("HWT1:")) {
+      void (async () => {
+        const res = await verifyForgot({ data: { text } }).catch(() => null);
+        if (!res?.ok) {
+          playError();
+          toast.error("このQRは使えません", { description: "先生に知らせてください" });
+          return;
+        }
+        const student = state.students.find((s) => s.id === res.studentId);
+        const target = state.assignments.find((a) => a.id === res.assignmentId);
+        if (!student || !target) {
+          playError();
+          toast.error("児童または宿題が見つかりません");
+          return;
+        }
+        setPendingStudent(null);
+        playBadgeFx(student.id);
+        record(student, target, "FORGOT");
+      })();
+      return;
+    }
 
     // ① しゅくだいカードQR（児童がつかうのは「わすれました」だけ。宿題名つきに対応）
     const hwQr = parseHwStateQr(text);
