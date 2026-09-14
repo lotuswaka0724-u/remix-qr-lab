@@ -89,9 +89,9 @@ export default function HwStateQrPrint() {
   const pt = state.hwPointRules.FORGOT ?? META.defaultPoints;
 
   return (
-    <section className="paper-card p-4">
-      <h2 className="mb-1 font-display text-base font-bold">わすれましたカード印刷（児童用）</h2>
-      <p className="mb-3 text-xs text-muted-foreground">
+    <section className="paper-card p-4 print:p-0">
+      <h2 className="mb-1 font-display text-base font-bold print:hidden">わすれましたカード印刷（児童用）</h2>
+      <p className="mb-3 text-xs text-muted-foreground print:hidden">
         宿題を出すときは、教材のQRを読み取るだけで完了です。このカードは「わすれた」ときだけ使います。
         カードには児童と宿題の情報が安全なかたちで入っているので、このカードを1回読み取るだけで記録できます。
       </p>
