@@ -1,58 +1,99 @@
+import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { HW_STATE_META, hwStateQrText, useAppState } from "@/lib/homework-store";
+import { HW_STATE_META, useAppState } from "@/lib/homework-store";
+import { makeForgotTokens } from "@/lib/hwqr.functions";
 
-type Card = { key: string; assignmentName: string | null; url: string };
+type Card = {
+  key: string;
+  studentName: string;
+  assignmentName: string;
+  token: string;
+  url?: string;
+};
 
 /** 児童がつかうカードは「わすれました」だけ（提出は教材QRで完了する） */
 const META = HW_STATE_META.FORGOT;
 
-/** 宿題ごとの「わすれました」カードを印刷する */
+/** 児童×宿題ごとの「わすれました」カードを印刷する（1回の読み取りで完結する） */
 export default function HwStateQrPrint() {
   const state = useAppState();
+  const issue = useServerFn(makeForgotTokens);
   const [cards, setCards] = useState<Card[]>([]);
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
-  const targets = useMemo(
-    () => [
-      { key: "__all__", name: null as string | null },
-      ...state.assignments.map((a) => ({ key: a.id, name: a.name })),
-    ],
-    [state.assignments],
+  const pairs = useMemo(
+    () =>
+      state.students.flatMap((s) =>
+        state.assignments.map((a) => ({
+          key: `${s.id}|${a.id}`,
+          studentId: s.id,
+          assignmentId: a.id,
+          studentName: s.name,
+          assignmentName: a.name,
+        })),
+      ),
+    [state.students, state.assignments],
   );
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const QR = await import("qrcode");
-      const list: Card[] = [];
-      for (const t of targets) {
-        list.push({
-          key: t.key,
-          assignmentName: t.name,
-          url: await QR.toDataURL(hwStateQrText("FORGOT", t.name ?? undefined), {
-            margin: 1,
-            width: 420,
-          }),
-        });
+      if (!pairs.length) {
+        setCards([]);
+        return;
       }
-      if (!cancelled) setCards(list);
+      const res = await issue({
+        data: { rows: pairs.map((p) => ({ studentId: p.studentId, assignmentId: p.assignmentId })) },
+      });
+      if (cancelled || !res.ok) return;
+      const byKey = new Map(res.tokens.map((t) => [`${t.studentId}|${t.assignmentId}`, t.token]));
+      setCards(
+        pairs
+          .filter((p) => byKey.has(p.key))
+          .map((p) => ({
+            key: p.key,
+            studentName: p.studentName,
+            assignmentName: p.assignmentName,
+            token: byKey.get(p.key)!,
+          })),
+      );
     })();
     return () => {
       cancelled = true;
     };
-  }, [targets]);
+  }, [pairs, issue]);
 
   const chosen = cards.filter((c) => selected[c.key]);
+
+  // 選んだカードのQR画像だけを作る
+  useEffect(() => {
+    let cancelled = false;
+    const need = cards.filter((c) => selected[c.key] && !c.url);
+    if (!need.length) return;
+    (async () => {
+      const QR = await import("qrcode");
+      const made = new Map<string, string>();
+      for (const c of need) {
+        made.set(c.key, await QR.toDataURL(c.token, { margin: 1, width: 420 }));
+      }
+      if (cancelled) return;
+      setCards((prev) => prev.map((c) => (made.has(c.key) ? { ...c, url: made.get(c.key)! } : c)));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [cards, selected]);
+
   const pt = state.hwPointRules.FORGOT ?? META.defaultPoints;
 
   return (
     <section className="paper-card p-4">
       <h2 className="mb-1 font-display text-base font-bold">わすれましたカード印刷（児童用）</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        宿題を出すときは、教材のQRを読み取るだけで完了です。このカードは「わすれた」ときだけ使います（児童のQR
-        → わすれましたカードの順）。宿題ごとのカードを読み取ると、何をわすれたかが記録されます。
+        宿題を出すときは、教材のQRを読み取るだけで完了です。このカードは「わすれた」ときだけ使います。
+        カードには児童と宿題の情報が安全なかたちで入っているので、このカードを1回読み取るだけで記録できます。
       </p>
 
       <div className="mb-3 flex flex-wrap items-center gap-2 print:hidden">
@@ -88,7 +129,7 @@ export default function HwStateQrPrint() {
                 className="h-4 w-4"
               />
               <span className="text-sm font-bold">
-                {c.assignmentName ?? "（宿題を指定しない）"}
+                {c.studentName}／{c.assignmentName}
               </span>
               <span className="text-xs text-muted-foreground">わすれました</span>
             </label>
@@ -107,15 +148,23 @@ export default function HwStateQrPrint() {
           >
             <span className="text-4xl leading-none">{META.icon}</span>
             <figcaption className="text-center font-display text-2xl font-bold leading-tight">
-              {c.assignmentName && <span className="block text-xl">{c.assignmentName}</span>}
+              <span className="block text-xl">
+                {c.studentName}／{c.assignmentName}
+              </span>
               {META.label}
             </figcaption>
             <div className="rounded-2xl bg-white p-2">
-              <img
-                src={c.url}
-                alt={`${c.assignmentName ?? ""} ${META.label} のQRコード`}
-                className="mx-auto w-44"
-              />
+              {c.url ? (
+                <img
+                  src={c.url}
+                  alt={`${c.studentName} ${c.assignmentName} ${META.label} のQRコード`}
+                  className="mx-auto w-44"
+                />
+              ) : (
+                <div className="mx-auto grid h-44 w-44 place-content-center text-xs text-muted-foreground">
+                  作成中…
+                </div>
+              )}
             </div>
             <span className={`rounded-full px-4 py-1 font-display text-xl font-bold ${META.badge}`}>
               {pt >= 0 ? `＋${pt}` : pt} ポイント
