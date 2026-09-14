@@ -219,6 +219,7 @@ function ScanPage() {
         assignment: `${target.name}／${HW_STATE_META[hw].label}`,
         rank: after,
         points: res.total,
+        gain: res.delta,
         rankUp,
       },
       student.id,
