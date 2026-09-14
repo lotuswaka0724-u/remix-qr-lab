@@ -75,7 +75,9 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
         style={{
           width: size,
           height: size,
-          background: item.thumb ? `url("${item.thumb}") center / cover no-repeat` : item.art["css"],
+          background: item.thumb
+            ? `url("${item.thumb}") center / cover no-repeat`
+            : item.art["css"],
         }}
       />
     );
