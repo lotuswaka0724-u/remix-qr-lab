@@ -148,7 +148,9 @@ export default function QrMaker() {
     if (!q) return true;
     return `${c.name} ${c.romaji} ${c.className}`.toLowerCase().includes(q.toLowerCase());
   });
-  const chosen = cards.filter((c) => selected[c.key]);
+  // 印刷対象は「いま表示されている児童のうち、チェックが入っている児童」だけにする
+  // （クラス切り替えや名前でさがすで画面から消えた児童は印刷対象に残さない）
+  const chosen = visible.filter((c) => selected[c.key]);
 
   const print = () => {
     document.body.classList.add("printing-cards");
