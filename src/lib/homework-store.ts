@@ -690,6 +690,66 @@ export function applyHwState(
 }
 
 /**
+ * 先生だけが使う「記録の訂正」。
+ * 例：「わすれました（＋2）」を「学校でやりました（＋1）」に直す。
+ * 既存の記録は消さずに voided（無効）にして、新しい記録を1件だけ追加するので、
+ * 履歴は残ったままポイントだけが正しくなる。
+ */
+export function correctHwState(
+  studentId: string,
+  assignmentId: string,
+  hw: HwState,
+  opts: { date?: string } = {},
+): HwApplyResult {
+  const date = opts.date ?? todayKey();
+  const live = (state.hwEvents ?? []).filter(
+    (e) =>
+      !e.voided && e.date === date && e.studentId === studentId && e.assignmentId === assignmentId,
+  );
+
+  // すでに同じ状態なら、なにも動かさない（二重加算・重複イベントをふせぐ）
+  if (live.some((e) => e.state === hw)) {
+    return { ok: false, reason: "duplicate", message: "このしゅくだいは、すでに処理されています" };
+  }
+
+  const exclusive: HwState[] = ["SUBMIT", "FORGOT", "SCHOOL_DONE"];
+  const conflicts = exclusive.includes(hw) ? live.filter((e) => exclusive.includes(e.state)) : [];
+  if (!conflicts.length) return applyHwState(studentId, assignmentId, hw, { force: true, date });
+
+  const voidIds = new Set(conflicts.map((e) => e.id));
+  const removed = conflicts.reduce((a, e) => a + e.delta, 0);
+  const delta = state.hwPointRules[hw] ?? HW_STATE_META[hw].defaultPoints;
+  const total = earnedPoints(state, studentId) - removed + delta;
+  const event: HwEvent = {
+    id: `he_${uid()}`,
+    date,
+    studentId,
+    assignmentId,
+    state: hw,
+    delta,
+    total,
+    at: Date.now(),
+  };
+
+  setState((s) => {
+    const day = { ...(s.records[date] ?? {}) };
+    const forStudent = { ...(day[studentId] ?? {}) };
+    forStudent[assignmentId] = HW_STATE_META[hw].status;
+    day[studentId] = forStudent;
+    return {
+      ...s,
+      records: { ...s.records, [date]: day },
+      hwEvents: [
+        ...(s.hwEvents ?? []).map((e) => (voidIds.has(e.id) ? { ...e, voided: true } : e)),
+        event,
+      ],
+    };
+  });
+
+  return { ok: true, delta: delta - removed, total, state: hw };
+}
+
+/**
  * 教材QRを1回読み取ったときの処理。
  * ・まだ何もない → 提出済み（通常提出のポイント）
  * ・先生が「直しあり」にしていた → 直し完了（直し完了のポイント）
