@@ -88,6 +88,7 @@ export const Route = createFileRoute("/")({
 
 function ScanPage() {
   const state = useAppState();
+  const verifyForgot = useServerFn(verifyForgotToken);
   const [scanning, setScanning] = useState(false);
   const [locked, setLocked] = useState(true);
   const [classFilter, setClassFilter] = useState("all");
