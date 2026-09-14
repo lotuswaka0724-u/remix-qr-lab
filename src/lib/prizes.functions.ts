@@ -73,6 +73,7 @@ type Row = {
   category: string;
   rarity: string;
   asset_url: string;
+  thumb_url?: string | null;
   description: string | null;
   obtainable: boolean;
   sort: number;
@@ -89,6 +90,7 @@ function toPrize(r: Row): CustomPrize {
     category,
     rarity,
     assetUrl: r.asset_url,
+    thumbUrl: r.thumb_url ?? null,
     description: r.description ?? "",
     obtainable: r.obtainable,
     sort: r.sort,
@@ -101,7 +103,7 @@ export async function readCustomPrizes(): Promise<CustomPrize[]> {
     const db = await admin();
     const { data } = await db
       .from("custom_prizes")
-      .select("id, name, category, rarity, asset_url, description, obtainable, sort")
+      .select("id, name, category, rarity, asset_url, thumb_url, description, obtainable, sort")
       .order("sort", { ascending: true });
     return (data ?? []).map((r) => toPrize(r as Row));
   } catch {
