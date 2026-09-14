@@ -244,3 +244,107 @@ export const removeCustomPrize = createServerFn({ method: "POST" })
     if (files.length) await db.storage.from("prize-assets").remove(files);
     return { prizes: await readCustomPrizes() };
   });
+
+/* ============================================================
+ * もともと入っている景品（154種類）の素材差し替え。
+ * 景品そのもの（id・名前・カテゴリー・レアリティ・排出）は変えない。
+ * ============================================================ */
+
+export type PrizeOverride = { prizeId: string; assetUrl: string; thumbUrl: string | null };
+
+/** サーバー内で使う読み出し */
+export async function readPrizeOverrides(): Promise<PrizeOverride[]> {
+  try {
+    const db = await admin();
+    const { data } = await db.from("prize_asset_overrides").select("prize_id, asset_url, thumb_url");
+    return (data ?? []).map((r) => ({
+      prizeId: String((r as { prize_id: string }).prize_id),
+      assetUrl: String((r as { asset_url: string }).asset_url),
+      thumbUrl: ((r as { thumb_url: string | null }).thumb_url ?? null) as string | null,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+export const listPrizeOverrides = createServerFn({ method: "GET" }).handler(
+  async () => await readPrizeOverrides(),
+);
+
+export type SetOverrideInput = {
+  prizeId: string;
+  category: CollCategory;
+  fileName: string;
+  contentType: string;
+  dataBase64: string;
+};
+
+export const setPrizeOverride = createServerFn({ method: "POST" })
+  .inputValidator((data: SetOverrideInput) => data)
+  .handler(async ({ data }) => {
+    if (!(await isTeacher())) return { error: "auth" as const };
+
+    const { COLL_ITEM_BY_ID } = await import("@/lib/collection-catalog");
+    const item = COLL_ITEM_BY_ID[String(data.prizeId)];
+    if (!item || item.id.startsWith("cx_")) return { error: "notfound" as const };
+
+    const rule = PRIZE_FILE_RULES[item.category];
+    const ext = (data.fileName.split(".").pop() ?? "").toLowerCase();
+    if (!rule.ext.includes(ext) || !rule.types.includes((data.contentType ?? "").toLowerCase()))
+      return { error: "filetype" as const };
+
+    let bytes: Uint8Array;
+    try {
+      const raw = atob(data.dataBase64);
+      bytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+    } catch {
+      return { error: "broken" as const };
+    }
+    if (!bytes.length) return { error: "broken" as const };
+    if (bytes.length > rule.maxBytes) return { error: "toobig" as const };
+
+    const db = await admin();
+    const path = `ov_${item.id}_${Date.now().toString(36)}.${ext}`;
+    const up = await db.storage
+      .from("prize-assets")
+      .upload(path, bytes, { contentType: data.contentType, upsert: false });
+    if (up.error) return { error: "upload" as const };
+
+    // 前の素材は登録が成功してから消す（失敗しても表示は止めない）
+    const { data: prev } = await db
+      .from("prize_asset_overrides")
+      .select("asset_url")
+      .eq("prize_id", item.id)
+      .maybeSingle();
+
+    const { error } = await db.from("prize_asset_overrides").upsert({
+      prize_id: item.id,
+      asset_url: `/api/public/prize-asset/${path}`,
+      updated_at: new Date().toISOString(),
+    });
+    if (error) {
+      await db.storage.from("prize-assets").remove([path]);
+      return { error: "save" as const };
+    }
+    const old = prev?.asset_url ? prev.asset_url.split("/").pop() : null;
+    if (old) await db.storage.from("prize-assets").remove([old]);
+    return { overrides: await readPrizeOverrides() };
+  });
+
+export const clearPrizeOverride = createServerFn({ method: "POST" })
+  .inputValidator((data: { prizeId: string }) => ({ prizeId: String(data.prizeId ?? "") }))
+  .handler(async ({ data }) => {
+    if (!(await isTeacher())) return { error: "auth" as const };
+    const db = await admin();
+    const { data: row } = await db
+      .from("prize_asset_overrides")
+      .select("asset_url, thumb_url")
+      .eq("prize_id", data.prizeId)
+      .maybeSingle();
+    await db.from("prize_asset_overrides").delete().eq("prize_id", data.prizeId);
+    const files = [row?.asset_url, row?.thumb_url]
+      .map((u) => (u ? u.split("/").pop() : null))
+      .filter((f): f is string => !!f);
+    if (files.length) await db.storage.from("prize-assets").remove(files);
+    return { overrides: await readPrizeOverrides() };
+  });
