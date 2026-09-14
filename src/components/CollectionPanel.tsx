@@ -26,6 +26,7 @@ import {
   type CollView,
 } from "@/lib/collection.functions";
 import { playCollectionSound, playError, previewCollectionSound } from "@/lib/feedback";
+import { useCustomPrizes } from "@/lib/use-custom-prizes";
 
 type Screen = "gacha" | "collection";
 type GachaPhase = "idle" | "spinning" | "opening" | "result";
@@ -36,6 +37,8 @@ export function useCollection() {
   const equip = useServerFn(equipCollItem);
   const [view, setView] = useState<CollView | null>(null);
   const [loading, setLoading] = useState(true);
+  // 先生が登録した景品もアイテム一覧に合流させる
+  const custom = useCustomPrizes();
 
   useEffect(() => {
     let off = false;
@@ -52,7 +55,7 @@ export function useCollection() {
     };
   }, [load]);
 
-  return { view, setView, loading, draw, equip };
+  return { view, setView, loading: loading || !custom.ready, draw, equip };
 }
 
 export type CollectionApi = ReturnType<typeof useCollection>;
@@ -73,7 +76,13 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
       className="grid place-content-center rounded-xl bg-muted"
       style={{ width: size, height: size, fontSize: size * 0.5 }}
     >
-      {item.category === "sound" ? "🔔" : "✨"}
+      {item.image ? (
+        <img src={item.image} alt="" className="h-full w-full rounded-xl object-contain" />
+      ) : item.category === "sound" ? (
+        "🔔"
+      ) : (
+        "✨"
+      )}
     </span>
   );
 }
