@@ -7,6 +7,8 @@ export type Hit = {
   assignment: string;
   rank: Rank;
   points: number;
+  /** 今回ふえた（へった）ポイント */
+  gain?: number;
   /** ランクアップしたときだけ、上がった先のランク */
   rankUp: Rank | null;
 };
