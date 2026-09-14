@@ -254,7 +254,7 @@ export default function PrizeAdminPanel() {
               </Button>
             ) : (
               <img
-                src={p.assetUrl}
+                src={p.thumbUrl ?? p.assetUrl}
                 alt=""
                 className="h-10 w-10 rounded-md bg-card object-contain"
                 onError={(e) => {
