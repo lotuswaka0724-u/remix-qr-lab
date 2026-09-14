@@ -171,6 +171,28 @@ export const addCustomPrize = createServerFn({ method: "POST" })
       .upload(path, bytes, { contentType: data.contentType, upsert: false });
     if (up.error) return { error: "upload" as const };
 
+    // サムネイルは「あれば使う」おまけ。失敗しても景品の登録は続ける。
+    let thumbPath: string | null = null;
+    if (data.thumbBase64 && data.thumbFileName) {
+      const tExt = (data.thumbFileName.split(".").pop() ?? "").toLowerCase();
+      const tType = (data.thumbContentType ?? "").toLowerCase();
+      if (THUMB_EXT.includes(tExt) && THUMB_TYPES.includes(tType)) {
+        try {
+          const raw = atob(data.thumbBase64);
+          const tBytes = Uint8Array.from(raw, (c) => c.charCodeAt(0));
+          if (tBytes.length && tBytes.length <= THUMB_MAX) {
+            const p = `${id}_thumb.${tExt}`;
+            const upT = await db.storage
+              .from("prize-assets")
+              .upload(p, tBytes, { contentType: tType, upsert: false });
+            if (!upT.error) thumbPath = p;
+          }
+        } catch {
+          thumbPath = null;
+        }
+      }
+    }
+
     const rarity = (RARITIES as string[]).includes(data.rarity) ? data.rarity : "N";
     const { error } = await db.from("custom_prizes").insert({
       id,
@@ -178,6 +200,7 @@ export const addCustomPrize = createServerFn({ method: "POST" })
       category,
       rarity,
       asset_url: `/api/public/prize-asset/${path}`,
+      thumb_url: thumbPath ? `/api/public/prize-asset/${thumbPath}` : null,
       description: String(data.description ?? "").slice(0, 200),
       obtainable: !!data.obtainable,
       sort: Number.isFinite(data.sort) ? Math.trunc(data.sort) : 100,
