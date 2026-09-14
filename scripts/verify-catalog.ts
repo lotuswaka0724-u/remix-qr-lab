@@ -37,10 +37,12 @@ for (const b of baseline as Row[]) {
     continue;
   }
   for (const k of Object.keys(b) as (keyof Row)[]) {
-    if (cur[k] !== b[k]) problems.push(`変更: ${b.id}.${String(k)} ${String(b[k])} → ${String(cur[k])}`);
+    if (cur[k] !== b[k])
+      problems.push(`変更: ${b.id}.${String(k)} ${String(b[k])} → ${String(cur[k])}`);
   }
 }
-for (const r of now) if (!(baseline as Row[]).some((b) => b.id === r.id)) problems.push(`追加: ${r.id}`);
+for (const r of now)
+  if (!(baseline as Row[]).some((b) => b.id === r.id)) problems.push(`追加: ${r.id}`);
 
 const counts = now.reduce<Record<string, number>>((a, r) => {
   a[r.category] = (a[r.category] ?? 0) + 1;

@@ -256,7 +256,9 @@ export type PrizeOverride = { prizeId: string; assetUrl: string; thumbUrl: strin
 export async function readPrizeOverrides(): Promise<PrizeOverride[]> {
   try {
     const db = await admin();
-    const { data } = await db.from("prize_asset_overrides").select("prize_id, asset_url, thumb_url");
+    const { data } = await db
+      .from("prize_asset_overrides")
+      .select("prize_id, asset_url, thumb_url");
     return (data ?? []).map((r) => ({
       prizeId: String((r as { prize_id: string }).prize_id),
       assetUrl: String((r as { asset_url: string }).asset_url),
