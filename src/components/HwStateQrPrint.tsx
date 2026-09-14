@@ -88,6 +88,16 @@ export default function HwStateQrPrint() {
 
   const pt = state.hwPointRules.FORGOT ?? META.defaultPoints;
 
+  const print = () => {
+    document.body.classList.add("printing-hwstate");
+    const done = () => {
+      document.body.classList.remove("printing-hwstate");
+      window.removeEventListener("afterprint", done);
+    };
+    window.addEventListener("afterprint", done);
+    window.print();
+  };
+
   return (
     <section className="paper-card p-4 print:p-0">
       <h2 className="mb-1 font-display text-base font-bold print:hidden">わすれましたカード印刷（児童用）</h2>
@@ -113,7 +123,7 @@ export default function HwStateQrPrint() {
           選択を解除
         </Button>
         <span className="text-xs text-muted-foreground">選択中 {chosen.length} 枚</span>
-        <Button type="button" disabled={chosen.length === 0} onClick={() => window.print()}>
+        <Button type="button" disabled={chosen.length === 0} onClick={print}>
           印刷する
         </Button>
       </div>
@@ -140,7 +150,7 @@ export default function HwStateQrPrint() {
         )}
       </ul>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div id="hwstate-qr-sheet" className="grid gap-4 sm:grid-cols-2">
         {chosen.map((c) => (
           <figure
             key={c.key}
