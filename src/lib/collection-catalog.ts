@@ -408,3 +408,60 @@ export const effectFx = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["fx"] ??
 
 /** 効果音の音声ファイル（未設定なら内蔵の音をつかう） */
 export const soundAsset = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.asset ?? null;
+
+/** エフェクトの画像素材（先生が登録したPNGなど。なければ内蔵の演出） */
+export const effectImage = (id?: string) =>
+  COLL_ITEM_BY_ID[id ?? ""]?.image ?? COLL_ITEM_BY_ID[id ?? ""]?.art["image"] ?? null;
+
+/* ============================================================
+ * 先生が管理画面から登録した景品を、上のマスターに合流させる仕組み。
+ * サーバー・画面のどちらからも同じ関数で登録する（idが同じなら上書き）。
+ * ============================================================ */
+
+export type CustomPrizeLike = {
+  id: string;
+  name: string;
+  category: CollCategory;
+  rarity: CollRarity;
+  assetUrl: string;
+  description: string;
+  obtainable: boolean;
+  sort: number;
+};
+
+function toCollItem(p: CustomPrizeLike): CollItem {
+  const base = {
+    id: p.id,
+    name: p.name,
+    category: p.category,
+    rarity: p.rarity,
+    description: p.description || p.name,
+    obtainable: p.obtainable,
+    sort: p.sort,
+  };
+  switch (p.category) {
+    case "background":
+      return { ...base, art: { css: `url("${p.assetUrl}") center / cover no-repeat` } };
+    case "icon":
+      return { ...base, image: p.assetUrl, art: { emoji: "🎁", image: p.assetUrl } };
+    case "frame":
+      return { ...base, art: { ring: `url("${p.assetUrl}") center / cover no-repeat` } };
+    case "sound":
+      return { ...base, asset: p.assetUrl, art: { tune: "kira" } };
+    case "effect":
+    default:
+      return { ...base, image: p.assetUrl, art: { fx: "glitter", image: p.assetUrl } };
+  }
+}
+
+/** 先生が登録した景品をマスターに反映する（何度呼んでも安全） */
+export function registerCustomItems(list: CustomPrizeLike[]) {
+  for (const p of list) {
+    if (!p?.id || !p.assetUrl) continue;
+    const item = toCollItem(p);
+    const at = COLL_ITEMS.findIndex((i) => i.id === item.id);
+    if (at >= 0) COLL_ITEMS[at] = item;
+    else COLL_ITEMS.push(item);
+    COLL_ITEM_BY_ID[item.id] = item;
+  }
+}
