@@ -329,8 +329,29 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         })}
       </div>
 
+      <div className="flex flex-wrap items-center gap-1.5">
+        <span className="text-xs font-bold text-muted-foreground">ならびかえ</span>
+        {(
+          [
+            ["rarity", "レアリティ順"],
+            ["owned", "入手順"],
+          ] as const
+        ).map(([key, label]) => (
+          <Button
+            key={key}
+            type="button"
+            size="sm"
+            variant={sortBy === key ? "default" : "secondary"}
+            onClick={() => setSortBy(key)}
+            className="h-auto rounded-full px-3 py-1.5 text-xs font-bold"
+          >
+            {label}
+          </Button>
+        ))}
+      </div>
+
       <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
-        {collItemsOf(cat).map((item) => {
+        {sortItems(collItemsOf(cat), sortBy, owned).map((item) => {
           const has = owned.includes(item.id);
           const inUse = equipped[cat] === item.id;
           const dupe = view.coll.dupes[item.id] ?? 0;
