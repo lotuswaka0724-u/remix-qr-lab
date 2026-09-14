@@ -8,7 +8,14 @@ import CollectionIcon from "@/components/CollectionIcon";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { effectFx, effectImage, soundAsset, soundTune } from "@/lib/collection-catalog";
+import {
+  effectFx,
+  effectImage,
+  fxImage,
+  soundAsset,
+  soundTune,
+  tuneAsset,
+} from "@/lib/collection-catalog";
 import { getClassBadges, type ClassBadge } from "@/lib/collection.functions";
 import { useCustomPrizes } from "@/lib/use-custom-prizes";
 import {
@@ -212,6 +219,7 @@ function ScanPage() {
         assignment: `${target.name}／${HW_STATE_META[hw].label}`,
         rank: after,
         points: res.total,
+        gain: res.delta,
         rankUp,
       },
       student.id,
@@ -276,10 +284,10 @@ function ScanPage() {
     const badge = badges[studentId];
     const myRank = rankOf(state, studentId);
     const tune = soundTune(badge?.sound);
-    const asset = soundAsset(badge?.sound);
+    const asset = soundAsset(badge?.sound) ?? tuneAsset(tune);
     if (tune || asset) playCollectionSound(tune, myRank, asset);
     const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
-    if (fx) setCollFx({ fx, id: Date.now(), image: effectImage(badge?.effect) });
+    if (fx) setCollFx({ fx, id: Date.now(), image: effectImage(badge?.effect) ?? fxImage(fx) });
   };
 
   const handleDetected = (text: string) => {

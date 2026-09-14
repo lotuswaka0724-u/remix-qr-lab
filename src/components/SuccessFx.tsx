@@ -7,6 +7,8 @@ export type Hit = {
   assignment: string;
   rank: Rank;
   points: number;
+  /** 今回ふえた（へった）ポイント */
+  gain?: number;
   /** ランクアップしたときだけ、上がった先のランク */
   rankUp: Rank | null;
 };
@@ -75,6 +77,16 @@ export default function SuccessFx({ hit }: Props) {
             <p className={`text-sm font-bold ${style.fxText}`}>
               {hit.assignment} を記録しました
             </p>
+            {typeof hit.gain === "number" && hit.gain !== 0 && (
+              <p
+                className={`fx-pop font-display text-3xl font-bold leading-none tabular-nums ${
+                  hit.gain > 0 ? "text-success" : "text-destructive"
+                }`}
+              >
+                {hit.gain > 0 ? `+${hit.gain}` : hit.gain}
+                <span className="ml-1 text-base">pt</span>
+              </p>
+            )}
             <p className="text-xs font-bold opacity-80">つうさん {hit.points} pt</p>
 
             {hit.rankUp && (
