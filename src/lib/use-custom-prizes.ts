@@ -1,16 +1,23 @@
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
-import { registerCustomItems } from "@/lib/collection-catalog";
-import { listCustomPrizes, type CustomPrize } from "@/lib/prizes.functions";
+import { applyAssetOverrides, registerCustomItems } from "@/lib/collection-catalog";
+import {
+  listCustomPrizes,
+  listPrizeOverrides,
+  type CustomPrize,
+  type PrizeOverride,
+} from "@/lib/prizes.functions";
 
 /**
- * 先生が登録した景品を読み込んで、画面のアイテム一覧に合流させる。
+ * 先生が登録した景品と、既存景品の素材差し替えを読み込んで画面に反映する。
  * 読み込めなくても既存アイテムはそのまま使えるようにしてある。
  */
 export function useCustomPrizes() {
   const load = useServerFn(listCustomPrizes);
+  const loadOverrides = useServerFn(listPrizeOverrides);
   const [prizes, setPrizes] = useState<CustomPrize[]>([]);
+  const [overrides, setOverrides] = useState<PrizeOverride[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -20,13 +27,22 @@ export function useCustomPrizes() {
         if (off) return;
         registerCustomItems(rows ?? []);
         setPrizes(rows ?? []);
-        setReady(true);
       })
-      .catch(() => setReady(true));
+      .catch(() => {})
+      .then(() => loadOverrides({}))
+      .then((rows) => {
+        if (off) return;
+        applyAssetOverrides(rows ?? []);
+        setOverrides(rows ?? []);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!off) setReady(true);
+      });
     return () => {
       off = true;
     };
-  }, [load]);
+  }, [load, loadOverrides]);
 
-  return { prizes, ready };
+  return { prizes, overrides, ready };
 }
