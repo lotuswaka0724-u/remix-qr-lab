@@ -43,9 +43,10 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
     .map((a) => ({ id: a.id, name: a.name, status: toStatus(day[a.id]) }));
 
   // 宿題カードQRで処理ずみの記録は、そちらの点数を使う（二重加算をふせぐ）
+  // 無効化（voided）された記録は、先生画面と同じくポイント計算から完全に外す
   const handled = new Set(
     (state.hwEvents ?? [])
-      .filter((e) => e.studentId === studentId)
+      .filter((e) => e.studentId === studentId && !e.voided)
       .map((e) => `${e.date}|${e.assignmentId}`),
   );
   let earned = 0;
