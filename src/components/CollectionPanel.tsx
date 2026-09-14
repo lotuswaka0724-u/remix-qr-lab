@@ -13,8 +13,10 @@ import {
   COLL_RARITY_META,
   collItemsOf,
   effectFx,
+  fxImage,
   soundAsset,
   soundTune,
+  tuneAsset,
   type CollCategory,
   type CollItem,
 } from "@/lib/collection-catalog";
