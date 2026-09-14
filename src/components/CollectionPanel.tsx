@@ -404,6 +404,10 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
           );
         })}
       </div>
+
+      <p className="text-center text-[10px] text-muted-foreground">
+        うごくエフェクト素材：Powered by KLIPY
+      </p>
     </section>
   );
 
