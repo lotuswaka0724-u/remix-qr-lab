@@ -768,6 +768,14 @@ export const soundAsset = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.asset ?? n
 export const effectImage = (id?: string) =>
   COLL_ITEM_BY_ID[id ?? ""]?.image ?? COLL_ITEM_BY_ID[id ?? ""]?.art["image"] ?? null;
 
+/** 演出キー（tune）から音ファイルをひく。なければ内蔵音にもどる */
+export const tuneAsset = (tune?: string | null) =>
+  (tune ? COLL_ITEMS.find((i) => i.art["tune"] === tune)?.asset : null) ?? null;
+
+/** 演出キー（fx）からアニメ素材をひく。なければ内蔵のアニメにもどる */
+export const fxImage = (fx?: string | null) =>
+  (fx ? (COLL_ITEMS.find((i) => i.art["fx"] === fx)?.image ?? null) : null) ?? null;
+
 /* ============================================================
  * 先生が管理画面から登録した景品を、上のマスターに合流させる仕組み。
  * サーバー・画面のどちらからも同じ関数で登録する（idが同じなら上書き）。
