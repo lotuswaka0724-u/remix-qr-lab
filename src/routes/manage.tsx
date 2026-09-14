@@ -5,6 +5,7 @@ import CsvPanel from "@/components/CsvPanel";
 import HwStateQrPrint from "@/components/HwStateQrPrint";
 import MaterialQrPrint from "@/components/MaterialQrPrint";
 import MyPageLinks from "@/components/MyPageLinks";
+import PrizeAdminPanel from "@/components/PrizeAdminPanel";
 import QrMaker from "@/components/QrMaker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -241,6 +242,8 @@ function ManagePage() {
           <span className="text-xs text-muted-foreground">pt</span>
         </div>
       </section>
+
+      <PrizeAdminPanel />
 
       <CsvPanel />
 

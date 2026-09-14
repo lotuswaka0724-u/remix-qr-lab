@@ -216,7 +216,12 @@ export default function PrizeAdminPanel() {
         {prizes.map((p) => (
           <li key={p.id} className="flex flex-wrap items-center gap-2 rounded-xl bg-muted/60 p-2">
             {p.category === "sound" ? (
-              <Button type="button" size="sm" variant="secondary" onClick={() => preview(p.assetUrl)}>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={() => preview(p.assetUrl)}
+              >
                 ▶ 試聴
               </Button>
             ) : (
