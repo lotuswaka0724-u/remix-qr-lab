@@ -126,7 +126,15 @@ export type AddPrizeInput = {
   fileName: string;
   contentType: string;
   dataBase64: string;
+  /** 一覧用サムネイル（なくてもよい。PNG/JPG・1MBまで） */
+  thumbFileName?: string;
+  thumbContentType?: string;
+  thumbBase64?: string;
 };
+
+const THUMB_TYPES = ["image/png", "image/jpeg"];
+const THUMB_EXT = ["png", "jpg", "jpeg"];
+const THUMB_MAX = 1024 * 1024;
 
 export const addCustomPrize = createServerFn({ method: "POST" })
   .inputValidator((data: AddPrizeInput) => data)
