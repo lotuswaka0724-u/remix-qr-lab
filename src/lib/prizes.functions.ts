@@ -9,6 +9,8 @@ export type CustomPrize = {
   category: CollCategory;
   rarity: CollRarity;
   assetUrl: string;
+  /** 一覧表示用のサムネイル（本体の素材とは別に登録できる。未設定なら本体を使う） */
+  thumbUrl: string | null;
   description: string;
   obtainable: boolean;
   sort: number;
