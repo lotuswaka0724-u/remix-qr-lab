@@ -6,6 +6,7 @@ import {
   COLL_ITEMS,
   COLL_ITEM_BY_ID,
   COLL_RARITY_META,
+  registerCustomItems,
   type CollCategory,
   type CollRarity,
 } from "@/lib/collection-catalog";
@@ -74,6 +75,16 @@ function normalizeColl(raw: Partial<CollData> | null | undefined): CollData {
   return { owned, dupes: raw?.dupes ?? {}, equipped };
 }
 
+/** 先生が登録した景品をマスターに合流させる（毎回よびだしても安全） */
+async function syncCustom() {
+  try {
+    const { readCustomPrizes } = await import("@/lib/prizes.functions");
+    registerCustomItems(await readCustomPrizes());
+  } catch {
+    /* 景品テーブルが読めなくても既存アイテムはそのまま使う */
+  }
+}
+
 async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
@@ -132,6 +143,7 @@ async function buildView(studentId: string, coll?: CollData): Promise<CollView> 
 }
 
 export const getCollection = createServerFn({ method: "GET" }).handler(async () => {
+  await syncCustom();
   const studentId = await session();
   if (!studentId) return null;
   return buildView(studentId);
@@ -141,6 +153,7 @@ export const getCollection = createServerFn({ method: "GET" }).handler(async () 
 export const equipCollItem = createServerFn({ method: "POST" })
   .inputValidator((data: { itemId: string }) => ({ itemId: String(data.itemId ?? "") }))
   .handler(async ({ data }) => {
+    await syncCustom();
     const studentId = await session();
     if (!studentId) return null;
     const item = COLL_ITEM_BY_ID[data.itemId];
@@ -155,6 +168,7 @@ export const equipCollItem = createServerFn({ method: "POST" })
 
 /** コレクションガチャ。ポイントは「ガチャ履歴」に記録して消費する（既存の計算方法のまま） */
 export const drawCollGacha = createServerFn({ method: "POST" }).handler(async () => {
+  await syncCustom();
   const studentId = await session();
   if (!studentId) return null;
   const { readClassState, writeClassState } = await import("@/lib/gate.server");
@@ -231,6 +245,7 @@ export type ClassBadge = {
 
 /** 先生の読み取り画面用：児童ごとの「アイコン・フレーム・音・エフェクト」だけを返す */
 export const getClassBadges = createServerFn({ method: "GET" }).handler(async () => {
+  await syncCustom();
   const db = await admin();
   const { data } = await db.from("student_game").select("student_id, data");
   const out: ClassBadge[] = [];
