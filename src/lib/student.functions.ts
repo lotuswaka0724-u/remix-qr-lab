@@ -59,7 +59,7 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
     }
   }
   for (const e of state.hwEvents ?? []) {
-    if (e.studentId === studentId) earned += e.delta;
+    if (e.studentId === studentId && !e.voided) earned += e.delta;
   }
   for (const g of state.manualGrants ?? []) {
     if (g.studentId === studentId) earned += g.amount;
