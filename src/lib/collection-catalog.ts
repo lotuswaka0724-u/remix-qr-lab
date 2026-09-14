@@ -32,6 +32,8 @@ export type CollItem = {
   asset?: string;
   /** 画像素材のパス（例: /icons/cat.png）。入れると絵文字より優先して表示する */
   image?: string;
+  /** 一覧表示だけに使うサムネイル画像。本体の素材とは別に管理する */
+  thumb?: string;
   /** 一覧での表示順（小さいほど先。未設定は登録順） */
   sort?: number;
   /** ガチャで手に入るか（false にすると出ない。未設定は true） */
@@ -424,6 +426,7 @@ export type CustomPrizeLike = {
   category: CollCategory;
   rarity: CollRarity;
   assetUrl: string;
+  thumbUrl?: string | null;
   description: string;
   obtainable: boolean;
   sort: number;
@@ -438,6 +441,7 @@ function toCollItem(p: CustomPrizeLike): CollItem {
     description: p.description || p.name,
     obtainable: p.obtainable,
     sort: p.sort,
+    ...(p.thumbUrl ? { thumb: p.thumbUrl } : {}),
   };
   switch (p.category) {
     case "background":
