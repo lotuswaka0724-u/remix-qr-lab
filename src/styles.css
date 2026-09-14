@@ -742,6 +742,15 @@
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
   }
+
+  /* わすれましたカード印刷 */
+  body.printing-hwstate * {
+    visibility: hidden !important;
+  }
+  body.printing-hwstate #hwstate-qr-sheet,
+  body.printing-hwstate #hwstate-qr-sheet * {
+    visibility: visible !important;
+  }
 }
 
 /* ---------- QR読み取りエフェクトの追加演出（レアリティ段階つき） ---------- */
