@@ -2,7 +2,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   applyAssetOverrides,
   COLL_CATEGORIES,
@@ -184,7 +183,6 @@ export default function PrizeAssetPanel() {
           );
         })}
       </ul>
-      <Input className="hidden" readOnly value="" aria-hidden tabIndex={-1} />
     </section>
   );
 }

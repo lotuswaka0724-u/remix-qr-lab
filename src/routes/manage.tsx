@@ -6,6 +6,7 @@ import HwStateQrPrint from "@/components/HwStateQrPrint";
 import MaterialQrPrint from "@/components/MaterialQrPrint";
 import MyPageLinks from "@/components/MyPageLinks";
 import PrizeAdminPanel from "@/components/PrizeAdminPanel";
+import PrizeAssetPanel from "@/components/PrizeAssetPanel";
 import QrMaker from "@/components/QrMaker";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -244,6 +245,7 @@ function ManagePage() {
       </section>
 
       <PrizeAdminPanel />
+      <PrizeAssetPanel />
 
       <CsvPanel />
 
