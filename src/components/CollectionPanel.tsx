@@ -11,6 +11,7 @@ import {
   COLL_CATEGORY_LABEL,
   COLL_ITEMS,
   COLL_RARITY_META,
+  COLL_RARITY_ORDER,
   collItemsOf,
   effectFx,
   fxImage,
@@ -105,6 +106,20 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
       )}
     </span>
   );
+}
+
+/** 表示だけの並びかえ（データは書きかえない）。同じ順位のときは今までの並びのまま */
+function sortItems(items: CollItem[], by: "rarity" | "owned", owned: string[]): CollItem[] {
+  const key = (item: CollItem) =>
+    by === "rarity"
+      ? COLL_RARITY_ORDER.indexOf(item.rarity)
+      : owned.indexOf(item.id) < 0
+        ? Number.MAX_SAFE_INTEGER
+        : owned.indexOf(item.id);
+  return items
+    .map((item, i) => ({ item, i, k: key(item) }))
+    .sort((a, b) => a.k - b.k || a.i - b.i)
+    .map((e) => e.item);
 }
 
 export default function CollectionPanel({ api, screen }: { api: CollectionApi; screen: Screen }) {
