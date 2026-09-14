@@ -95,6 +95,30 @@ export type Database = {
         }
         Relationships: []
       }
+      prize_asset_overrides: {
+        Row: {
+          asset_url: string
+          created_at: string
+          prize_id: string
+          thumb_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          asset_url: string
+          created_at?: string
+          prize_id: string
+          thumb_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          asset_url?: string
+          created_at?: string
+          prize_id?: string
+          thumb_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       student_codes: {
         Row: {
           code_hash: string
