@@ -101,6 +101,19 @@ export default function PrizeAdminPanel() {
     setBusy(true);
     try {
       const dataBase64 = await readBase64(file);
+      // サムネイルは任意。読めなかったときは本体だけで登録する。
+      let thumbFields = {};
+      if (thumb) {
+        try {
+          thumbFields = {
+            thumbFileName: thumb.name,
+            thumbContentType: thumb.type,
+            thumbBase64: await readBase64(thumb),
+          };
+        } catch {
+          thumbFields = {};
+        }
+      }
       const res = await add({
         data: {
           name: name.trim(),
@@ -112,6 +125,7 @@ export default function PrizeAdminPanel() {
           fileName: file.name,
           contentType: file.type,
           dataBase64,
+          ...thumbFields,
         },
       });
       if ("error" in res && res.error) setMsg(ERROR_TEXT[res.error] ?? "登録できませんでした");
