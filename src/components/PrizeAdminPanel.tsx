@@ -219,6 +219,16 @@ export default function PrizeAdminPanel() {
             className="mt-1"
           />
         </label>
+        <label className="text-xs sm:col-span-2">
+          一覧用サムネイル（任意・PNG/JPG・最大1MB／入れないときは素材をそのまま表示）
+          <Input
+            ref={thumbRef}
+            type="file"
+            accept="image/png,image/jpeg"
+            onChange={(e) => setThumb(e.target.files?.[0] ?? null)}
+            className="mt-1"
+          />
+        </label>
         <div className="flex items-center gap-2 text-xs sm:col-span-2">
           <Switch checked={obtainable} onCheckedChange={setObtainable} aria-label="ガチャに出す" />
           <span>ガチャに出す</span>
