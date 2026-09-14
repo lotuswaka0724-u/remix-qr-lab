@@ -74,6 +74,8 @@ export default function PrizeAssetPanel() {
 
   const items = useMemo(
     () => COLL_ITEMS.filter((i) => i.category === category && !i.id.startsWith("cx_")),
+    // 差し替え後は一覧の見た目も更新したいので overrides も見ている
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [category, overrides],
   );
   const byId = useMemo(() => new Map(overrides.map((o) => [o.prizeId, o])), [overrides]);
