@@ -32,7 +32,24 @@ import { playCollectionSound, playError, previewCollectionSound } from "@/lib/fe
 import { useCustomPrizes } from "@/lib/use-custom-prizes";
 
 type Screen = "gacha" | "collection";
-type GachaPhase = "idle" | "spinning" | "opening" | "result";
+type GachaPhase = "idle" | "spinning" | "suspense" | "opening" | "result";
+
+const waitFor = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
+
+function prizeTune(rarity: CollPrize["rarity"]) {
+  if (rarity === "BLACK") return "black";
+  if (rarity === "GOLD") return "gold";
+  if (rarity === "SSR") return "levelup";
+  if (rarity === "N") return "pico";
+  return "fanfare";
+}
+
+function prizeFx(rarity: CollPrize["rarity"]) {
+  if (rarity === "BLACK") return "black";
+  if (rarity === "GOLD") return "gold";
+  if (rarity === "SSR" || rarity === "SR") return "starfall";
+  return rarity === "R" ? "confetti" : "glitter";
+}
 
 export function useCollection() {
   const load = useServerFn(getCollection);
@@ -165,8 +182,8 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       playError();
       return;
     }
-    const wait = Math.max(0, 900 - (Date.now() - started));
-    if (wait) await new Promise((resolve) => window.setTimeout(resolve, wait));
+    const spinWait = Math.max(0, 1400 - (Date.now() - started));
+    if (spinWait) await waitFor(spinWait);
     if (!res) {
       setBusy(false);
       setPhase("idle");
@@ -182,34 +199,27 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     }
     if ("prize" in res && res.prize) {
       const p = res.prize;
+      setPhase("suspense");
+      await waitFor(p.rarity === "BLACK" ? 420 : p.rarity === "GOLD" ? 360 : 280);
       setPhase("opening");
       const rank = p.rarity === "BLACK" ? "BLACK" : p.rarity === "GOLD" ? "GOLD" : "NORMAL";
-      window.setTimeout(() => {
-        setPrize(p);
-        setPhase("result");
-        setBusy(false);
-        const tune =
-          p.rarity === "BLACK"
-            ? "black"
-            : p.rarity === "GOLD"
-              ? "gold"
-              : p.rarity === "SSR"
-                ? "levelup"
-                : p.rarity === "N"
-                  ? "pico"
-                  : "fanfare";
-        playCollectionSound(tune, rank, tuneAsset(tune));
-        const fx =
-          p.rarity === "BLACK"
-            ? "black"
-            : p.rarity === "GOLD"
-              ? "gold"
-              : p.rarity === "SSR" || p.rarity === "SR"
-                ? "starfall"
-                : "glitter";
-        setFxPlay({ fx, id: Date.now(), image: fxImage(fx) });
-      }, 520);
+      await waitFor(460);
+
+      // 結果の表示開始・光の演出・獲得音を同じタイムラインで開始する。
+      const tune = prizeTune(p.rarity);
+      const fx = prizeFx(p.rarity);
+      setPrize(p);
+      setPhase("result");
+      setFxPlay({ fx, id: Date.now(), image: fxImage(fx) });
+      playCollectionSound(tune, rank, tuneAsset(tune));
     }
+  };
+
+  const closeResult = (showInBox = false) => {
+    if (showInBox && prize) setCat(prize.category);
+    setPrize(null);
+    setPhase("idle");
+    setBusy(false);
   };
 
   const onEquip = async (item: CollItem) => {
@@ -243,10 +253,12 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         {view.rank === "NORMAL" && "（ランクが上がると GOLD・BLACK も出ます）"}
       </p>
       <div
-        className={`gacha-stage ${phase === "result" ? "gacha-stage-result" : ""}`}
+        className={`gacha-stage gacha-stage-${phase}`}
         aria-live="polite"
       >
-        <div className={`gacha-machine ${phase === "spinning" ? "gacha-machine-spin" : ""}`}>
+        <div
+          className={`gacha-machine ${phase === "spinning" ? "gacha-machine-spin" : ""} ${phase === "suspense" ? "gacha-machine-suspense" : ""}`}
+        >
           <span className="gacha-machine-window" aria-hidden>
             <span className="gacha-capsule">●</span>
           </span>
@@ -261,6 +273,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         )}
         {phase === "idle" && <p className="gacha-stage-label">なにが出るかな？</p>}
         {phase === "spinning" && <p className="gacha-stage-label">カプセルを えらんでいます…</p>}
+        {phase === "suspense" && <p className="gacha-stage-label">なにが出るかな…？</p>}
         {phase === "opening" && <p className="gacha-stage-label">オープン！</p>}
       </div>
       <Button
@@ -272,45 +285,55 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       </Button>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
 
-      {prize && (
+      {prize && phase === "result" && (
         <div
-          className={`gacha-prize-card mx-auto max-w-sm space-y-2 rounded-3xl p-5 ring-4 ${COLL_RARITY_META[prize.rarity].ring} ${
-            prize.rarity === "BLACK" ? "bg-slate-900 text-amber-200" : "bg-card"
-          }`}
+          className={`gacha-result-overlay gacha-result-${prize.rarity.toLowerCase()}`}
+          role="dialog"
+          aria-modal="true"
+          aria-label={`${prize.name}をゲット`}
         >
-          <span
-            className={`inline-block rounded-full px-3 py-1 font-display text-xs font-bold ${COLL_RARITY_META[prize.rarity].tone}`}
-          >
-            {prize.rarity}
-          </span>
-          <div className="flex justify-center">
-            {(() => {
-              const item = COLL_ITEMS.find((i) => i.id === prize.id);
-              return item ? <ItemArt item={item} size={72} /> : null;
-            })()}
+          <div className="gacha-result-backdrop" />
+          <div className="gacha-result-flash" aria-hidden />
+          <div className="gacha-result-particles" aria-hidden>
+            {Array.from({ length: 12 }, (_, i) => (
+              <span key={i}>✦</span>
+            ))}
           </div>
-          <p className="font-display text-2xl font-bold">{prize.name}</p>
-          <p className="text-xs opacity-80">
-            {COLL_CATEGORY_LABEL[prize.category]}／{prize.description}
-          </p>
-          {prize.duplicate ? (
-            <p className="text-sm font-bold">
-              すでに もっているアイテム（かぶり {prize.dupeCount} かい）
-            </p>
-          ) : (
-            <p className="text-sm font-bold text-primary">あたらしくゲット！</p>
-          )}
-          <Button
-            size="sm"
-            variant="secondary"
-            className="rounded-full"
-            onClick={() => {
-              setCat(prize.category);
-              setPrize(null);
-            }}
-          >
-            アイテムBOXで見る
-          </Button>
+          <div className="gacha-result-card">
+            <p className="gacha-result-get">GET!</p>
+            <div className="gacha-result-art">
+              {(() => {
+                const item = COLL_ITEMS.find((i) => i.id === prize.id);
+                return item ? <ItemArt item={item} size={152} /> : null;
+              })()}
+            </div>
+            <div className="gacha-result-copy">
+              <span
+                className={`inline-block rounded-full px-4 py-1 font-display text-sm font-bold ${COLL_RARITY_META[prize.rarity].tone}`}
+              >
+                {prize.rarity}
+              </span>
+              <p className="mt-2 font-display text-3xl font-bold">{prize.name}</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {COLL_CATEGORY_LABEL[prize.category]}／{prize.description}
+              </p>
+              {prize.duplicate ? (
+                <p className="mt-2 text-sm font-bold">
+                  すでに もっているアイテム（かぶり {prize.dupeCount} かい）
+                </p>
+              ) : (
+                <p className="mt-2 text-base font-bold text-primary">あたらしくゲット！</p>
+              )}
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <Button variant="secondary" className="rounded-full" onClick={() => closeResult()}>
+                  とじる
+                </Button>
+                <Button className="rounded-full" onClick={() => closeResult(true)}>
+                  アイテムBOXで見る
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </section>

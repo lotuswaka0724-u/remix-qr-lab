@@ -336,16 +336,47 @@
 @keyframes gacha-reveal {
   0% {
     opacity: 0;
-    transform: scale(0.72) translateY(18px);
+    transform: scale(0.12) translateY(22px);
   }
-  65% {
+  58% {
     opacity: 1;
-    transform: scale(1.05) translateY(0);
+    transform: scale(1.14) translateY(0);
+  }
+  78% {
+    opacity: 1;
+    transform: scale(0.96) translateY(0);
   }
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+@keyframes gacha-result-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes gacha-result-flash {
+  0% { opacity: 0; transform: scale(0.35); }
+  18% { opacity: 0.9; }
+  100% { opacity: 0; transform: scale(2.4); }
+}
+
+@keyframes gacha-result-copy {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes gacha-particle-burst {
+  0% { opacity: 0; transform: rotate(var(--particle-angle)) translateY(0) scale(0.25); }
+  18% { opacity: 1; }
+  100% { opacity: 0; transform: rotate(var(--particle-angle)) translateY(-12rem) scale(1.2); }
+}
+
+@keyframes gacha-suspense {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
 }
 
 @keyframes special-ring {
@@ -450,7 +481,10 @@
   height: 8.6rem;
 }
 .gacha-machine-spin {
-  animation: gacha-wobble 0.48s ease-in-out infinite;
+  animation: gacha-wobble 0.42s ease-in-out infinite;
+}
+.gacha-machine-suspense {
+  animation: gacha-suspense 0.28s ease-in-out both;
 }
 .gacha-machine-window {
   display: grid;
@@ -476,7 +510,7 @@
   box-shadow: var(--shadow-card);
 }
 .gacha-machine-spin .gacha-capsule {
-  animation: gacha-capsule-roll 0.6s linear infinite;
+  animation: gacha-capsule-roll 0.48s linear infinite;
 }
 .gacha-machine-base {
   display: grid;
@@ -529,8 +563,105 @@
   transform: translate(-50%, -50%);
   animation: kid-sparkle 0.35s ease-in-out infinite;
 }
-.gacha-prize-card {
-  animation: gacha-reveal 0.5s cubic-bezier(0.2, 1.2, 0.3, 1) both;
+.gacha-stage-suspense {
+  box-shadow: inset 0 0 2.5rem color-mix(in oklab, var(--warning) 30%, transparent);
+}
+.gacha-result-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  animation: gacha-result-enter 0.16s ease-out both;
+}
+.gacha-result-backdrop {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in oklab, var(--foreground) 46%, transparent);
+  backdrop-filter: blur(5px) saturate(0.75);
+}
+.gacha-result-card {
+  position: relative;
+  z-index: 2;
+  width: min(25rem, 100%);
+  max-height: calc(100dvh - 2rem);
+  overflow-y: auto;
+  padding: 1.5rem;
+  border: 0.3rem solid var(--primary);
+  border-radius: 2rem;
+  background: var(--card);
+  color: var(--card-foreground);
+  box-shadow: 0 1.5rem 5rem color-mix(in oklab, var(--foreground) 45%, transparent);
+}
+.gacha-result-get {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--primary);
+}
+.gacha-result-art {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  min-height: 10.5rem;
+  place-content: center;
+  margin-block: 0.25rem;
+  animation: gacha-reveal 0.72s cubic-bezier(0.18, 1.35, 0.32, 1) both;
+}
+.gacha-result-copy {
+  animation: gacha-result-copy 0.35s ease-out 0.42s both;
+}
+.gacha-result-flash {
+  position: absolute;
+  z-index: 1;
+  width: min(28rem, 90vw);
+  aspect-ratio: 1;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--warning), color-mix(in oklab, var(--accent) 40%, transparent) 35%, transparent 70%);
+  animation: gacha-result-flash 0.72s ease-out both;
+}
+.gacha-result-particles {
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: 1px;
+  height: 1px;
+  color: var(--warning);
+}
+.gacha-result-particles span {
+  --particle-angle: 0deg;
+  position: absolute;
+  font-size: 1.5rem;
+  animation: gacha-particle-burst 0.9s ease-out both;
+}
+.gacha-result-particles span:nth-child(2) { --particle-angle: 30deg; }
+.gacha-result-particles span:nth-child(3) { --particle-angle: 60deg; }
+.gacha-result-particles span:nth-child(4) { --particle-angle: 90deg; }
+.gacha-result-particles span:nth-child(5) { --particle-angle: 120deg; }
+.gacha-result-particles span:nth-child(6) { --particle-angle: 150deg; }
+.gacha-result-particles span:nth-child(7) { --particle-angle: 180deg; }
+.gacha-result-particles span:nth-child(8) { --particle-angle: 210deg; }
+.gacha-result-particles span:nth-child(9) { --particle-angle: 240deg; }
+.gacha-result-particles span:nth-child(10) { --particle-angle: 270deg; }
+.gacha-result-particles span:nth-child(11) { --particle-angle: 300deg; }
+.gacha-result-particles span:nth-child(12) { --particle-angle: 330deg; }
+.gacha-result-r .gacha-result-card { border-color: var(--accent); }
+.gacha-result-sr .gacha-result-card,
+.gacha-result-ssr .gacha-result-card { border-color: var(--warning); }
+.gacha-result-ssr .gacha-result-particles span,
+.gacha-result-gold .gacha-result-particles span,
+.gacha-result-black .gacha-result-particles span { animation-duration: 1.25s; font-size: 2rem; }
+.gacha-result-gold .gacha-result-card {
+  border-color: var(--warning);
+  box-shadow: 0 0 4rem color-mix(in oklab, var(--warning) 65%, transparent);
+}
+.gacha-result-black .gacha-result-card {
+  border-color: color-mix(in oklab, var(--warning) 75%, var(--foreground));
+  box-shadow: 0 0 5rem color-mix(in oklab, var(--warning) 60%, transparent);
+}
+.gacha-result-black .gacha-result-flash { animation-duration: 1s; }
 }
 .fx-special-ring {
   position: absolute;
@@ -549,10 +680,15 @@
 
 @media (prefers-reduced-motion: reduce) {
   .gacha-machine-spin,
+  .gacha-machine-suspense,
   .gacha-machine-spin .gacha-capsule,
   .gacha-half,
   .gacha-light,
-  .gacha-prize-card,
+  .gacha-result-overlay,
+  .gacha-result-flash,
+  .gacha-result-art,
+  .gacha-result-copy,
+  .gacha-result-particles span,
   .fx-special-ring {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
