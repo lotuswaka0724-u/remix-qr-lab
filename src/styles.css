@@ -662,7 +662,6 @@
   box-shadow: 0 0 5rem color-mix(in oklab, var(--warning) 60%, transparent);
 }
 .gacha-result-black .gacha-result-flash { animation-duration: 1s; }
-}
 .fx-special-ring {
   position: absolute;
   left: 50%;
