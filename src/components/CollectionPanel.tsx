@@ -28,11 +28,26 @@ import {
   type CollPrize,
   type CollView,
 } from "@/lib/collection.functions";
-import { playCollectionSound, playError, previewCollectionSound } from "@/lib/feedback";
+import {
+  playCollectionSound,
+  playError,
+  playGachaEject,
+  playGachaOpen,
+  playGachaPress,
+  playGachaSpin,
+  previewCollectionSound,
+} from "@/lib/feedback";
 import { useCustomPrizes } from "@/lib/use-custom-prizes";
 
 type Screen = "gacha" | "collection";
-type GachaPhase = "idle" | "spinning" | "suspense" | "opening" | "result";
+type GachaPhase =
+  | "idle"
+  | "press"
+  | "spinning"
+  | "suspense"
+  | "eject"
+  | "opening"
+  | "result";
 
 const waitFor = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 
@@ -166,24 +181,34 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
   if (!view) return null;
 
   const onDraw = async () => {
+    // 連打防止：演出中・結果表示中は、いちども抽選しない
     if (busy) return;
     setBusy(true);
     setMsg("");
     setPrize(null);
-    setPhase("spinning");
+
+    // ① ボタンを押した（0〜0.2秒）
+    setPhase("press");
+    playGachaPress();
     const started = Date.now();
-    let res: Awaited<ReturnType<typeof draw>>;
-    try {
-      res = await draw({});
-    } catch {
+    // 抽選は1回だけ。結果は演出に渡すだけで、あとから変わらない。
+    const drawing = draw({}).catch(() => "failed" as const);
+    await waitFor(200);
+
+    // ② 抽選中（装置がうごく）
+    setPhase("spinning");
+    playGachaSpin(1200);
+    const res = await drawing;
+    const spinWait = Math.max(0, 1600 - (Date.now() - started));
+    if (spinWait) await waitFor(spinWait);
+
+    if (res === "failed") {
       setBusy(false);
       setPhase("idle");
       setMsg("ガチャを まわせませんでした");
       playError();
       return;
     }
-    const spinWait = Math.max(0, 1400 - (Date.now() - started));
-    if (spinWait) await waitFor(spinWait);
     if (!res) {
       setBusy(false);
       setPhase("idle");
@@ -199,13 +224,22 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     }
     if ("prize" in res && res.prize) {
       const p = res.prize;
+      // ③ 結果直前の停止・ため
       setPhase("suspense");
-      await waitFor(p.rarity === "BLACK" ? 420 : p.rarity === "GOLD" ? 360 : 280);
-      setPhase("opening");
-      const rank = p.rarity === "BLACK" ? "BLACK" : p.rarity === "GOLD" ? "GOLD" : "NORMAL";
-      await waitFor(460);
+      await waitFor(p.rarity === "BLACK" ? 520 : p.rarity === "GOLD" ? 440 : 320);
 
-      // 結果の表示開始・光の演出・獲得音を同じタイムラインで開始する。
+      // ④ カプセル排出（排出口 → 中央）
+      setPhase("eject");
+      playGachaEject();
+      await waitFor(760);
+
+      // ⑤ カプセルがひらく
+      setPhase("opening");
+      playGachaOpen();
+      const rank = p.rarity === "BLACK" ? "BLACK" : p.rarity === "GOLD" ? "GOLD" : "NORMAL";
+      await waitFor(420);
+
+      // ⑥ 景品出現・光の演出・獲得音を同じタイムラインで開始する。
       const tune = prizeTune(p.rarity);
       const fx = prizeFx(p.rarity);
       setPrize(p);
@@ -252,37 +286,46 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         いまのカードランク：{view.rank}
         {view.rank === "NORMAL" && "（ランクが上がると GOLD・BLACK も出ます）"}
       </p>
-      <div
-        className={`gacha-stage gacha-stage-${phase}`}
-        aria-live="polite"
-      >
+      <div className={`gacha-stage gacha-stage-${phase}`} aria-live="polite">
         <div
-          className={`gacha-machine ${phase === "spinning" ? "gacha-machine-spin" : ""} ${phase === "suspense" ? "gacha-machine-suspense" : ""}`}
+          className={`gacha-machine ${machineClass}`}
+          style={phase === "eject" || phase === "opening" ? { opacity: 0.92 } : undefined}
         >
-          <span className="gacha-machine-window" aria-hidden>
-            <span className="gacha-capsule">●</span>
-          </span>
-          <span className="gacha-machine-base">GACHA</span>
+          <img src="/prizes/gacha/machine.png" alt="ガチャマシン" width={1024} height={1024} />
+          <span className="gacha-machine-glow" aria-hidden />
+          <span className="gacha-inner-capsule" aria-hidden />
         </div>
-        {phase === "opening" && (
-          <div className="gacha-opening" aria-label="カプセルがひらきます">
-            <span className="gacha-half gacha-half-top" />
-            <span className="gacha-half gacha-half-bottom" />
-            <span className="gacha-light">✦</span>
+        {phase === "eject" && (
+          <div className="gacha-capsule-out" aria-label="カプセルが出ました">
+            <img src="/prizes/gacha/capsule.png" alt="" width={1024} height={1024} />
           </div>
         )}
-        {phase === "idle" && <p className="gacha-stage-label">なにが出るかな？</p>}
-        {phase === "spinning" && <p className="gacha-stage-label">カプセルを えらんでいます…</p>}
-        {phase === "suspense" && <p className="gacha-stage-label">なにが出るかな…？</p>}
-        {phase === "opening" && <p className="gacha-stage-label">オープン！</p>}
+        {phase === "opening" && (
+          <>
+            <div className="gacha-stage-burst" aria-hidden>
+              <img src="/prizes/gacha/burst.png" alt="" width={1024} height={1024} />
+            </div>
+            <span className="gacha-capsule-shell gacha-shell-top" aria-hidden />
+            <span className="gacha-capsule-shell gacha-shell-bottom" aria-hidden />
+          </>
+        )}
+        <p className="gacha-stage-label">
+          {phase === "idle" && "なにが出るかな？"}
+          {phase === "press" && "スイッチ ON！"}
+          {phase === "spinning" && "カプセルを えらんでいます…"}
+          {phase === "suspense" && "…！"}
+          {phase === "eject" && "カプセルが 出てきた！"}
+          {phase === "opening" && "オープン！"}
+        </p>
       </div>
-      <Button
-        className="h-16 w-full max-w-xs rounded-full text-xl"
+      <button
+        type="button"
+        className={`gacha-btn ${phase === "press" ? "gacha-btn-pressed" : ""}`}
         disabled={busy || !view.gachaOn || view.points < view.cost}
         onClick={onDraw}
       >
-        {busy ? "カプセルを まわしています…" : `ガチャを まわす（${view.cost}pt）`}
-      </Button>
+        {busy ? "まわしています…" : `🎰 ガチャをひく（${view.cost}pt）`}
+      </button>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
 
       {prize && phase === "result" && (
