@@ -261,3 +261,33 @@ export function previewCollectionSound(
   stopAllSounds();
   playCollectionSound(tune, rank, asset);
 }
+
+/* ---------- ガチャ演出の音（Web Audio でその場でつくる） ---------- */
+
+/** ボタンを押した音 */
+export function playGachaPress() {
+  tone(520, 0, 0.08, "square", 0.09, 880);
+  tone(1040, 0.06, 0.1, "sine", 0.05);
+}
+
+/** 抽選中（装置がまわっている間）のカラカラ音。durMs のあいだ鳴らす */
+export function playGachaSpin(durMs = 1200) {
+  const steps = Math.max(4, Math.round(durMs / 110));
+  for (let i = 0; i < steps; i++) {
+    const t = (i * durMs) / steps / 1000;
+    // だんだん速く・高くして、盛り上がりを出す
+    tone(300 + i * 26, t, 0.05, "triangle", 0.05 + i * 0.004);
+  }
+}
+
+/** カプセルが出てくる音 */
+export function playGachaEject() {
+  tone(180, 0, 0.16, "sine", 0.12, 90);
+  tone(620, 0.12, 0.1, "triangle", 0.07);
+}
+
+/** カプセルがひらく音 */
+export function playGachaOpen() {
+  tone(900, 0, 0.09, "square", 0.08, 1500);
+  [0, 0.05, 0.1].forEach((t, i) => tone(1400 + i * 300, 0.08 + t, 0.14, "sine", 0.06));
+}
