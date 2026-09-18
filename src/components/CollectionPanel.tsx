@@ -196,12 +196,16 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     const drawing = draw({}).catch(() => "failed" as const);
     await waitFor(200);
 
-    // ② 抽選中（装置がうごく）
+    // ② 抽選中（装置がうごく。動きはだんだん強くなる）
+    setSpinHard(false);
     setPhase("spinning");
     playGachaSpin(1200);
+    const ramp = window.setTimeout(() => setSpinHard(true), 700);
     const res = await drawing;
     const spinWait = Math.max(0, 1600 - (Date.now() - started));
     if (spinWait) await waitFor(spinWait);
+    window.clearTimeout(ramp);
+    setSpinHard(false);
 
     if (res === "failed") {
       setBusy(false);
