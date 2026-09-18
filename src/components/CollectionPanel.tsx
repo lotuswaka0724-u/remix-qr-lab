@@ -165,6 +165,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     null,
   );
   const [phase, setPhase] = useState<GachaPhase>("idle");
+  const [spinHard, setSpinHard] = useState(false);
 
   const owned = useMemo(() => view?.coll.owned ?? [], [view?.coll.owned]);
   const equipped = view?.coll.equipped ?? {};
@@ -271,6 +272,18 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         image: item.image ?? null,
       });
   };
+
+  // 装置のうごき：押す → ゆっくり → だんだん強く → 一瞬とまる
+  const machineClass =
+    phase === "press"
+      ? "gacha-machine-press"
+      : phase === "spinning"
+        ? spinHard
+          ? "gacha-machine-spin-hard"
+          : "gacha-machine-spin"
+        : phase === "suspense"
+          ? "gacha-machine-suspense"
+          : "";
 
   const gacha = (
     <section className="kid-panel space-y-4 p-5 text-center">
