@@ -507,13 +507,13 @@
   30% { opacity: 0.95; }
   100% { opacity: 0; transform: scale(1.7) rotate(60deg); }
 }
-@keyframes gacha-halfshell-left {
-  0% { opacity: 1; transform: translate(-1.6rem, 0) rotate(0deg); }
-  100% { opacity: 0; transform: translate(-6rem, -1.5rem) rotate(-70deg); }
+@keyframes gacha-halfshell-top {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(-3.2rem, -4rem) rotate(-45deg); }
 }
-@keyframes gacha-halfshell-right {
-  0% { opacity: 1; transform: translate(1.6rem, 0) rotate(0deg); }
-  100% { opacity: 0; transform: translate(6rem, 1.5rem) rotate(70deg); }
+@keyframes gacha-halfshell-bottom {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0deg); }
+  100% { opacity: 0; transform: translate(3.2rem, 4rem) rotate(45deg); }
 }
 
 .gacha-stage {
@@ -595,10 +595,16 @@
   width: 5.5rem;
   height: 5.5rem;
   z-index: 3;
-  background-size: 100% 200%;
+  background: url("/prizes/gacha/capsule.png") center / contain no-repeat;
 }
-.gacha-shell-left { animation: gacha-halfshell-left 0.42s ease-out both; }
-.gacha-shell-right { animation: gacha-halfshell-right 0.42s ease-out both; }
+.gacha-shell-top {
+  clip-path: inset(0 0 50% 0);
+  animation: gacha-halfshell-top 0.45s ease-out both;
+}
+.gacha-shell-bottom {
+  clip-path: inset(50% 0 0 0);
+  animation: gacha-halfshell-bottom 0.45s ease-out both;
+}
 .gacha-stage-burst {
   position: absolute;
   width: 14rem;
