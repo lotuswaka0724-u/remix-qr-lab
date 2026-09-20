@@ -3,10 +3,10 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 
 import CollectionIcon from "@/components/CollectionIcon";
+import CollectionBackdrop from "@/components/CollectionBackdrop";
 import CollectionPanel, { useCollection } from "@/components/CollectionPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { backgroundCss } from "@/lib/collection-catalog";
 import { playError } from "@/lib/feedback";
 import { STATUS_META } from "@/lib/homework-store";
 import {
@@ -219,8 +219,9 @@ function MyPage() {
   ];
 
   return (
-    <div className="min-h-svh" style={{ background: backgroundCss(equipped.background) }}>
-      <main className="mx-auto max-w-5xl space-y-4 px-3 py-5 pb-28">
+    <div className="collection-page min-h-svh">
+      <CollectionBackdrop backgroundId={equipped.background} />
+      <main className="relative z-10 mx-auto max-w-5xl space-y-4 px-3 py-5 pb-28">
         <header className="kid-panel flex flex-wrap items-center gap-3 p-3">
           <CollectionIcon iconId={equipped.icon} frameId={equipped.frame} size={48} />
           <div className="mr-auto">

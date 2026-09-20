@@ -1,3 +1,6 @@
+import backgroundLegend from "@/assets/collection/background-legend.jpg";
+import frameLegend from "@/assets/collection/frame-legend.png";
+
 /**
  * ガチャで集めるコレクションアイテムのマスター。
  * マイページ背景／アイコン／アイコンフレーム／QR読み取り効果音／QR読み取りエフェクト の5カテゴリー。
@@ -671,12 +674,12 @@ const REAL_ASSETS: RealAsset[] = [
   { id: "ic_ninja", url: "/prizes/icons/ninja.png", provider: "lovable-ai" },
   // フレーム（AI画像生成 / PNG透過）
   { id: "fr_gold", url: "/prizes/frames/gold.png", provider: "lovable-ai" },
-  { id: "fr_black", url: "/prizes/frames/black.png", provider: "lovable-ai" },
+  { id: "fr_black", url: frameLegend, provider: "lovable-ai" },
   { id: "fr_prism", url: "/prizes/frames/prism.png", provider: "lovable-ai" },
   { id: "fr_neon", url: "/prizes/frames/neon.png", provider: "lovable-ai" },
   // 背景（AI画像生成 / JPG）
   { id: "bg_gold", url: "/prizes/bg/gold.jpg", provider: "lovable-ai" },
-  { id: "bg_black", url: "/prizes/bg/black.jpg", provider: "lovable-ai" },
+  { id: "bg_black", url: backgroundLegend, provider: "lovable-ai" },
   { id: "bg_crystal", url: "/prizes/bg/crystal.jpg", provider: "lovable-ai" },
   { id: "bg_dragonlair", url: "/prizes/bg/dragonlair.jpg", provider: "lovable-ai" },
   // 効果音（ElevenLabs 効果音生成 / MP3）
@@ -794,6 +797,87 @@ export const backgroundCss = (id?: string) =>
   COLL_ITEM_BY_ID[id ?? ""]?.art["css"] ?? COLL_ITEM_BY_ID["bg_simple"]!.art["css"]!;
 
 export const frameRing = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["ring"] ?? null;
+
+export type CollectionVisual = {
+  rarity: CollRarity;
+  theme: string;
+  animated: boolean;
+  image: string | null;
+};
+
+const assetUrlFor = (id?: string) => REAL_ASSETS.find((asset) => asset.id === id)?.url ?? null;
+
+const FRAME_THEMES: Record<string, string> = {
+  fr_simple: "silver",
+  fr_blue: "cloud",
+  fr_green: "leaf",
+  fr_pink: "flower",
+  fr_purple: "ribbon",
+  fr_orange: "wood",
+  fr_yellow: "sun",
+  fr_gray: "stone",
+  fr_brown: "wood",
+  fr_teal: "leaf",
+  fr_red: "ribbon",
+  fr_navy: "cloud",
+  fr_colorful: "gem",
+  fr_star: "star",
+  fr_heart: "heart",
+  fr_water: "water",
+  fr_sunset: "sun",
+  fr_ocean: "water",
+  fr_forest: "leaf",
+  fr_candy: "candy",
+  fr_soda: "bubble",
+  fr_grape: "gem",
+  fr_peach: "flower",
+  fr_lime: "leaf",
+  fr_thunder: "thunder",
+  fr_fire: "fire",
+  fr_rainbow: "aurora",
+  fr_crystalfr: "crystal",
+  fr_galaxyfr: "galaxy",
+  fr_aurorafr: "aurora",
+  fr_dragonfr: "dragon",
+  fr_storm: "storm",
+  fr_prism: "prism",
+  fr_neon: "neon",
+  fr_gold: "gold",
+  fr_black: "black",
+};
+
+const BACKGROUND_THEMES: Record<string, string> = {
+  bg_simple: "paper", bg_sky: "sky", bg_sea: "water", bg_forest: "forest", bg_pop: "pop",
+  bg_sports: "sports", bg_sweets: "sweets", bg_sakura: "flower", bg_sunset: "sunset",
+  bg_night: "stars", bg_space: "space", bg_aurora: "aurora", bg_gold: "gold", bg_black: "black",
+  bg_dawn: "sunset", bg_cloud: "cloud", bg_meadow: "meadow", bg_desert: "desert", bg_snow: "snow",
+  bg_bamboo: "forest", bg_pond: "water", bg_field: "meadow", bg_strawberry: "sweets", bg_mint: "mint",
+  bg_lemon: "lemon", bg_island: "sky", bg_deepsea: "deepsea", bg_morning: "forest",
+  bg_stadium: "sports", bg_circuit: "neon", bg_galaxy: "galaxy", bg_meteor: "meteor",
+  bg_lightforest: "lightforest", bg_castle: "magic", bg_trench: "deepsea", bg_crystal: "crystal",
+  bg_dragonlair: "dragon",
+};
+
+export const frameVisual = (id?: string): CollectionVisual | null => {
+  const item = COLL_ITEM_BY_ID[id ?? ""];
+  if (!item || item.category !== "frame") return null;
+  return {
+    rarity: item.rarity,
+    theme: FRAME_THEMES[item.id] ?? "silver",
+    animated: RARITY_TIER[item.rarity] >= 3,
+    image: assetUrlFor(item.id),
+  };
+};
+
+export const backgroundVisual = (id?: string): CollectionVisual => {
+  const item = COLL_ITEM_BY_ID[id ?? ""] ?? COLL_ITEM_BY_ID["bg_simple"]!;
+  return {
+    rarity: item.rarity,
+    theme: BACKGROUND_THEMES[item.id] ?? "paper",
+    animated: RARITY_TIER[item.rarity] >= 3,
+    image: assetUrlFor(item.id),
+  };
+};
 
 export const iconEmoji = (id?: string) => COLL_ITEM_BY_ID[id ?? ""]?.art["emoji"] ?? null;
 

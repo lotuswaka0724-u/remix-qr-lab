@@ -2,7 +2,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useMemo, useState } from "react";
 
 import CollectionFx from "@/components/CollectionFx";
+import CollectionBackdrop from "@/components/CollectionBackdrop";
 import CollectionIcon from "@/components/CollectionIcon";
+import gachaStage from "@/assets/collection/gacha-stage.jpg";
 import { Button } from "@/components/ui/button";
 import {
   backgroundCss,
@@ -105,19 +107,12 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
 
   if (item.category === "background")
     return (
-      <span
-        className="block rounded-xl bg-muted"
-        style={{
-          width: size,
-          height: size,
-          background: item.thumb
-            ? `url("${item.thumb}") center / cover no-repeat`
-            : item.art["css"],
-        }}
-      />
+      <span className="relative block overflow-hidden rounded-xl bg-muted" style={{ width: size, height: size }}>
+        <CollectionBackdrop backgroundId={item.id} preview />
+      </span>
     );
   if (item.category === "frame")
-    return <CollectionIcon iconId="ic_cat" frameId={item.id} size={size} />;
+    return <CollectionIcon iconId="ic_cat" frameId={item.id} size={size} preview />;
   if (item.category === "icon") return <CollectionIcon iconId={item.id} size={size} />;
   return (
     <span
@@ -290,9 +285,13 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
           : "";
 
   const gacha = (
-    <section className="kid-panel space-y-4 p-5 text-center">
-      <h2 className="font-display text-lg font-bold">🎁 コレクションガチャ</h2>
-      <p className="font-display text-4xl font-bold text-primary tabular-nums">
+    <section className="gacha-panel space-y-4 p-4 text-center sm:p-5">
+      <div className="gacha-heading">
+        <span className="gacha-heading-mark" aria-hidden>✦</span>
+        <h2 className="font-display text-lg font-bold">コレクションガチャ</h2>
+        <span className="gacha-heading-mark" aria-hidden>✦</span>
+      </div>
+      <p className="gacha-points font-display text-4xl font-bold tabular-nums">
         {view.points}
         <span className="ml-1 text-base">pt</span>
       </p>
@@ -304,6 +303,9 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         {view.rank === "NORMAL" && "（ランクが上がると GOLD・BLACK も出ます）"}
       </p>
       <div className={`gacha-stage gacha-stage-${phase}`} aria-live="polite">
+        <img className="gacha-stage-scene" src={gachaStage} alt="" width={1536} height={1024} />
+        <span className="gacha-stage-grid" aria-hidden />
+        <span className="gacha-stage-sparkles" aria-hidden />
         <div
           className={`gacha-machine ${machineClass}`}
           style={phase === "eject" || phase === "opening" ? { opacity: 0.92 } : undefined}
@@ -335,14 +337,14 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
           {phase === "opening" && "オープン！"}
         </p>
       </div>
-      <button
+      <Button
         type="button"
         className={`gacha-btn ${phase === "press" ? "gacha-btn-pressed" : ""}`}
         disabled={busy || !view.gachaOn || view.points < view.cost}
         onClick={onDraw}
       >
         {busy ? "まわしています…" : `🎰 ガチャをひく（${view.cost}pt）`}
-      </button>
+      </Button>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
 
       {prize && phase === "result" && (
