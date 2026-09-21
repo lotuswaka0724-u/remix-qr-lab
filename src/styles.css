@@ -524,9 +524,70 @@
   overflow: hidden;
   border: 2px solid color-mix(in oklab, var(--primary) 18%, var(--border));
   border-radius: 1.75rem;
+  background: oklch(0.22 0.12 255);
+  box-shadow:
+    inset 0 0 0 1px oklch(0.82 0.14 85 / 0.48),
+    inset 0 -2rem 3rem oklch(0.12 0.08 255 / 0.72),
+    0 1rem 2.5rem oklch(0.16 0.08 255 / 0.28);
+}
+.gacha-stage-scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.82;
+}
+.gacha-stage-grid {
+  position: absolute;
+  inset: 0;
   background:
-    radial-gradient(circle at 50% 35%, color-mix(in oklab, var(--warning) 16%, transparent), transparent 62%),
-    color-mix(in oklab, var(--primary-soft) 55%, var(--card));
+    linear-gradient(oklch(0.8 0.16 220 / 0.09) 1px, transparent 1px),
+    linear-gradient(90deg, oklch(0.8 0.16 220 / 0.09) 1px, transparent 1px);
+  background-size: 2rem 2rem;
+  mask-image: linear-gradient(transparent, black 45%, transparent);
+}
+.gacha-stage-sparkles {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 16% 28%, oklch(0.93 0.14 90) 0 2px, transparent 3px),
+    radial-gradient(circle at 84% 22%, oklch(0.88 0.16 220) 0 2px, transparent 3px),
+    radial-gradient(circle at 74% 70%, oklch(0.94 0.12 88) 0 1px, transparent 2px),
+    radial-gradient(circle at 27% 76%, oklch(0.85 0.14 220) 0 1px, transparent 2px);
+  animation: collection-twinkle 3.2s ease-in-out infinite alternate;
+}
+.gacha-panel {
+  overflow: hidden;
+  border: 2px solid oklch(0.76 0.13 85 / 0.68);
+  border-radius: 1.5rem;
+  background:
+    linear-gradient(145deg, oklch(0.22 0.105 257 / 0.97), oklch(0.15 0.07 252 / 0.98)),
+    var(--card);
+  color: oklch(0.96 0.025 235);
+  box-shadow:
+    inset 0 1px oklch(0.95 0.08 85 / 0.24),
+    0 1rem 2.5rem oklch(0.13 0.08 255 / 0.3);
+}
+.gacha-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  color: oklch(0.91 0.13 88);
+  text-shadow: 0 2px 0 oklch(0.22 0.08 75), 0 0 1rem oklch(0.83 0.15 88 / 0.42);
+}
+.gacha-heading-mark { color: oklch(0.87 0.16 220); }
+.gacha-points { color: oklch(0.92 0.14 88); text-shadow: 0 0 1.2rem oklch(0.82 0.15 88 / 0.32); }
+.gacha-machine { z-index: 2; }
+.gacha-stage-label {
+  z-index: 5;
+  border: 1px solid oklch(0.82 0.14 85 / 0.45);
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  background: oklch(0.14 0.065 255 / 0.82);
+  color: oklch(0.96 0.03 230);
+  backdrop-filter: blur(8px);
 }
 .gacha-machine {
   position: relative;
@@ -631,8 +692,9 @@
   padding: 1.1rem 1.5rem;
   border: none;
   border-radius: 999px;
-  background: linear-gradient(180deg, color-mix(in oklab, var(--warning) 65%, var(--primary)), var(--primary));
-  color: var(--primary-foreground);
+  border: 2px solid oklch(0.93 0.13 88);
+  background: linear-gradient(180deg, oklch(0.78 0.18 85), oklch(0.58 0.16 65));
+  color: oklch(0.19 0.075 255);
   font-family: var(--font-display);
   font-size: 1.35rem;
   font-weight: 900;
@@ -777,6 +839,240 @@
   box-shadow: 0 0 3rem var(--warning);
 }
 
+/* ---------- コレクション：36フレーム ---------- */
+@keyframes collection-rotate { to { transform: rotate(360deg); } }
+@keyframes collection-counter-rotate { to { transform: rotate(-360deg); } }
+@keyframes collection-twinkle {
+  0%, 100% { opacity: 0.38; filter: brightness(0.9); }
+  50% { opacity: 0.92; filter: brightness(1.28); }
+}
+@keyframes collection-energy {
+  0% { transform: rotate(0deg) scale(0.94); opacity: 0.28; }
+  50% { transform: rotate(180deg) scale(1.08); opacity: 0.74; }
+  100% { transform: rotate(360deg) scale(0.94); opacity: 0.28; }
+}
+@keyframes collection-shine {
+  0%, 22% { transform: rotate(22deg) translateX(-180%); }
+  58%, 100% { transform: rotate(22deg) translateX(180%); }
+}
+
+.collection-frame {
+  position: relative;
+  isolation: isolate;
+  filter: drop-shadow(0 0.18rem 0.22rem oklch(0.15 0.04 255 / 0.25));
+}
+.collection-frame-ring,
+.collection-frame-ornaments,
+.collection-frame-energy,
+.collection-frame-image {
+  position: absolute;
+  pointer-events: none;
+}
+.collection-frame-ring {
+  inset: 4%;
+  z-index: 1;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 max(2px, 0.045em) oklch(0.98 0.02 90 / 0.65),
+    inset 0 0.12em 0.22em oklch(1 0 0 / 0.52),
+    0 0.1em 0.2em oklch(0.18 0.06 255 / 0.35);
+}
+.collection-frame-image {
+  inset: -5%;
+  z-index: 3;
+  width: 110%;
+  height: 110%;
+  object-fit: contain;
+}
+.collection-frame-core { position: relative; z-index: 2; overflow: hidden; box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.55); }
+.collection-frame-ornaments { inset: -2%; z-index: 4; border-radius: 50%; }
+.collection-frame-ornaments::before,
+.collection-frame-ornaments::after {
+  content: "";
+  position: absolute;
+  z-index: 4;
+}
+.collection-frame-ornaments::before {
+  inset: 2%;
+  border: max(2px, 0.05em) solid oklch(0.92 0.1 88 / 0.72);
+  border-radius: 50%;
+  clip-path: polygon(0 0, 42% 0, 46% 14%, 54% 14%, 58% 0, 100% 0, 100% 42%, 86% 46%, 86% 54%, 100% 58%, 100% 100%, 58% 100%, 54% 86%, 46% 86%, 42% 100%, 0 100%, 0 58%, 14% 54%, 14% 46%, 0 42%);
+}
+.collection-frame-ornaments::after {
+  left: 50%;
+  top: -3%;
+  width: 21%;
+  aspect-ratio: 1;
+  transform: translateX(-50%) rotate(45deg);
+  border: max(1px, 0.035em) solid oklch(0.98 0.03 90 / 0.8);
+  border-radius: 25%;
+  background: oklch(0.78 0.14 220);
+  box-shadow: 0 0 0.3em currentColor;
+}
+.collection-frame-energy {
+  inset: -12%;
+  z-index: 0;
+  border-radius: 50%;
+  background: conic-gradient(from 30deg, transparent, oklch(0.76 0.19 225 / 0.68), transparent 22%, oklch(0.75 0.2 305 / 0.58), transparent 48%);
+  filter: blur(0.1em);
+  animation: collection-energy 4.8s linear infinite;
+}
+.collection-frame-preview .collection-frame-energy { display: none; }
+.collection-frame-preview .collection-frame-image { inset: -2%; width: 104%; height: 104%; }
+
+/* N: 小さな立体装飾 */
+.collection-frame-cloud .collection-frame-ornaments::after { border-radius: 50%; background: oklch(0.9 0.08 225); box-shadow: -0.16em 0.08em 0 -0.02em oklch(0.96 0.025 230), 0.16em 0.08em 0 -0.02em oklch(0.96 0.025 230); }
+.collection-frame-leaf .collection-frame-ornaments::after { border-radius: 90% 10% 90% 10%; background: oklch(0.68 0.17 145); }
+.collection-frame-flower .collection-frame-ornaments::after { border-radius: 50% 0 50% 0; background: oklch(0.74 0.18 350); box-shadow: 0.13em 0.13em oklch(0.84 0.14 15), -0.13em -0.13em oklch(0.78 0.15 325); }
+.collection-frame-ribbon .collection-frame-ornaments::after { border-radius: 70% 20% 70% 20%; background: oklch(0.66 0.2 20); }
+.collection-frame-wood .collection-frame-ring { background-image: repeating-radial-gradient(ellipse at 20% 20%, oklch(0.67 0.12 65) 0 5%, oklch(0.48 0.1 55) 6% 9%); }
+.collection-frame-sun .collection-frame-ornaments::after { background: oklch(0.86 0.17 90); box-shadow: 0 0 0.35em oklch(0.86 0.17 90); }
+.collection-frame-stone .collection-frame-ring { filter: saturate(0.4); }
+
+/* R: テーマ装飾＋光沢 */
+.collection-frame-star .collection-frame-ornaments::after { clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 94%,50% 72%,21% 94%,32% 57%,2% 35%,39% 35%); transform: translateX(-50%); background: oklch(0.9 0.17 92); }
+.collection-frame-heart .collection-frame-ornaments::after { border-radius: 50% 50% 0; background: oklch(0.72 0.2 10); }
+.collection-frame-water .collection-frame-ornaments::after,
+.collection-frame-bubble .collection-frame-ornaments::after { border-radius: 50% 50% 50% 10%; background: oklch(0.78 0.14 220 / 0.8); }
+.collection-frame-gem .collection-frame-ornaments::after,
+.collection-frame-crystal .collection-frame-ornaments::after { clip-path: polygon(50% 0,100% 36%,76% 100%,24% 100%,0 36%); background: oklch(0.76 0.17 285); }
+.collection-frame-candy .collection-frame-ring { background-size: 0.5em 0.5em !important; }
+.collection-frame-candy .collection-frame-ornaments::after { border-radius: 50%; background: oklch(0.8 0.16 350); box-shadow: -0.2em 0 oklch(0.86 0.13 210), 0.2em 0 oklch(0.88 0.15 90); }
+
+/* SR以上: 実際に動く多層光 */
+.collection-frame-thunder .collection-frame-energy { background: conic-gradient(transparent, oklch(0.9 0.2 100), transparent 12%, oklch(0.7 0.2 285), transparent 34%); }
+.collection-frame-fire .collection-frame-energy,
+.collection-frame-dragon .collection-frame-energy { background: conic-gradient(transparent, oklch(0.75 0.2 45 / 0.8), oklch(0.62 0.22 25 / 0.72), transparent 28%); }
+.collection-frame-galaxy .collection-frame-energy,
+.collection-frame-black .collection-frame-energy { background: conic-gradient(transparent, oklch(0.62 0.25 300 / 0.7), transparent 28%, oklch(0.7 0.21 230 / 0.7), transparent 55%); }
+.collection-frame-aurora .collection-frame-energy,
+.collection-frame-prism .collection-frame-energy { background: conic-gradient(oklch(0.76 0.16 160 / 0.6), oklch(0.76 0.18 225 / 0.65), oklch(0.72 0.2 315 / 0.62), oklch(0.83 0.16 95 / 0.62), oklch(0.76 0.16 160 / 0.6)); }
+.collection-frame-storm .collection-frame-energy { background: conic-gradient(transparent, oklch(0.83 0.13 220 / 0.8), transparent 16%, oklch(0.52 0.08 255 / 0.75), transparent 42%); }
+.collection-frame-neon .collection-frame-energy { filter: blur(0.14em); background: conic-gradient(oklch(0.76 0.19 205 / 0.8), transparent 20%, oklch(0.76 0.2 330 / 0.82), transparent 52%, oklch(0.76 0.19 205 / 0.8)); }
+.collection-frame-gold .collection-frame-energy { background: conic-gradient(transparent, oklch(0.91 0.16 90 / 0.9), transparent 20%, oklch(0.74 0.15 65 / 0.76), transparent 45%); }
+.collection-frame.rarity-ssr,
+.collection-frame.rarity-gold,
+.collection-frame.rarity-black { filter: drop-shadow(0 0 0.35em oklch(0.78 0.18 230 / 0.65)); }
+.collection-frame.rarity-gold { filter: drop-shadow(0 0 0.38em oklch(0.86 0.17 90 / 0.72)); }
+.collection-frame.rarity-black { filter: drop-shadow(0 0 0.4em oklch(0.68 0.22 300 / 0.75)); }
+.collection-frame.rarity-gold .collection-frame-ornaments,
+.collection-frame.rarity-black .collection-frame-ornaments { overflow: hidden; }
+.collection-frame.rarity-gold .collection-frame-ornaments::before,
+.collection-frame.rarity-black .collection-frame-ornaments::before { animation: collection-rotate 7s linear infinite; }
+
+/* ---------- コレクション：37マイページ背景 ---------- */
+@keyframes collection-drift {
+  0% { transform: translate3d(-2%, 1%, 0) rotate(-2deg); }
+  100% { transform: translate3d(3%, -3%, 0) rotate(3deg); }
+}
+@keyframes collection-fall {
+  0% { background-position: 0 -4rem, 3rem -8rem; }
+  100% { background-position: 2rem 24rem, 5rem 18rem; }
+}
+@keyframes collection-bubbles {
+  0% { background-position: 0 12rem, 5rem 20rem; }
+  100% { background-position: 1rem -8rem, 7rem -14rem; }
+}
+
+.collection-page { position: relative; isolation: isolate; overflow-x: clip; background: oklch(0.21 0.08 255); }
+.collection-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  overflow: hidden;
+  background-color: oklch(0.28 0.09 250);
+  background-size: cover !important;
+  background-position: center !important;
+}
+.collection-backdrop > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.collection-backdrop-depth,
+.collection-backdrop-particles,
+.collection-backdrop-light,
+.collection-backdrop-protect { position: absolute; inset: 0; pointer-events: none; }
+.collection-backdrop-depth {
+  background:
+    radial-gradient(circle at 12% 22%, oklch(0.9 0.12 225 / 0.24) 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 18%, oklch(0.94 0.13 88 / 0.25) 0 1.5px, transparent 2.5px),
+    linear-gradient(115deg, transparent 18%, oklch(0.82 0.11 225 / 0.1) 48%, transparent 68%);
+  background-size: 5rem 5rem, 7rem 7rem, 100% 100%;
+}
+.collection-backdrop-protect {
+  z-index: 4;
+  background: linear-gradient(180deg, oklch(0.12 0.045 255 / 0.12), oklch(0.97 0.015 240 / 0.34) 35%, oklch(0.97 0.015 240 / 0.56));
+}
+.collection-backdrop-particles {
+  z-index: 2;
+  background-image:
+    radial-gradient(circle, oklch(0.94 0.12 90 / 0.75) 0 1px, transparent 2px),
+    radial-gradient(circle, oklch(0.82 0.14 220 / 0.65) 0 1.5px, transparent 2.5px);
+  background-size: 5rem 5rem, 8rem 8rem;
+  animation: collection-drift 8s ease-in-out infinite alternate;
+}
+.collection-backdrop-light {
+  z-index: 3;
+  background: conic-gradient(from 190deg at 50% 35%, transparent, oklch(0.75 0.18 225 / 0.18), transparent 24%, oklch(0.75 0.2 305 / 0.12), transparent 48%);
+  filter: blur(1rem);
+  animation: collection-energy 13s linear infinite;
+}
+.collection-backdrop-preview {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.collection-backdrop-preview .collection-backdrop-particles,
+.collection-backdrop-preview .collection-backdrop-light { display: none; }
+.collection-backdrop-preview .collection-backdrop-protect { background: linear-gradient(180deg, transparent, oklch(0.1 0.04 255 / 0.16)); }
+
+/* N/R 背景にも各テーマの立体的な装飾パターンを付ける */
+.collection-backdrop-paper .collection-backdrop-depth { background-image: linear-gradient(90deg, oklch(0.62 0.04 245 / 0.12) 1px, transparent 1px), linear-gradient(oklch(0.62 0.04 245 / 0.12) 1px, transparent 1px); background-size: 1.5rem 1.5rem; }
+.collection-backdrop-sky .collection-backdrop-depth,
+.collection-backdrop-cloud .collection-backdrop-depth { background: radial-gradient(ellipse at 15% 25%, oklch(1 0 0 / 0.65) 0 7%, transparent 8%), radial-gradient(ellipse at 82% 18%, oklch(1 0 0 / 0.5) 0 9%, transparent 10%); }
+.collection-backdrop-water .collection-backdrop-depth,
+.collection-backdrop-deepsea .collection-backdrop-depth { background: repeating-radial-gradient(ellipse at 50% -20%, transparent 0 2rem, oklch(0.85 0.13 220 / 0.2) 2.1rem 2.2rem); }
+.collection-backdrop-forest .collection-backdrop-depth,
+.collection-backdrop-meadow .collection-backdrop-depth,
+.collection-backdrop-lightforest .collection-backdrop-depth { background: radial-gradient(ellipse at 12% 100%, oklch(0.34 0.12 145 / 0.42) 0 18%, transparent 19%), radial-gradient(ellipse at 84% 104%, oklch(0.43 0.14 150 / 0.38) 0 22%, transparent 23%); }
+.collection-backdrop-pop .collection-backdrop-depth { background-image: radial-gradient(circle, oklch(0.93 0.17 90 / 0.45) 0 0.25rem, transparent 0.3rem), radial-gradient(circle, oklch(0.75 0.18 330 / 0.38) 0 0.2rem, transparent 0.25rem); background-size: 3rem 3rem, 4rem 4rem; }
+.collection-backdrop-sports .collection-backdrop-depth { background-image: linear-gradient(90deg, oklch(1 0 0 / 0.18) 2px, transparent 2px), radial-gradient(circle at center, transparent 0 18%, oklch(1 0 0 / 0.16) 19% 20%, transparent 21%); background-size: 5rem 5rem; }
+.collection-backdrop-sweets .collection-backdrop-depth { background-image: radial-gradient(circle, oklch(0.92 0.14 10 / 0.45) 0 0.35rem, transparent 0.4rem), radial-gradient(circle, oklch(0.9 0.13 90 / 0.4) 0 0.3rem, transparent 0.35rem); background-size: 4rem 4rem, 5rem 5rem; }
+.collection-backdrop-flower .collection-backdrop-depth { background-image: radial-gradient(circle, oklch(0.96 0.06 350 / 0.75) 0 0.22rem, oklch(0.78 0.14 350 / 0.45) 0.24rem 0.5rem, transparent 0.54rem); background-size: 4rem 4rem; }
+.collection-backdrop-sunset .collection-backdrop-depth { background: radial-gradient(circle at 78% 24%, oklch(0.93 0.17 85 / 0.72) 0 7%, transparent 15%), linear-gradient(115deg, transparent, oklch(0.78 0.13 30 / 0.24)); }
+.collection-backdrop-snow .collection-backdrop-depth { background-image: radial-gradient(circle, oklch(1 0 0 / 0.85) 0 2px, transparent 3px), radial-gradient(circle, oklch(1 0 0 / 0.62) 0 1px, transparent 2px); background-size: 4rem 4rem, 6rem 6rem; }
+.collection-backdrop-desert .collection-backdrop-depth { background: radial-gradient(ellipse at 20% 110%, oklch(0.74 0.12 75 / 0.55) 0 28%, transparent 29%), radial-gradient(ellipse at 80% 115%, oklch(0.83 0.13 82 / 0.45) 0 34%, transparent 35%); }
+.collection-backdrop-mint .collection-backdrop-depth,
+.collection-backdrop-lemon .collection-backdrop-depth { background-image: radial-gradient(circle, oklch(1 0 0 / 0.42) 0 0.2rem, transparent 0.25rem); background-size: 3rem 3rem; }
+.collection-backdrop-neon .collection-backdrop-depth { background-image: linear-gradient(oklch(0.75 0.2 220 / 0.22) 1px, transparent 1px), linear-gradient(90deg, oklch(0.76 0.2 330 / 0.18) 1px, transparent 1px); background-size: 2.5rem 2.5rem; transform: perspective(20rem) rotateX(52deg) scale(1.5); transform-origin: bottom; }
+
+/* SR以上のテーマ別軽量モーション */
+.collection-backdrop-stars .collection-backdrop-particles,
+.collection-backdrop-space .collection-backdrop-particles,
+.collection-backdrop-galaxy .collection-backdrop-particles { animation: collection-twinkle 2.6s ease-in-out infinite alternate; }
+.collection-backdrop-aurora .collection-backdrop-light,
+.collection-backdrop-magic .collection-backdrop-light { animation: collection-drift 6s ease-in-out infinite alternate; }
+.collection-backdrop-meteor .collection-backdrop-particles { background-image: linear-gradient(125deg, transparent 45%, oklch(0.92 0.14 90 / 0.8) 49%, transparent 52%); background-size: 9rem 9rem; animation: collection-fall 5s linear infinite; }
+.collection-backdrop-deepsea .collection-backdrop-particles { background-image: radial-gradient(circle, transparent 0 0.25rem, oklch(0.86 0.11 220 / 0.58) 0.28rem 0.34rem, transparent 0.38rem); background-size: 4rem 4rem; animation: collection-bubbles 8s linear infinite; }
+.collection-backdrop-crystal .collection-backdrop-light { background: conic-gradient(from 180deg at 50% 50%, transparent, oklch(0.83 0.16 220 / 0.3), transparent 20%, oklch(0.72 0.18 290 / 0.24), transparent 42%); }
+.collection-backdrop-dragon .collection-backdrop-light { background: conic-gradient(from 180deg at 50% 50%, transparent, oklch(0.72 0.21 35 / 0.3), transparent 24%, oklch(0.55 0.17 300 / 0.22), transparent 48%); }
+.collection-backdrop-gold .collection-backdrop-particles { filter: drop-shadow(0 0 0.25rem oklch(0.9 0.16 90)); animation: collection-fall 9s linear infinite; }
+.collection-backdrop-black .collection-backdrop-light { background: conic-gradient(from 180deg, transparent, oklch(0.6 0.25 300 / 0.32), transparent 25%, oklch(0.68 0.18 225 / 0.28), transparent 50%); }
+.collection-backdrop.rarity-gold .collection-backdrop-protect,
+.collection-backdrop.rarity-black .collection-backdrop-protect { background: linear-gradient(180deg, oklch(0.1 0.05 255 / 0.12), oklch(0.13 0.055 255 / 0.3) 45%, oklch(0.1 0.04 255 / 0.42)); }
+
+@media (max-width: 640px) {
+  .gacha-stage { min-height: 15rem; border-radius: 1.25rem; }
+  .gacha-machine { width: 9.5rem; height: 9.5rem; }
+  .gacha-stage-scene { object-position: center; }
+  .collection-backdrop > img { object-position: center; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gacha-machine-spin,
   .gacha-machine-suspense,
@@ -788,7 +1084,12 @@
   .gacha-result-art,
   .gacha-result-copy,
   .gacha-result-particles span,
-  .fx-special-ring {
+  .fx-special-ring,
+  .collection-frame-energy,
+  .collection-frame-ornaments::before,
+  .collection-backdrop-particles,
+  .collection-backdrop-light,
+  .gacha-stage-sparkles {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }

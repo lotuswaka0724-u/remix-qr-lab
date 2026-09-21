@@ -1,5 +1,7 @@
 import backgroundLegend from "@/assets/collection/background-legend.jpg";
+import backgroundAstral from "@/assets/collection/background-astral.jpg";
 import frameLegend from "@/assets/collection/frame-legend.png";
+import frameAstral from "@/assets/collection/frame-astral.png";
 
 /**
  * ガチャで集めるコレクションアイテムのマスター。
@@ -675,11 +677,13 @@ const REAL_ASSETS: RealAsset[] = [
   // フレーム（AI画像生成 / PNG透過）
   { id: "fr_gold", url: "/prizes/frames/gold.png", provider: "lovable-ai" },
   { id: "fr_black", url: frameLegend, provider: "lovable-ai" },
+  { id: "fr_crystalfr", url: frameAstral, provider: "lovable-ai" },
   { id: "fr_prism", url: "/prizes/frames/prism.png", provider: "lovable-ai" },
   { id: "fr_neon", url: "/prizes/frames/neon.png", provider: "lovable-ai" },
   // 背景（AI画像生成 / JPG）
   { id: "bg_gold", url: "/prizes/bg/gold.jpg", provider: "lovable-ai" },
   { id: "bg_black", url: backgroundLegend, provider: "lovable-ai" },
+  { id: "bg_galaxy", url: backgroundAstral, provider: "lovable-ai" },
   { id: "bg_crystal", url: "/prizes/bg/crystal.jpg", provider: "lovable-ai" },
   { id: "bg_dragonlair", url: "/prizes/bg/dragonlair.jpg", provider: "lovable-ai" },
   // 効果音（ElevenLabs 効果音生成 / MP3）
