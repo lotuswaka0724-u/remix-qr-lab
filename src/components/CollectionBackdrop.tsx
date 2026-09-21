@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { backgroundCss, backgroundVisual } from "@/lib/collection-catalog";
 
 type Props = {
-  backgroundId?: string;
+  backgroundId?: string | undefined;
   preview?: boolean;
   className?: string;
 };
