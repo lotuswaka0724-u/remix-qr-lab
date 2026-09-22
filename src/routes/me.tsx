@@ -233,11 +233,13 @@ function MyPage() {
           <span className="inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--primary),var(--accent))] px-4 py-2 font-display text-sm font-bold text-primary-foreground tabular-nums">
             🪙 ポイント {view.available.toLocaleString()} pt
           </span>
-          {coll.view && (
+          {/* ガチャ画面では児童自身のランクは表示しない（景品に集中させるため） */}
+          {coll.view && screen !== "gacha" && (
             <span className="rounded-full bg-warning-soft px-4 py-2 font-display text-sm font-bold text-warning-foreground">
               👑 ランク {coll.view.rank}
             </span>
           )}
+
           <Button
             variant="ghost"
             size="sm"

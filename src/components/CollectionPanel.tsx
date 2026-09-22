@@ -298,10 +298,6 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       <p className="text-xs text-muted-foreground">
         1かい {view.cost}pt ／ あつめた {progress.have} / {progress.all} こ
       </p>
-      <p className="text-xs font-bold text-primary">
-        いまのカードランク：{view.rank}
-        {view.rank === "NORMAL" && "（ランクが上がると GOLD・BLACK も出ます）"}
-      </p>
       <div className={`gacha-stage gacha-stage-${phase}`} aria-live="polite">
         <img className="gacha-stage-scene" src={gachaStage} alt="" width={1536} height={1024} />
         <span className="gacha-stage-grid" aria-hidden />
