@@ -156,9 +156,13 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
   const [msg, setMsg] = useState("");
   const [cat, setCat] = useState<CollCategory>("icon");
   const [sortBy, setSortBy] = useState<"rarity" | "owned">("rarity");
-  const [fxPlay, setFxPlay] = useState<{ fx: string; id: number; image?: string | null } | null>(
-    null,
-  );
+  const [fxPlay, setFxPlay] = useState<{
+    fx: string;
+    id: number;
+    image?: string | null;
+    /** 演出の豪華さ。ガチャ結果では「景品のレアリティ」だけを使う（児童ランクは使わない） */
+    rank?: "NORMAL" | "GOLD" | "BLACK";
+  } | null>(null);
   const [phase, setPhase] = useState<GachaPhase>("idle");
   const [spinHard, setSpinHard] = useState(false);
 
