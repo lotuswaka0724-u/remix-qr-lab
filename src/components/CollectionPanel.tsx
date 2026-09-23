@@ -248,7 +248,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       const fx = prizeFx(p.rarity);
       setPrize(p);
       setPhase("result");
-      setFxPlay({ fx, id: Date.now(), image: fxImage(fx) });
+      setFxPlay({ fx, id: Date.now(), image: fxImage(fx), rank });
       playCollectionSound(tune, rank, tuneAsset(tune));
     }
   };
@@ -273,6 +273,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
         fx: effectFx(item.id) ?? "spark",
         id: Date.now(),
         image: item.image ?? null,
+        rank: "NORMAL",
       });
   };
 
@@ -537,7 +538,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     <>
       <CollectionFx
         fx={fxPlay?.fx ?? null}
-        rank={view.rank === "GOLD" || view.rank === "BLACK" ? view.rank : "NORMAL"}
+        rank={fxPlay?.rank ?? "NORMAL"}
         playId={fxPlay?.id ?? null}
         image={fxPlay?.image ?? null}
       />
