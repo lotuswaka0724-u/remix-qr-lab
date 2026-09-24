@@ -103,21 +103,31 @@ export const reachedMilestones = (total: number) =>
 
 /* ---------- セットコレクション（既存景品の名前からテーマでまとめる） ---------- */
 
-export type CollSet = { id: string; label: string; icon: string; keywords: string[] };
+export type CollSet = {
+  id: string;
+  label: string;
+  icon: string;
+  keywords: string[];
+  exclude?: string[];
+};
 
 export const COLL_SETS: CollSet[] = [
-  { id: "star", label: "星空", icon: "⭐", keywords: ["星", "スター", "流れ星"] },
-  { id: "space", label: "宇宙", icon: "🪐", keywords: ["宇宙", "ギャラクシー", "銀河", "ロケット", "惑星", "月"] },
-  { id: "sea", label: "海", icon: "🌊", keywords: ["海", "マリン", "波", "くじら", "イルカ", "さかな", "水"] },
-  { id: "flower", label: "花", icon: "🌸", keywords: ["花", "さくら", "桜", "フラワー"] },
-  { id: "snow", label: "雪と氷", icon: "❄️", keywords: ["雪", "氷", "スノー", "アイス", "ペンギン"] },
-  { id: "fire", label: "ほのお", icon: "🔥", keywords: ["炎", "ほのお", "火", "ファイア"] },
-  { id: "forest", label: "森", icon: "🌳", keywords: ["森", "木", "葉", "リーフ"] },
-  { id: "dragon", label: "ドラゴン", icon: "🐉", keywords: ["ドラゴン", "竜", "龍"] },
-  { id: "gold", label: "ゴールド", icon: "👑", keywords: ["ゴールド", "金", "王冠", "黄金"] },
-  { id: "sweets", label: "おかし", icon: "🍰", keywords: ["ケーキ", "おかし", "キャンディ", "スイーツ", "ドーナツ"] },
+  { id: "star", label: "星空", icon: "⭐", keywords: ["星", "スター", "すいせい", "りゅうせい", "ほしがでる"], exclude: ["ハムスター"] },
+  { id: "space", label: "宇宙", icon: "🪐", keywords: ["宇宙", "ギャラクシー", "ぎんが", "ロケット", "うちゅう", "ユーフォー"] },
+  { id: "sea", label: "海と水", icon: "🌊", keywords: ["海", "さかな", "クジラ", "サメ", "タコ", "カニ", "ウォーター", "オーシャン", "かいてい", "しんかい", "みずべ", "しゃぼん"] },
+  { id: "nature", label: "しぜん", icon: "🌳", keywords: ["森", "もり", "そうげん", "たけばやし", "はたけ", "フォレスト", "さくら", "青空", "くもぞら"] },
+  { id: "sports", label: "スポーツ", icon: "⚽", keywords: ["スポーツ", "サッカー", "やきゅう", "バスケ", "スタジアム", "サーキット", "レーシングカー", "トロフィー"] },
+  { id: "sweets", label: "おやつ", icon: "🍰", keywords: ["お菓子", "ケーキ", "キャンディ", "いちご", "ミント", "レモン", "ソーダ", "ピーチ", "グレープ", "ライム", "おすし", "ラーメン"] },
+  { id: "magic", label: "まほう", icon: "🔮", keywords: ["まほう", "ユニコーン", "クリスタル", "プリズム", "オーロラ", "にじ", "レインボー"] },
+  { id: "dragon", label: "ドラゴン", icon: "🐉", keywords: ["ドラゴン", "きょうりゅう"] },
+  { id: "gold", label: "ゴールド", icon: "👑", keywords: ["ゴールド", "おうかん"] },
+  { id: "black", label: "ブラック", icon: "🖤", keywords: ["ブラック"] },
 ];
 
 export function setMembers<T extends { id: string; name: string }>(set: CollSet, items: T[]) {
-  return items.filter((i) => set.keywords.some((k) => i.name.includes(k)));
+  return items.filter(
+    (i) =>
+      set.keywords.some((k) => i.name.includes(k)) &&
+      !(set.exclude ?? []).some((k) => i.name.includes(k)),
+  );
 }
