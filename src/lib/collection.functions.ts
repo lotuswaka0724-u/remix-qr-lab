@@ -11,6 +11,12 @@ import {
   type CollRarity,
 } from "@/lib/collection-catalog";
 import {
+  completeStats,
+  jstDay,
+  normalizeUsageRules,
+  type UsageRules,
+} from "@/lib/daily-play";
+import {
   availablePoints,
   earnedPoints,
   mergeState,
@@ -37,7 +43,34 @@ export type CollPrize = {
   dupeCount: number;
 };
 
+/** 1日の利用回数・NEW・最近GET（児童ごと。日本時間の日付で回数が切りかわる） */
+export type PlayData = {
+  day: string;
+  gacha: number;
+  custom: Partial<Record<CollCategory, number>>;
+  newIds: string[];
+  recent: { id: string; at: number }[];
+};
+
+export type PlayView = {
+  gachaLimit: number;
+  gachaLeft: number;
+  customLimit: Record<CollCategory, number>;
+  customLeft: Record<CollCategory, number>;
+  newIds: string[];
+  recent: { id: string; at: number }[];
+};
+
+export type MyStats = {
+  completeTotal: number;
+  streak: number;
+  completeToday: boolean;
+  draws: number;
+};
+
 export type CollView = {
+  play: PlayView;
+  stats: MyStats;
   coll: CollData;
   points: number;
   rank: Rank;
@@ -107,14 +140,44 @@ async function readRaw(studentId: string): Promise<Record<string, unknown>> {
   return (data?.data ?? {}) as Record<string, unknown>;
 }
 
-async function writeColl(studentId: string, coll: CollData) {
+async function writeColl(studentId: string, coll: CollData, play?: PlayData) {
   const db = await admin();
   const raw = await readRaw(studentId);
   await db.from("student_game").upsert({
     student_id: studentId,
-    data: { ...raw, coll } as never,
+    data: { ...raw, coll, ...(play ? { play } : {}) } as never,
     updated_at: new Date().toISOString(),
   });
+}
+
+function normalizePlay(raw: Partial<PlayData> | null | undefined): PlayData {
+  const day = jstDay();
+  const sameDay = raw?.day === day;
+  return {
+    day,
+    gacha: sameDay ? Math.max(0, Number(raw?.gacha) || 0) : 0,
+    custom: sameDay ? { ...(raw?.custom ?? {}) } : {},
+    newIds: (raw?.newIds ?? []).filter((id) => COLL_ITEM_BY_ID[id]),
+    recent: (raw?.recent ?? []).filter((r) => COLL_ITEM_BY_ID[r.id]).slice(0, 12),
+  };
+}
+
+async function readPlay(studentId: string) {
+  return normalizePlay((await readRaw(studentId))["play"] as Partial<PlayData>);
+}
+
+function playView(play: PlayData, rules: UsageRules): PlayView {
+  const customLeft = {} as Record<CollCategory, number>;
+  for (const c of COLL_CATEGORIES)
+    customLeft[c] = Math.max(0, rules.customPerDay[c] - (play.custom[c] ?? 0));
+  return {
+    gachaLimit: rules.gachaPerDay,
+    gachaLeft: Math.max(0, rules.gachaPerDay - play.gacha),
+    customLimit: rules.customPerDay,
+    customLeft,
+    newIds: play.newIds,
+    recent: play.recent,
+  };
 }
 
 async function session() {
@@ -134,12 +197,27 @@ function pointsOf(state: Partial<AppState>, studentId: string) {
   };
 }
 
-async function buildView(studentId: string, coll?: CollData): Promise<CollView> {
+async function buildView(
+  studentId: string,
+  coll?: CollData,
+  play?: PlayData,
+): Promise<CollView> {
   const { readClassState } = await import("@/lib/gate.server");
   const state = await readClassState();
   const p = pointsOf(state, studentId);
-  const data = coll ?? normalizeColl((await readRaw(studentId))["coll"] as Partial<CollData>);
+  const raw = coll && play ? {} : await readRaw(studentId);
+  const data = coll ?? normalizeColl(raw["coll"] as Partial<CollData>);
+  const pl = play ?? normalizePlay(raw["play"] as Partial<PlayData>);
+  const rules = normalizeUsageRules(state.usageRules);
+  const cs = completeStats(state, studentId, jstDay());
   return {
+    play: playView(pl, rules),
+    stats: {
+      completeTotal: cs.total,
+      streak: cs.streak,
+      completeToday: cs.today,
+      draws: (state.gachaLog ?? []).filter((g) => g.studentId === studentId).length,
+    },
     coll: data,
     points: p.available,
     rank: p.rank,
@@ -165,12 +243,25 @@ export const equipCollItem = createServerFn({ method: "POST" })
     if (!studentId) return null;
     const item = COLL_ITEM_BY_ID[data.itemId];
     if (!item) return buildView(studentId);
-    const coll = normalizeColl((await readRaw(studentId))["coll"] as Partial<CollData>);
+    const raw = await readRaw(studentId);
+    const coll = normalizeColl(raw["coll"] as Partial<CollData>);
+    const play = normalizePlay(raw["play"] as Partial<PlayData>);
     if (!coll.owned.includes(item.id))
-      return { ...(await buildView(studentId, coll)), error: "notowned" as const };
+      return { ...(await buildView(studentId, coll, play)), error: "notowned" as const };
+    // すでに使っているものをえらんでも回数は減らさない
+    if (coll.equipped[item.category] === item.id) return buildView(studentId, coll, play);
+    const { readClassState } = await import("@/lib/gate.server");
+    const rules = normalizeUsageRules((await readClassState()).usageRules);
+    const used = play.custom[item.category] ?? 0;
+    if (used >= rules.customPerDay[item.category])
+      return { ...(await buildView(studentId, coll, play)), error: "daily" as const };
     const next: CollData = { ...coll, equipped: { ...coll.equipped, [item.category]: item.id } };
-    await writeColl(studentId, next);
-    return buildView(studentId, next);
+    const nextPlay: PlayData = {
+      ...play,
+      custom: { ...play.custom, [item.category]: used + 1 },
+    };
+    await writeColl(studentId, next, nextPlay);
+    return buildView(studentId, next, nextPlay);
   });
 
 /** コレクションガチャ。ポイントは「ガチャ履歴」に記録して消費する（既存の計算方法のまま） */
@@ -182,10 +273,16 @@ export const drawCollGacha = createServerFn({ method: "POST" }).handler(async ()
   const state = await readClassState();
   const p = pointsOf(state, studentId);
   const cost = state.gachaCost ?? 10;
-  const coll = normalizeColl((await readRaw(studentId))["coll"] as Partial<CollData>);
+  const raw = await readRaw(studentId);
+  const coll = normalizeColl(raw["coll"] as Partial<CollData>);
+  const play = normalizePlay(raw["play"] as Partial<PlayData>);
+  const rules = normalizeUsageRules(state.usageRules);
 
+  // 1日の回数をこえていたら、抽選もポイント消費もしない
+  if (play.gacha >= rules.gachaPerDay)
+    return { ...(await buildView(studentId, coll, play)), error: "daily" as const };
   if (p.available < cost)
-    return { ...(await buildView(studentId, coll)), error: "points" as const };
+    return { ...(await buildView(studentId, coll, play)), error: "points" as const };
 
   const rankOrder = { NORMAL: 0, GOLD: 1, BLACK: 2 } as const;
   const pool = COLL_ITEMS.filter(
@@ -194,7 +291,8 @@ export const drawCollGacha = createServerFn({ method: "POST" }).handler(async ()
       i.obtainable !== false &&
       rankOrder[COLL_RARITY_META[i.rarity].minRank] <= rankOrder[p.rank],
   );
-  if (!pool.length) return { ...(await buildView(studentId, coll)), error: "off" as const };
+  if (!pool.length)
+    return { ...(await buildView(studentId, coll, play)), error: "off" as const };
 
   const total = pool.reduce((a, i) => a + COLL_RARITY_META[i.rarity].weight, 0);
   let r = Math.random() * total;
@@ -214,7 +312,13 @@ export const drawCollGacha = createServerFn({ method: "POST" }).handler(async ()
     owned: duplicate ? coll.owned : [...coll.owned, picked.id],
     dupes: duplicate ? { ...coll.dupes, [picked.id]: dupeCount } : coll.dupes,
   };
-  await writeColl(studentId, next);
+  const nextPlay: PlayData = {
+    ...play,
+    gacha: play.gacha + 1,
+    newIds: duplicate ? play.newIds : [...play.newIds.filter((id) => id !== picked.id), picked.id],
+    recent: [{ id: picked.id, at: Date.now() }, ...play.recent].slice(0, 12),
+  };
+  await writeColl(studentId, next, nextPlay);
 
   await writeClassState({
     ...state,
@@ -239,8 +343,26 @@ export const drawCollGacha = createServerFn({ method: "POST" }).handler(async ()
     duplicate,
     dupeCount,
   };
-  return { ...(await buildView(studentId, next)), prize };
+  return { ...(await buildView(studentId, next, nextPlay)), prize };
 });
+
+/** NEW表示を「見た」にする（自分のぶんだけ） */
+export const markCollSeen = createServerFn({ method: "POST" })
+  .inputValidator((data: { ids: string[] }) => ({
+    ids: Array.isArray(data.ids) ? data.ids.map(String).slice(0, 200) : [],
+  }))
+  .handler(async ({ data }) => {
+    await syncCustom();
+    const studentId = await session();
+    if (!studentId) return null;
+    const raw = await readRaw(studentId);
+    const coll = normalizeColl(raw["coll"] as Partial<CollData>);
+    const play = normalizePlay(raw["play"] as Partial<PlayData>);
+    const seen = new Set(data.ids);
+    const nextPlay = { ...play, newIds: play.newIds.filter((id) => !seen.has(id)) };
+    await writeColl(studentId, coll, nextPlay);
+    return buildView(studentId, coll, nextPlay);
+  });
 
 export type ClassBadge = {
   studentId: string;

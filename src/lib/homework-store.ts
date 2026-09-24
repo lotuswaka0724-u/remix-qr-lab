@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { getClassState, saveClassState } from "@/lib/class-sync.functions";
 import { DEFAULT_GAME_SETTINGS, type GameSettings } from "@/lib/game-settings";
+import { normalizeUsageRules, type UsageRules } from "@/lib/daily-play";
 
 export type Assignment = { id: string; name: string; inToday: boolean };
 export type Student = {
@@ -280,6 +281,8 @@ export type AppState = {
   gameSettings: GameSettings;
   /** 児童ごとの合言葉（先生だけが見られる） */
   codes?: Record<string, string>;
+  /** 児童の1日の利用ルール（先生だけが変更できる） */
+  usageRules: UsageRules;
 };
 
 const KEY = "shukudai-checker-v1";
@@ -320,6 +323,7 @@ const defaultState = (): AppState => ({
   hwEvents: [],
   manualGrants: [],
   gameSettings: { ...DEFAULT_GAME_SETTINGS },
+  usageRules: normalizeUsageRules(),
 });
 
 let state: AppState = defaultState();
@@ -347,6 +351,7 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     manualGrants: parsed.manualGrants ?? [],
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
+    usageRules: normalizeUsageRules(parsed.usageRules),
   };
 };
 
@@ -793,6 +798,9 @@ export function grantManualPoints(studentId: string, amount: number, note?: stri
 
 export const updateGameSettings = (patch: Partial<GameSettings>) =>
   setState((p) => ({ ...p, gameSettings: { ...p.gameSettings, ...patch } }));
+
+export const updateUsageRules = (patch: Partial<UsageRules>) =>
+  setState((s) => ({ ...s, usageRules: normalizeUsageRules({ ...s.usageRules, ...patch }) }));
 
 export const updateHwPointRules = (patch: Partial<HwPointRules>) =>
   setState((s) => ({ ...s, hwPointRules: { ...s.hwPointRules, ...patch } }));
