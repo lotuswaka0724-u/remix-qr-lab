@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { getClassState, saveClassState } from "@/lib/class-sync.functions";
 import { DEFAULT_GAME_SETTINGS, type GameSettings } from "@/lib/game-settings";
-import { normalizeUsageRules, type UsageRules } from "@/lib/daily-play";
+import { completeStats, jstDay, normalizeUsageRules, type UsageRules } from "@/lib/daily-play";
 
 export type Assignment = { id: string; name: string; inToday: boolean };
 export type Student = {
@@ -603,6 +603,9 @@ export function earnedPoints(state: AppState, studentId: string) {
   for (const g of state.manualGrants ?? []) {
     if (g.studentId === studentId) total += g.amount;
   }
+  // 宿題コンプリート 5・10・15…回 到達ごとに1回だけボーナス（記録から毎回計算するので二重付与されない）
+  const rules = normalizeUsageRules(state.usageRules);
+  total += Math.floor(completeStats(state, studentId, jstDay()).total / 5) * rules.completeBonus;
   return total;
 }
 

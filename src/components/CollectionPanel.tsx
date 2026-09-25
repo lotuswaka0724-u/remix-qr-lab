@@ -223,7 +223,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       setBusy(false);
       setPhase("idle");
       playError();
-      setMsg(res.error === "points" ? "ポイントが たりません" : "いまはガチャができません");
+      setMsg(res.error === "points" ? "ポイントが たりません" : res.error === "daily" ? "きょうのガチャは おしまい。また あした！" : "いまはガチャができません");
       return;
     }
     if ("prize" in res && res.prize) {
@@ -266,6 +266,10 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     const res = await equip({ data: { itemId: item.id } });
     setBusy(false);
     if (res) setView(res);
+    if (res && "error" in res && res.error === "daily") {
+      setMsg("きょうの へんこうは おしまい。また あした！");
+      return;
+    }
     if (item.category === "sound")
       playCollectionSound(soundTune(item.id), view.rank, item.asset ?? soundAsset(item.id));
     if (item.category === "effect")
@@ -341,12 +345,18 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       <Button
         type="button"
         className={`gacha-btn ${phase === "press" ? "gacha-btn-pressed" : ""}`}
-        disabled={busy || !view.gachaOn || view.points < view.cost}
+        disabled={busy || !view.gachaOn || view.points < view.cost || view.play.gachaLeft <= 0}
         onClick={onDraw}
       >
         {busy ? "まわしています…" : `🎰 ガチャをひく（${view.cost}pt）`}
       </Button>
+      <p className="text-sm font-bold">きょう あと {view.play.gachaLeft} かい</p>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
+      <div className="grid grid-cols-3 gap-2 text-xs">
+        <div className="rounded-lg bg-card/20 p-2">✅ コンプリート<br /><b className="text-base">{view.stats.completeTotal}</b> 回</div>
+        <div className="rounded-lg bg-card/20 p-2">🔥 れんぞく<br /><b className="text-base">{view.stats.streak}</b> 日</div>
+        <div className="rounded-lg bg-card/20 p-2">🎁 つぎのボーナス<br />あと <b className="text-base">{5 - (view.stats.completeTotal % 5)}</b> 回</div>
+      </div>
 
       {prize && phase === "result" && (
         <div

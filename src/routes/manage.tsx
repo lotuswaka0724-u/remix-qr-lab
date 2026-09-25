@@ -5,6 +5,7 @@ import CsvPanel from "@/components/CsvPanel";
 import HwStateQrPrint from "@/components/HwStateQrPrint";
 import MaterialQrPrint from "@/components/MaterialQrPrint";
 import MyPageLinks from "@/components/MyPageLinks";
+import GachaPrizeList from "@/components/GachaPrizeList";
 import PrizeAdminPanel from "@/components/PrizeAdminPanel";
 import PrizeAssetPanel from "@/components/PrizeAssetPanel";
 import QrMaker from "@/components/QrMaker";
@@ -24,6 +25,7 @@ import {
   updateHwPointRules,
   updateRankRules,
   updateStudent,
+  updateUsageRules,
   useAppState,
   type HwState,
 } from "@/lib/homework-store";
@@ -242,8 +244,33 @@ function ManagePage() {
           />
           <span className="text-xs text-muted-foreground">pt</span>
         </div>
+        <div className="grid gap-2 sm:grid-cols-2">
+          <label className="flex items-center gap-2 text-sm">
+            1日のガチャ回数
+            <Input type="number" min={0} value={state.usageRules.gachaPerDay}
+              onChange={(e) => updateUsageRules({ gachaPerDay: Number(e.target.value) })}
+              className="w-20 bg-card" />回
+          </label>
+          <label className="flex items-center gap-2 text-sm">
+            コンプリート5回ごとのボーナス
+            <Input type="number" min={0} value={state.usageRules.completeBonus}
+              onChange={(e) => updateUsageRules({ completeBonus: Number(e.target.value) })}
+              className="w-20 bg-card" />pt
+          </label>
+          {(
+            [["background", "背景"], ["icon", "アイコン"], ["frame", "フレーム"], ["sound", "効果音"], ["effect", "エフェクト"]] as const
+          ).map(([k, label]) => (
+            <label key={k} className="flex items-center gap-2 text-sm">
+              {label}の1日の変更回数
+              <Input type="number" min={0} value={state.usageRules.customPerDay[k]}
+                onChange={(e) => updateUsageRules({ customPerDay: { ...state.usageRules.customPerDay, [k]: Number(e.target.value) } })}
+                className="w-20 bg-card" />回
+            </label>
+          ))}
+        </div>
       </section>
 
+      <GachaPrizeList />
       <PrizeAdminPanel />
       <PrizeAssetPanel />
 
