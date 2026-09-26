@@ -350,12 +350,14 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       >
         {busy ? "まわしています…" : `🎰 ガチャをひく（${view.cost}pt）`}
       </Button>
-      <p className="text-sm font-bold">きょう あと {view.play.gachaLeft} かい</p>
+      <p className="text-sm font-bold">
+        {view.play.gachaLeft > 0 ? `きょうのガチャ ${view.play.gachaLimit - view.play.gachaLeft} / ${view.play.gachaLimit}` : "きょうのガチャは おしまい。また あしたね 🌙"}
+      </p>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
       <div className="grid grid-cols-3 gap-2 text-xs">
         <div className="rounded-lg bg-card/20 p-2">✅ コンプリート<br /><b className="text-base">{view.stats.completeTotal}</b> 回</div>
-        <div className="rounded-lg bg-card/20 p-2">🔥 れんぞく<br /><b className="text-base">{view.stats.streak}</b> 日</div>
-        <div className="rounded-lg bg-card/20 p-2">🎁 つぎのボーナス<br />あと <b className="text-base">{5 - (view.stats.completeTotal % 5)}</b> 回</div>
+        <div className="rounded-lg bg-card/20 p-2">🔥 れんぞく（いまの記録）<br /><b className="text-base">{view.stats.streak}</b> 日</div>
+        <div className="rounded-lg bg-card/20 p-2">🎁 つぎのボーナス<br /><b className="text-base">{(Math.floor(view.stats.completeTotal / 5) + 1) * 5}</b> 回目</div>
       </div>
 
       {prize && phase === "result" && (

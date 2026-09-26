@@ -2,7 +2,8 @@ import { createHash, timingSafeEqual } from "node:crypto";
 
 import { useSession } from "@tanstack/react-start/server";
 
-import type { AppState } from "@/lib/homework-store";
+import { freezeCompleteBonuses, type AppState } from "@/lib/homework-store";
+import { normalizeUsageRules } from "@/lib/daily-play";
 
 export type GateSession = { role?: "teacher" | "student"; studentId?: string };
 
@@ -42,8 +43,17 @@ export async function readClassState(): Promise<Partial<AppState>> {
   return (data?.data ?? {}) as Partial<AppState>;
 }
 
-export async function writeClassState(state: Partial<AppState>) {
+export async function writeClassState(incoming: Partial<AppState>) {
   const db = await admin();
+  // ボーナス確定記録は消さない：保存済みと受け取った分を合わせ、未確定の到達分は「変更前の設定値」で確定する
+  const prev = await readClassState();
+  const union = new Map<string, NonNullable<AppState["completeBonusLog"]>[number]>();
+  for (const e of [...(incoming.completeBonusLog ?? []), ...(prev.completeBonusLog ?? [])]) union.set(e.id, e);
+  const prevAmount = normalizeUsageRules(prev.usageRules ?? incoming.usageRules).completeBonus;
+  const state: Partial<AppState> = {
+    ...incoming,
+    completeBonusLog: freezeCompleteBonuses({ ...incoming, completeBonusLog: [...union.values()] }, prevAmount),
+  };
   await db
     .from("class_state")
     .upsert({ id: ROW_ID, data: state as never, updated_at: new Date().toISOString() });
