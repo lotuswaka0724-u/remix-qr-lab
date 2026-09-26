@@ -2,7 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { getClassState, saveClassState } from "@/lib/class-sync.functions";
 import { DEFAULT_GAME_SETTINGS, type GameSettings } from "@/lib/game-settings";
-import { completeStats, jstDay, normalizeUsageRules, type UsageRules } from "@/lib/daily-play";
+import { completeBonusId, completeStats, jstDay, normalizeUsageRules, reachedMilestones, type UsageRules } from "@/lib/daily-play";
 
 export type Assignment = { id: string; name: string; inToday: boolean };
 export type Student = {
@@ -283,6 +283,26 @@ export type AppState = {
   codes?: Record<string, string>;
   /** 児童の1日の利用ルール（先生だけが変更できる） */
   usageRules: UsageRules;
+  /** 宿題コンプリート 5回ごとボーナスの確定記録（付与時の金額で固定。1児童×1到達回数につき1件） */
+  completeBonusLog?: CompleteBonusEntry[];
+};
+
+export type CompleteBonusEntry = { id: string; studentId: string; milestone: number; amount: number; at: number };
+
+/** 到達ずみでまだ記録のないマイルストーンを、指定の金額で確定させる（既存の記録は変えない） */
+export const freezeCompleteBonuses = (s: Partial<AppState>, amount: number): CompleteBonusEntry[] => {
+  const log = [...(s.completeBonusLog ?? [])];
+  const have = new Set(log.map((e) => e.id));
+  const today = jstDay();
+  for (const st of s.students ?? []) {
+    for (const m of reachedMilestones(completeStats(s, st.id, today).total)) {
+      const id = completeBonusId(st.id, m);
+      if (have.has(id)) continue;
+      have.add(id);
+      log.push({ id, studentId: st.id, milestone: m, amount, at: Date.now() });
+    }
+  }
+  return log;
 };
 
 const KEY = "shukudai-checker-v1";
@@ -352,6 +372,7 @@ export const mergeState = (parsed: Partial<AppState>): AppState => {
     prizes: parsed.prizes?.length ? parsed.prizes : base.prizes,
     gachaLog: parsed.gachaLog ?? [],
     usageRules: normalizeUsageRules(parsed.usageRules),
+    completeBonusLog: parsed.completeBonusLog ?? [],
   };
 };
 
@@ -603,9 +624,15 @@ export function earnedPoints(state: AppState, studentId: string) {
   for (const g of state.manualGrants ?? []) {
     if (g.studentId === studentId) total += g.amount;
   }
-  // 宿題コンプリート 5・10・15…回 到達ごとに1回だけボーナス（記録から毎回計算するので二重付与されない）
+  // 宿題コンプリート 5・10・15…回 到達ごとに1回だけボーナス。確定済みは付与時の金額で固定、未確定は現在の設定値
   const rules = normalizeUsageRules(state.usageRules);
-  total += Math.floor(completeStats(state, studentId, jstDay()).total / 5) * rules.completeBonus;
+  const fixed = new Map<string, number>();
+  for (const e of state.completeBonusLog ?? []) if (e.studentId === studentId) fixed.set(e.id, e.amount);
+  for (const m of reachedMilestones(completeStats(state, studentId, jstDay()).total)) {
+    const id = completeBonusId(studentId, m);
+    if (!fixed.has(id)) fixed.set(id, rules.completeBonus);
+  }
+  for (const v of fixed.values()) total += v;
   return total;
 }
 

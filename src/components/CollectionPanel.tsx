@@ -27,6 +27,7 @@ import {
   drawCollGacha,
   equipCollItem,
   getCollection,
+  markCollSeen,
   type CollPrize,
   type CollView,
 } from "@/lib/collection.functions";
@@ -40,6 +41,7 @@ import {
   previewCollectionSound,
 } from "@/lib/feedback";
 import { useCustomPrizes } from "@/lib/use-custom-prizes";
+import { COLL_SETS, setMembers } from "@/lib/daily-play";
 
 type Screen = "gacha" | "collection";
 type GachaPhase =
@@ -165,6 +167,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
   } | null>(null);
   const [phase, setPhase] = useState<GachaPhase>("idle");
   const [spinHard, setSpinHard] = useState(false);
+  const markSeenFn = useServerFn(markCollSeen);
 
   const owned = useMemo(() => view?.coll.owned ?? [], [view?.coll.owned]);
   const equipped = view?.coll.equipped ?? {};
@@ -350,12 +353,14 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       >
         {busy ? "まわしています…" : `🎰 ガチャをひく（${view.cost}pt）`}
       </Button>
-      <p className="text-sm font-bold">きょう あと {view.play.gachaLeft} かい</p>
+      <p className="text-sm font-bold">
+        {view.play.gachaLeft > 0 ? `きょうのガチャ ${view.play.gachaLimit - view.play.gachaLeft} / ${view.play.gachaLimit}` : "きょうのガチャは おしまい。また あしたね 🌙"}
+      </p>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
       <div className="grid grid-cols-3 gap-2 text-xs">
         <div className="rounded-lg bg-card/20 p-2">✅ コンプリート<br /><b className="text-base">{view.stats.completeTotal}</b> 回</div>
-        <div className="rounded-lg bg-card/20 p-2">🔥 れんぞく<br /><b className="text-base">{view.stats.streak}</b> 日</div>
-        <div className="rounded-lg bg-card/20 p-2">🎁 つぎのボーナス<br />あと <b className="text-base">{5 - (view.stats.completeTotal % 5)}</b> 回</div>
+        <div className="rounded-lg bg-card/20 p-2">🔥 れんぞく<br /><b className="text-base">{view.stats.streak}</b> 回</div>
+        <div className="rounded-lg bg-card/20 p-2">🎁 つぎのボーナス<br /><b className="text-base">{(Math.floor(view.stats.completeTotal / 5) + 1) * 5}</b> 回目</div>
       </div>
 
       {prize && phase === "result" && (
@@ -415,11 +420,60 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
   const list = (
     <section className="kid-panel space-y-3 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="mr-auto font-display text-lg font-bold">🗂️ アイテムBOX</h2>
-        <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
-          {progress.have} / {progress.all} こ
-        </span>
+        <h2 className="mr-auto font-display text-lg font-bold">📖 コレクション {progress.have}/{progress.all} GET!</h2>
+        {view.play.newIds.length > 0 && (
+          <Button
+            type="button"
+            size="sm"
+            className="h-auto rounded-full px-3 py-1 text-xs font-bold"
+            onClick={async () => {
+              const next = await markSeenFn({ data: { ids: view.play.newIds } });
+              if (next) setView(next);
+            }}
+          >
+            🆕 NEW {view.play.newIds.length} → みた！
+          </Button>
+        )}
       </div>
+
+      <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4" aria-label="じぶんの記録">
+        <div className="rounded-xl bg-muted/60 p-2">✅ コンプリート（ぜんぶで）<br /><b className="text-base">{view.stats.completeTotal}</b> 回</div>
+        <div className="rounded-xl bg-muted/60 p-2">🔥 れんぞくコンプリート<br /><b className="text-base">{view.stats.streak}</b> 回</div>
+        <div className="rounded-xl bg-muted/60 p-2">🎰 ガチャをひいた<br /><b className="text-base">{view.stats.draws}</b> 回</div>
+        <div className="rounded-xl bg-muted/60 p-2">📅 きょう<br /><b className="text-base">{view.stats.completeToday ? "コンプリート！" : "まだ"}</b></div>
+      </div>
+
+      {view.play.recent.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto rounded-xl bg-muted/40 p-2">
+          <span className="shrink-0 text-xs font-bold">🕒 さいきんGET</span>
+          {view.play.recent.slice(0, 5).map((r) => {
+            const it = COLL_ITEMS.find((i) => i.id === r.id);
+            return it ? (
+              <span key={`${r.id}-${r.at}`} className="flex shrink-0 items-center gap-1 text-[11px] font-bold">
+                <ItemArt item={it} size={28} />
+                {it.name}
+              </span>
+            ) : null;
+          })}
+        </div>
+      )}
+
+      <details className="rounded-xl bg-muted/40 p-2 text-xs">
+        <summary className="cursor-pointer font-bold">🧩 セットコレクション</summary>
+        <ul className="mt-2 grid grid-cols-2 gap-1 sm:grid-cols-3">
+          {COLL_SETS.map((set) => {
+            const mem = setMembers(set, COLL_ITEMS);
+            if (!mem.length) return null;
+            const have = mem.filter((m) => owned.includes(m.id)).length;
+            return (
+              <li key={set.id} className="rounded-lg bg-card p-2">
+                {set.icon} {set.label} {have}/{mem.length}
+                {have === mem.length && <b className="ml-1 text-primary">コンプリート！</b>}
+              </li>
+            );
+          })}
+        </ul>
+      </details>
 
       <div className="flex flex-wrap gap-1.5">
         {COLL_CATEGORIES.map((c) => {
@@ -488,7 +542,10 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
                     ？
                   </span>
                 )}
-                <span className="text-xs font-bold">{has ? item.name : "みかくにん"}</span>
+                <span className="text-xs font-bold">{has ? item.name : "？？？"}</span>
+                {has && view.play.newIds.includes(item.id) && (
+                  <span className="rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground">🆕 NEW!</span>
+                )}
                 <span
                   className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${COLL_RARITY_META[item.rarity].tone}`}
                 >
