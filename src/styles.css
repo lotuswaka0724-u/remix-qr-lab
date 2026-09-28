@@ -979,8 +979,7 @@
   100% { background-position: 1rem -8rem, 7rem -14rem; }
 }
 
-.collection-page { position: relative; isolation: isolate; overflow-x: clip; background: oklch(0.21 0.08 255); }
-.collection-page { background: var(--background); }
+.collection-page { position: relative; isolation: isolate; overflow-x: clip; background: var(--background); }
 .collection-backdrop {
   position: fixed;
   inset: 0;
