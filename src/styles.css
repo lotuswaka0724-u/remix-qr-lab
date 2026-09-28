@@ -980,6 +980,7 @@
 }
 
 .collection-page { position: relative; isolation: isolate; overflow-x: clip; background: oklch(0.21 0.08 255); }
+.collection-page { background: var(--background); }
 .collection-backdrop {
   position: fixed;
   inset: 0;
@@ -1345,5 +1346,45 @@
   .fx-burst-ring {
     animation-duration: 1ms;
     opacity: 0;
+  }
+}
+
+/* Screen-only finishing touches. Printed QR and member cards keep their paper palette. */
+@media screen {
+  header.sticky {
+    background: color-mix(in oklab, var(--background) 83%, transparent);
+    backdrop-filter: blur(18px) saturate(135%);
+    box-shadow: 0 1px 18px color-mix(in oklab, var(--primary) 12%, transparent);
+  }
+
+  button.bg-primary,
+  a.bg-primary {
+    background-image: linear-gradient(135deg, var(--primary), color-mix(in oklab, var(--primary) 62%, var(--success)));
+    box-shadow: 0 4px 18px -8px color-mix(in oklab, var(--primary) 72%, transparent);
+  }
+
+  button.bg-primary:hover:not(:disabled),
+  a.bg-primary:hover {
+    box-shadow: 0 5px 22px -6px color-mix(in oklab, var(--primary) 78%, transparent);
+  }
+
+  [role="dialog"]:not(.gacha-result-overlay),
+  [data-slot="card"] {
+    background: color-mix(in oklab, var(--popover) 88%, transparent);
+    backdrop-filter: blur(18px) saturate(135%);
+    border-color: var(--border);
+    border-radius: var(--radius-2xl);
+    box-shadow: var(--shadow-card);
+  }
+
+  input:not([type="checkbox"]):not([type="radio"]),
+  textarea,
+  select {
+    color: var(--foreground);
+    caret-color: var(--primary);
+  }
+
+  :is(input, textarea, select):focus-visible {
+    outline-color: var(--ring);
   }
 }
