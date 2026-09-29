@@ -327,6 +327,24 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
             <img src="/prizes/gacha/capsule.png" alt="" width={1024} height={1024} />
           </div>
         )}
+        {(phase === "spinning" || phase === "suspense") && (
+          <div className="cyber-core" aria-hidden>
+            {Array.from({ length: 16 }, (_, i) => (
+              <span
+                key={i}
+                className={`cyber-core-mote ${i % 2 ? "cyber-core-mote-pink" : ""}`}
+                style={{
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  ["--a" as any]: `${i * 22.5}deg`,
+                  animationDelay: `${(i % 8) * 110}ms`,
+                }}
+              />
+            ))}
+            <span className="cyber-core-ring" />
+            <span className="cyber-core-ring cyber-core-ring-2" />
+            <span className="cyber-core-orb" />
+          </div>
+        )}
         {phase === "opening" && (
           <>
             <div className="gacha-stage-burst" aria-hidden>
@@ -334,6 +352,10 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
             </div>
             <span className="gacha-capsule-shell gacha-shell-top" aria-hidden />
             <span className="gacha-capsule-shell gacha-shell-bottom" aria-hidden />
+            <span className="cyber-flash" aria-hidden />
+            <span className="cyber-ripple" aria-hidden />
+            <span className="cyber-ripple cyber-ripple-2" aria-hidden />
+            <span className="cyber-ripple cyber-ripple-3" aria-hidden />
           </>
         )}
         <p className="gacha-stage-label">
@@ -377,7 +399,22 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
               <span key={i}>✦</span>
             ))}
           </div>
-          <div className="gacha-result-card">
+          <span className="cyber-ripple cyber-ripple-result" aria-hidden />
+          <div className="cyber-aura" aria-hidden>
+            {Array.from({ length: 10 }, (_, i) => (
+              <span
+                key={i}
+                style={{
+                  left: `${(i * 37 + 8) % 92}%`,
+                  top: `${(i * 53 + 12) % 88}%`,
+                  animationDelay: `${(i % 5) * 240}ms`,
+                }}
+              >
+                ✦
+              </span>
+            ))}
+          </div>
+          <div className="gacha-result-card cyber-card">
             <p className="gacha-result-get">GET!</p>
             <div className="gacha-result-art">
               {(() => {
