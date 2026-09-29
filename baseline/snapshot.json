@@ -1,0 +1,3684 @@
+{
+  "summary": {
+    "totalItems": 154,
+    "byCategory": {
+      "background": 37,
+      "icon": 60,
+      "frame": 36,
+      "sound": 10,
+      "effect": 11
+    },
+    "byRarity": {
+      "N": 56,
+      "R": 50,
+      "SR": 30,
+      "GOLD": 6,
+      "BLACK": 6,
+      "SSR": 6
+    },
+    "initialIds": [
+      "bg_simple",
+      "ic_cat",
+      "fr_simple",
+      "sd_pico",
+      "ef_spark"
+    ],
+    "gachaPoolSize": 149,
+    "realAssetIds": 89,
+    "idListSha256": "69978439e587498a202a5ea4c6a41a74d2f777fd4b057015b3827206ad54e91d",
+    "itemsSha256": "bf81fd2de9d90585281c49f1a9e1a1e36cd75f90aac6331b5fc8ccddbff678e8"
+  },
+  "rarityMeta": {
+    "N": {
+      "label": "N",
+      "tone": "bg-slate-200 text-slate-700",
+      "ring": "ring-slate-300",
+      "weight": 55,
+      "minRank": "NORMAL"
+    },
+    "R": {
+      "label": "R",
+      "tone": "bg-sky-200 text-sky-900",
+      "ring": "ring-sky-400",
+      "weight": 27,
+      "minRank": "NORMAL"
+    },
+    "SR": {
+      "label": "SR",
+      "tone": "bg-violet-200 text-violet-900",
+      "ring": "ring-violet-400",
+      "weight": 13,
+      "minRank": "NORMAL"
+    },
+    "SSR": {
+      "label": "SSR",
+      "tone": "bg-fuchsia-200 text-fuchsia-900",
+      "ring": "ring-fuchsia-500",
+      "weight": 6,
+      "minRank": "NORMAL"
+    },
+    "GOLD": {
+      "label": "GOLD",
+      "tone": "bg-amber-200 text-amber-900",
+      "ring": "ring-amber-400",
+      "weight": 4,
+      "minRank": "GOLD"
+    },
+    "BLACK": {
+      "label": "BLACK",
+      "tone": "bg-slate-900 text-amber-200",
+      "ring": "ring-slate-900",
+      "weight": 1,
+      "minRank": "BLACK"
+    }
+  },
+  "rarityOrder": [
+    "N",
+    "R",
+    "SR",
+    "SSR",
+    "GOLD",
+    "BLACK"
+  ],
+  "categories": [
+    "background",
+    "icon",
+    "frame",
+    "sound",
+    "effect"
+  ],
+  "categoryLabels": {
+    "background": "マイページ背景",
+    "icon": "アイコン",
+    "frame": "アイコンフレーム",
+    "sound": "読み取り効果音",
+    "effect": "読み取りエフェクト"
+  },
+  "gachaOddsByRank": {
+    "NORMAL": {
+      "poolSize": 137,
+      "totalWeight": 4581,
+      "byRarity": {
+        "N": {
+          "items": 51,
+          "percent": 61.23
+        },
+        "R": {
+          "items": 50,
+          "percent": 29.47
+        },
+        "SR": {
+          "items": 30,
+          "percent": 8.51
+        },
+        "SSR": {
+          "items": 6,
+          "percent": 0.79
+        }
+      }
+    },
+    "GOLD": {
+      "poolSize": 143,
+      "totalWeight": 4605,
+      "byRarity": {
+        "N": {
+          "items": 51,
+          "percent": 60.91
+        },
+        "R": {
+          "items": 50,
+          "percent": 29.32
+        },
+        "SR": {
+          "items": 30,
+          "percent": 8.47
+        },
+        "GOLD": {
+          "items": 6,
+          "percent": 0.52
+        },
+        "SSR": {
+          "items": 6,
+          "percent": 0.78
+        }
+      }
+    },
+    "BLACK": {
+      "poolSize": 149,
+      "totalWeight": 4611,
+      "byRarity": {
+        "N": {
+          "items": 51,
+          "percent": 60.83
+        },
+        "R": {
+          "items": 50,
+          "percent": 29.28
+        },
+        "SR": {
+          "items": 30,
+          "percent": 8.46
+        },
+        "GOLD": {
+          "items": 6,
+          "percent": 0.52
+        },
+        "BLACK": {
+          "items": 6,
+          "percent": 0.13
+        },
+        "SSR": {
+          "items": 6,
+          "percent": 0.78
+        }
+      }
+    }
+  },
+  "routes": [
+    "src/routes/__root.tsx",
+    "src/routes/api/public/prize-asset.$file.tsx",
+    "src/routes/board.tsx",
+    "src/routes/history.tsx",
+    "src/routes/index.tsx",
+    "src/routes/manage.tsx",
+    "src/routes/me.tsx",
+    "src/routes/points.tsx"
+  ],
+  "protectedFiles": [
+    {
+      "path": "src/lib/collection-catalog.ts",
+      "sha256": "e539ffd604e58e61f7038c3095bbe0000c4592cc0914b53f19b016bbd0361c81"
+    },
+    {
+      "path": "src/lib/collection.functions.ts",
+      "sha256": "d9e0996f3963007b71fbc716047995005ef42e1a66d4be3908e616a81148e7fc"
+    },
+    {
+      "path": "src/lib/homework-store.ts",
+      "sha256": "827cdd699b30cc613989aeb572a0d1b9d13facb8f7f21c357ebefeb128589598"
+    },
+    {
+      "path": "src/lib/student.functions.ts",
+      "sha256": "d89f916b75021ef352fdcd276797b041f45a53644dc9a2a6e34ecc753b32de2a"
+    },
+    {
+      "path": "src/lib/class-sync.functions.ts",
+      "sha256": "a916d095684f82a197aefc779ab7ea8ebe769982bf0a0909943bb2c11494d151"
+    },
+    {
+      "path": "src/lib/gate.server.ts",
+      "sha256": "d7f804b058cab51253ce459ac39f01e0fa3ecfab2af47c9cd8a88815a4bc7298"
+    },
+    {
+      "path": "src/lib/hwqr.server.ts",
+      "sha256": "7290c62d31d9b84d42057f757bfe22aaca4cec568417831c4c1782e98c82fbb6"
+    },
+    {
+      "path": "src/lib/hwqr.functions.ts",
+      "sha256": "d38b0a7aa0fd8a086ae4aa0dba9e56570f1d59f16e5cf89d4bb2026caa75d4cc"
+    },
+    {
+      "path": "src/lib/prizes.functions.ts",
+      "sha256": "2f5d016a7b473826c30e5913a5cf0417845fecc4823d351fcf82bbce278f5ea1"
+    },
+    {
+      "path": "src/lib/game.functions.ts",
+      "sha256": "94a26bf3096b6903e1eafea4cb29d53b1d3ddd2b8030b2bd27b27f532629ec4b"
+    },
+    {
+      "path": "src/lib/game-settings.ts",
+      "sha256": "4d37b243de57face0b583e5e7bb3554d6435cdc58d0a963368df9173b39cb6bb"
+    },
+    {
+      "path": "src/lib/daily-play.ts",
+      "sha256": "f7f3004f5cc80b487f63dd55a721eea987b0feab3c0479184d1eaedf75b0f063"
+    },
+    {
+      "path": "src/routes/__root.tsx",
+      "sha256": "fc1ac81fbe6c101955f0fd3f20ed1ef642a44b73ef59a0806e1d92bbf75e3dde"
+    },
+    {
+      "path": "src/routes/api/public/prize-asset.$file.tsx",
+      "sha256": "2f44327c24e140ae5627d5737406fba61b5653805da1e2ad8f8fa306e3d2fafc"
+    }
+  ],
+  "assets": [
+    {
+      "path": "public/favicon.ico",
+      "bytes": 20373,
+      "sha256": "dd821076a9b03adc2173c93956226aea3d92482d7578fc4339c5d3a2e9c24586"
+    },
+    {
+      "path": "public/prizes/bg/black.jpg",
+      "bytes": 33576,
+      "sha256": "e07eee8ba1a50e39cb6f7deca5d15956f94db47c67cabb8031c984635dc9a296"
+    },
+    {
+      "path": "public/prizes/bg/crystal.jpg",
+      "bytes": 56904,
+      "sha256": "0d2b807c556afa969ca05ca3a3298884e5277156712dc5a9d62932042fd03859"
+    },
+    {
+      "path": "public/prizes/bg/dragonlair.jpg",
+      "bytes": 49317,
+      "sha256": "e2d06922bdf802c92a55851f0fe83b4b4106d4e4b23acc65a4eec069cb0d0aa1"
+    },
+    {
+      "path": "public/prizes/bg/gold.jpg",
+      "bytes": 31204,
+      "sha256": "fc3afe316c97e82c518f49da8d9aa889c61eef9d4df57f5c413bf7173a40af80"
+    },
+    {
+      "path": "public/prizes/frames/black.png",
+      "bytes": 156115,
+      "sha256": "360abb6f6566a1b093d55189d25b895ce0c4e73c0d5a503643f67f9d14ef6bfa"
+    },
+    {
+      "path": "public/prizes/frames/gold.png",
+      "bytes": 249572,
+      "sha256": "b7d036cccab33b0e6dceee3bb4c4f434f0a784efe63ad39c2a6953b32c3fb73d"
+    },
+    {
+      "path": "public/prizes/frames/neon.png",
+      "bytes": 180853,
+      "sha256": "a3a21ac5b1f1ba2d2ac5480713653deef5e128515c10aea11bd33420fa50595b"
+    },
+    {
+      "path": "public/prizes/frames/prism.png",
+      "bytes": 122572,
+      "sha256": "063bd9c6b1a5541c9c21f069ad2353729b964305d1d819d5832d7f69883be464"
+    },
+    {
+      "path": "public/prizes/gacha/burst.png",
+      "bytes": 1011943,
+      "sha256": "46c789eb3d1ede4ba2a10b4e8c45f720a462cc3efac70b8c4f3b77e17e093352"
+    },
+    {
+      "path": "public/prizes/gacha/capsule.png",
+      "bytes": 797513,
+      "sha256": "fdcc9249b7e1fae9c37d15bbeddf5e070ecb6dcdb20d4b18d253a0ad72a06f36"
+    },
+    {
+      "path": "public/prizes/gacha/machine.png",
+      "bytes": 973935,
+      "sha256": "63f6ae0693ab64f76469c0f5777563580ab26a3363476b988d5b0e543fcea301"
+    },
+    {
+      "path": "public/prizes/icons/alien.png",
+      "bytes": 865792,
+      "sha256": "a6aaa5ad509320754e3f4466c52a1142fbf04bd6a4d10a5b648af1a9c3cf4d40"
+    },
+    {
+      "path": "public/prizes/icons/astronaut.png",
+      "bytes": 936557,
+      "sha256": "eab0c7ec37c3ecd88b9e6ee933728bd59b729fd5138d58bbb4ea58633fa3854e"
+    },
+    {
+      "path": "public/prizes/icons/baseball.png",
+      "bytes": 802443,
+      "sha256": "38efeca79923f0928627a80a985125d950b7548906b2228f72d2557666230152"
+    },
+    {
+      "path": "public/prizes/icons/basket.png",
+      "bytes": 989657,
+      "sha256": "8a8640a67dc5ce683457843c8ce6aafaf52e802476c58bcaa11347fddfade003"
+    },
+    {
+      "path": "public/prizes/icons/bear.png",
+      "bytes": 792349,
+      "sha256": "13771dc1281d3d9dc484be546a1bbf1617714b226a32ed3fcf466dff90983255"
+    },
+    {
+      "path": "public/prizes/icons/bee.png",
+      "bytes": 832425,
+      "sha256": "a66fd28a1bea95af8a10eceb7ee127111eeb36182a1d997586f9985412818693"
+    },
+    {
+      "path": "public/prizes/icons/blackstar.png",
+      "bytes": 95471,
+      "sha256": "a1f63bead2a71e5e7d9edca35b9897ac5304b9e5dba691789345647dc40b325d"
+    },
+    {
+      "path": "public/prizes/icons/butterfly.png",
+      "bytes": 1001223,
+      "sha256": "fa90afa293ae079c85361377cf64da16e8c828b0f1b4a6144086f3110b9c7b71"
+    },
+    {
+      "path": "public/prizes/icons/cake.png",
+      "bytes": 879136,
+      "sha256": "74e7484054cedbc70d7af94e67d4470b3f294d29eaf2c9b8e0c28b0d5f0f66e6"
+    },
+    {
+      "path": "public/prizes/icons/car.png",
+      "bytes": 882467,
+      "sha256": "c43c600a027a3674009c9225c22493713aa07a0e4bc34a0af1b24b5eb364a932"
+    },
+    {
+      "path": "public/prizes/icons/cat.png",
+      "bytes": 851500,
+      "sha256": "1c44c8c0acf333eec8ffce43f7704768b390e7a9fadf0b03d8b367438f8c7ac1"
+    },
+    {
+      "path": "public/prizes/icons/chick.png",
+      "bytes": 711022,
+      "sha256": "899aa191f399631227c99133c8c61bf5a670c4ee065bdcfa6ce84b7e14d53988"
+    },
+    {
+      "path": "public/prizes/icons/comet.png",
+      "bytes": 835725,
+      "sha256": "eb5358df8c72fe0ef41eeb6923fc48d36d9a7e0ef5d15fe556807a68afdd53a6"
+    },
+    {
+      "path": "public/prizes/icons/crab.png",
+      "bytes": 945135,
+      "sha256": "3efecd1f434130e29c8b8e4413f6d2939adace89959b25067dc7f706f75a1e12"
+    },
+    {
+      "path": "public/prizes/icons/crown.png",
+      "bytes": 1154901,
+      "sha256": "f787f01c894577514e806ccfbf484a2325b6b96ca1f28f3037237107e75f61a4"
+    },
+    {
+      "path": "public/prizes/icons/dino.png",
+      "bytes": 763587,
+      "sha256": "94847087d63925cbde53bb2501030a783d8f20b1c0134df98e14d83ca2c0db1c"
+    },
+    {
+      "path": "public/prizes/icons/dog.png",
+      "bytes": 792190,
+      "sha256": "d29f5dff40d8336323535f664dc4760ecd9e388b3752a7f02af2067ccac1d1e8"
+    },
+    {
+      "path": "public/prizes/icons/dragon.png",
+      "bytes": 1019639,
+      "sha256": "40919923860a556d2c606dd8744db345e9647eba8220ce4b875a4b53d9ceb567"
+    },
+    {
+      "path": "public/prizes/icons/eagle.png",
+      "bytes": 845682,
+      "sha256": "8139a0fb642741eace053837e6034e588af0474097a611b1e6ba08df5aabd779"
+    },
+    {
+      "path": "public/prizes/icons/elephant.png",
+      "bytes": 878573,
+      "sha256": "c36ce8790dc3e62e67f26b34387f613fe2016645364edfaaf892f5ba7e931b32"
+    },
+    {
+      "path": "public/prizes/icons/fish.png",
+      "bytes": 783076,
+      "sha256": "a7af3871cd2f54e5edb1023f9d0ad678aacbdf34a635eba2adf10b7d10a4c429"
+    },
+    {
+      "path": "public/prizes/icons/fox.png",
+      "bytes": 853526,
+      "sha256": "43f358084e3633c5c1997cc2849d05b146e3c43a5eaacc42fbd98c6b537806fb"
+    },
+    {
+      "path": "public/prizes/icons/frog.png",
+      "bytes": 825585,
+      "sha256": "a4b10a383d45acfb523d879e1a6c651105bc7d09af17a556a81507e9a46c8f83"
+    },
+    {
+      "path": "public/prizes/icons/galaxywhale.png",
+      "bytes": 137812,
+      "sha256": "40ae55d08f5ffdfa36173eed8291e7de4b9aebbb412902247fe58944c011ab4a"
+    },
+    {
+      "path": "public/prizes/icons/ghost.png",
+      "bytes": 762693,
+      "sha256": "77f48664e777bb9f7bc39ac65cc8eab51d382c98477b83ae45d93189b6c90f0f"
+    },
+    {
+      "path": "public/prizes/icons/giraffe.png",
+      "bytes": 773058,
+      "sha256": "1dd36c02f4147564de61a1d5782971c87971a3fbc80927ec98b985ee573ece53"
+    },
+    {
+      "path": "public/prizes/icons/golddragon.png",
+      "bytes": 195972,
+      "sha256": "87b0e8375b1febc7cbd1f8618fc05f981c6a8cd2f8aad4541aa43a6194e38b41"
+    },
+    {
+      "path": "public/prizes/icons/hamster.png",
+      "bytes": 898708,
+      "sha256": "0057b3fa3401400b04c64e81a61877c056fb66c773c7f1d1005994eca709ec1a"
+    },
+    {
+      "path": "public/prizes/icons/hedgehog.png",
+      "bytes": 983049,
+      "sha256": "184a15f7fabe1a9f556e111a04a88721bed56058d406d7419a4b9c9021bbdb9f"
+    },
+    {
+      "path": "public/prizes/icons/kangaroo.png",
+      "bytes": 768740,
+      "sha256": "cbc119c951e8f3a5364485a26688e25a22f7c8dbbeca2253a8583d318318d8f6"
+    },
+    {
+      "path": "public/prizes/icons/knight.png",
+      "bytes": 956840,
+      "sha256": "71826671324dc7651c113824d3a8c27ac4cf33a18534e2eeebe9b30dc728be74"
+    },
+    {
+      "path": "public/prizes/icons/koala.png",
+      "bytes": 788898,
+      "sha256": "2b7cbbce6fb53811e0cbfa0cc7417bdb1f0c71df19f1d40f96d482f4f4f830bb"
+    },
+    {
+      "path": "public/prizes/icons/lion.png",
+      "bytes": 993240,
+      "sha256": "d3283dd8783681a9ecb10e191cfb741b17ad6ea2de73993ceaabb56c93b1a4a4"
+    },
+    {
+      "path": "public/prizes/icons/monkey.png",
+      "bytes": 806244,
+      "sha256": "5389f5b9432ea4e4b2892b2460a03080ee37cb273f5204323223528a5d6fbe5e"
+    },
+    {
+      "path": "public/prizes/icons/ninja.png",
+      "bytes": 976255,
+      "sha256": "069c41a9b9fb5bf7c34b8d4bf72525ddcddd932eabf1e5c379aed548f86fb783"
+    },
+    {
+      "path": "public/prizes/icons/octopus.png",
+      "bytes": 964361,
+      "sha256": "e4ff0578c81a7446b489ed2cc697b029d9c1bc32607f5ba7145f76bfce3f4cce"
+    },
+    {
+      "path": "public/prizes/icons/owl.png",
+      "bytes": 940012,
+      "sha256": "ea5e3e2e512851daf7bc72f17b28ce17804e463811534a66d1c97599c6413b92"
+    },
+    {
+      "path": "public/prizes/icons/panda.png",
+      "bytes": 782799,
+      "sha256": "37bcf04cd9207d86e246f3c3aaac1539043cb7448bdef1bfbe9a2edd0daab72f"
+    },
+    {
+      "path": "public/prizes/icons/peacock.png",
+      "bytes": 1212784,
+      "sha256": "40124bc744c21efe2b9b47faf9d04ac8f233fcb294850aefe8535e820fa22beb"
+    },
+    {
+      "path": "public/prizes/icons/penguin.png",
+      "bytes": 755807,
+      "sha256": "f2e7923339edd034bd7c05a55d584c89fbcdf99e0d658cb6775fcd61e1a1478d"
+    },
+    {
+      "path": "public/prizes/icons/rabbit.png",
+      "bytes": 726870,
+      "sha256": "59d4990c2ffbbf54b8387c4605002b31dec0c80c3b037c0b3385a16c254e65e6"
+    },
+    {
+      "path": "public/prizes/icons/rainbow.png",
+      "bytes": 791049,
+      "sha256": "b15aac942e5950dab721d08ce4f501db52f0bffb964e5d0368cddb2540e4efe9"
+    },
+    {
+      "path": "public/prizes/icons/ramen.png",
+      "bytes": 1101370,
+      "sha256": "c51c24edd53967a2bd3ec881db3ed7cd1947b27d96412c2ba2399d1ef4d134f9"
+    },
+    {
+      "path": "public/prizes/icons/robot.png",
+      "bytes": 884891,
+      "sha256": "05e320b7c562e65ac6934c11639e364c11b8a3cad11de5d90dd2db14df93edec"
+    },
+    {
+      "path": "public/prizes/icons/rocket.png",
+      "bytes": 732131,
+      "sha256": "1101841b054a666d4ef990c8b423d6b2d349dc1d89a9a6abeb63983f07a3f457"
+    },
+    {
+      "path": "public/prizes/icons/shark.png",
+      "bytes": 765868,
+      "sha256": "8a166323d7dc5c71bc8ac9f51ec267b7c568b00e5176bec2879f8e0f886d1be0"
+    },
+    {
+      "path": "public/prizes/icons/soccer.png",
+      "bytes": 842336,
+      "sha256": "46e85792b28c1a717ea111f3b577eaa283da979956fba66aad60055fc30249f4"
+    },
+    {
+      "path": "public/prizes/icons/starhero.png",
+      "bytes": 128783,
+      "sha256": "d5b7d0c7bac349aaaf73c70b921e76b9943687c96931084094d9591510cc0c9f"
+    },
+    {
+      "path": "public/prizes/icons/sushi.png",
+      "bytes": 769005,
+      "sha256": "41c0353704e29b37ca0029a3f8a59a43e13bc19d81d05c81e5b36bcee7d05cd6"
+    },
+    {
+      "path": "public/prizes/icons/tiger.png",
+      "bytes": 894277,
+      "sha256": "f9a147eb1b7eadddbb09a1ca36788884600d69d42607773d803bbbcf66eed3e2"
+    },
+    {
+      "path": "public/prizes/icons/train.png",
+      "bytes": 816747,
+      "sha256": "234432bebcb1378c829bcc3acf2f2e958fcf3f7e4ec46a4c38c17e0ec28bab14"
+    },
+    {
+      "path": "public/prizes/icons/trophy.png",
+      "bytes": 864771,
+      "sha256": "62ccd1421c12ab88beeb04276cbcc70026234cfabfbdd15a6cb7ed9a2dad1b57"
+    },
+    {
+      "path": "public/prizes/icons/turtle.png",
+      "bytes": 739136,
+      "sha256": "fa2c3dda1bb33771545bee8c19aeee7b027495c4cd390f929c858d5f8176349f"
+    },
+    {
+      "path": "public/prizes/icons/ufo.png",
+      "bytes": 760879,
+      "sha256": "eb52d4d78bf06f922ba609d40352ab5cedf18b8a65df4184f37dd19b1acad695"
+    },
+    {
+      "path": "public/prizes/icons/unicorn.png",
+      "bytes": 749099,
+      "sha256": "e36cba7fb8b2c56a46a3bed33277f3b90c4651d04fb79dffae73060b6dc68dc4"
+    },
+    {
+      "path": "public/prizes/icons/volcano.png",
+      "bytes": 833338,
+      "sha256": "169169d744847761b7fb2e1421d54ba3979aea5d9971865ca3fdb84b44d0fcb4"
+    },
+    {
+      "path": "public/prizes/icons/wand.png",
+      "bytes": 626975,
+      "sha256": "374dbbf84ee26d234f80c49c07d2a8e9256df1a962af7f046b1f0ff84c8db715"
+    },
+    {
+      "path": "public/prizes/icons/whale.png",
+      "bytes": 856901,
+      "sha256": "d9591fd6453d06d921fbef98679a712b4da6b110a058c41849201aa8c0757e80"
+    },
+    {
+      "path": "public/prizes/icons/wizard.png",
+      "bytes": 972058,
+      "sha256": "5b1d702ccf0f4519e6f78c438a0b090734b8d6cbd78266d324423646dc045ef7"
+    },
+    {
+      "path": "public/prizes/icons/wolf.png",
+      "bytes": 992305,
+      "sha256": "f97a9db0e1661045fa731a19a284a0a8759976e39e5cc19352d4b494ca4f28c1"
+    },
+    {
+      "path": "public/prizes/sounds/black.mp3",
+      "bytes": 56886,
+      "sha256": "3b8674301da56af0d445d74fb1f502ddd6d6bd33272fcbabad86f2740e743ca8"
+    },
+    {
+      "path": "public/prizes/sounds/chime.mp3",
+      "bytes": 24703,
+      "sha256": "45337168a25cad5e6ede1a18a498a6537c5d0f8e988d7239590da1afb55c68be"
+    },
+    {
+      "path": "public/prizes/sounds/coin.mp3",
+      "bytes": 20106,
+      "sha256": "a59add54a9e17a99fb2ba41c6dcdef011a8a5c054e0132448dd16982f2ef49c3"
+    },
+    {
+      "path": "public/prizes/sounds/fanfare.mp3",
+      "bytes": 40586,
+      "sha256": "f16ac3fe857ed49f6b3ae8a41f59ccb17450c66cda9ea571c093c60400d89006"
+    },
+    {
+      "path": "public/prizes/sounds/gold.mp3",
+      "bytes": 48945,
+      "sha256": "5c5c8e6997bc3ae9005a91f498fd5782d8a5b17d15011baab2efd189cafc135a"
+    },
+    {
+      "path": "public/prizes/sounds/kira.mp3",
+      "bytes": 20106,
+      "sha256": "be43efa00d2a24e70e7437584dfaf744b58f64e4d3b944a7a7e158ca9cdd2b44"
+    },
+    {
+      "path": "public/prizes/sounds/levelup.mp3",
+      "bytes": 33062,
+      "sha256": "65af59cbd3ecc4fb7ed304c27c07ac55ac4300d6df4b1724439aea6c92a13bb5"
+    },
+    {
+      "path": "public/prizes/sounds/pico.mp3",
+      "bytes": 13836,
+      "sha256": "2b87529c9f8ea3a07f7259fdfe18de53d5caddf11d2f12bea87bbad01df05705"
+    },
+    {
+      "path": "public/prizes/sounds/pon.mp3",
+      "bytes": 13836,
+      "sha256": "48f588643d6313205c527da43aa1f6ea6650b964b8cdb457f65adf2ce6a28d01"
+    },
+    {
+      "path": "public/prizes/sounds/sparkle.mp3",
+      "bytes": 24703,
+      "sha256": "d4f050790b2da7a17aab461a5d75c4e5ce79143d011093a77a3c6f701515e74d"
+    },
+    {
+      "path": "public/robots.txt",
+      "bytes": 160,
+      "sha256": "a3d27b3ca5ce32341fa9f96f01169b521b1657c05d1860c45d1e53a6258e9e8b"
+    },
+    {
+      "path": "src/assets/collection/background-astral.jpg",
+      "bytes": 152511,
+      "sha256": "28a84e8116fd2dd8cab874a81d560afe8f9a03af4b1f6a6ca4a2a350be870561"
+    },
+    {
+      "path": "src/assets/collection/background-legend.jpg",
+      "bytes": 142005,
+      "sha256": "18bb8b5cb55a0953a19bd1d6628d2de062ea677071eb027763d4c53cf5f265e4"
+    },
+    {
+      "path": "src/assets/collection/frame-astral.png",
+      "bytes": 1422893,
+      "sha256": "3c31c5971cd9e19004333772b069a996450de0cc817e0a30a76371dde9d1aeeb"
+    },
+    {
+      "path": "src/assets/collection/frame-legend.png",
+      "bytes": 1470554,
+      "sha256": "c4c9e334e832fbf2a1ba1ac56d17918f48e09ee70505f283d8f1e66d7833d7cb"
+    },
+    {
+      "path": "src/assets/collection/gacha-stage.jpg",
+      "bytes": 200365,
+      "sha256": "7ddb543ec41c524384e75d7bbd05e553c2c3d3e49ba38d9adee36a5672b263e6"
+    }
+  ],
+  "items": [
+    {
+      "order": 0,
+      "id": "bg_simple",
+      "name": "シンプル",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": true,
+      "obtainable": null,
+      "inGachaPool": false,
+      "description": "まっさらな背景",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#f8fafc,#e2e8f0)"
+      }
+    },
+    {
+      "order": 1,
+      "id": "bg_sky",
+      "name": "青空",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "きもちいい青い空",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#bae6fd,#7dd3fc 60%,#e0f2fe)"
+      }
+    },
+    {
+      "order": 2,
+      "id": "bg_sea",
+      "name": "海",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "きらきらの海",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#67e8f9,#0891b2 70%,#075985)"
+      }
+    },
+    {
+      "order": 3,
+      "id": "bg_forest",
+      "name": "森",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "みどりの森",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#bbf7d0,#4ade80 65%,#15803d)"
+      }
+    },
+    {
+      "order": 4,
+      "id": "bg_pop",
+      "name": "ポップ",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "カラフルでたのしい",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#fef08a,#fda4af 50%,#a5b4fc)"
+      }
+    },
+    {
+      "order": 5,
+      "id": "bg_sports",
+      "name": "スポーツ",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うんどうがすき",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#fdba74,#f97316 60%,#7c2d12)"
+      }
+    },
+    {
+      "order": 6,
+      "id": "bg_sweets",
+      "name": "お菓子",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "あまいおかしの国",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#fde68a,#f9a8d4 60%,#fbcfe8)"
+      }
+    },
+    {
+      "order": 7,
+      "id": "bg_sakura",
+      "name": "はるのさくら",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "きせつの背景",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#fce7f3,#f9a8d4 70%,#fb7185)"
+      }
+    },
+    {
+      "order": 8,
+      "id": "bg_sunset",
+      "name": "ゆうやけ",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "きれいな夕やけ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#fed7aa,#fb7185 55%,#7c3aed)"
+      }
+    },
+    {
+      "order": 9,
+      "id": "bg_night",
+      "name": "星空",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "たくさんの星",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#0f172a,#1e3a8a 60%,#312e81)"
+      }
+    },
+    {
+      "order": 10,
+      "id": "bg_space",
+      "name": "宇宙",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うちゅうへ出発",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "radial-gradient(circle at 30% 20%,#6366f1,#0f172a 70%)"
+      }
+    },
+    {
+      "order": 11,
+      "id": "bg_aurora",
+      "name": "オーロラ",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "空にゆれる光",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#34d399,#22d3ee 45%,#818cf8)"
+      }
+    },
+    {
+      "order": 12,
+      "id": "bg_gold",
+      "name": "ゴールドルーム",
+      "category": "background",
+      "rarity": "GOLD",
+      "weight": 4,
+      "minRank": "GOLD",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ゴールドだけの背景",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "url(\"/prizes/bg/gold.jpg\") center / cover no-repeat, linear-gradient(135deg,#fffbe6,#fcd34d 45%,#b45309)"
+      }
+    },
+    {
+      "order": 13,
+      "id": "bg_black",
+      "name": "ブラックギャラクシー",
+      "category": "background",
+      "rarity": "BLACK",
+      "weight": 1,
+      "minRank": "BLACK",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "さいこうきゅうの背景",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "url(\"/src/assets/collection/background-legend.jpg\") center / cover no-repeat, radial-gradient(circle at 70% 25%,#facc15 0%,#111827 45%,#000000 100%)"
+      }
+    },
+    {
+      "order": 14,
+      "id": "ic_cat",
+      "name": "ねこ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": true,
+      "obtainable": null,
+      "inGachaPool": false,
+      "description": "ねこのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/cat.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐱",
+        "image": "/prizes/icons/cat.png"
+      }
+    },
+    {
+      "order": 15,
+      "id": "ic_dog",
+      "name": "いぬ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "いぬのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/dog.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐶",
+        "image": "/prizes/icons/dog.png"
+      }
+    },
+    {
+      "order": 16,
+      "id": "ic_panda",
+      "name": "パンダ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "パンダのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/panda.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐼",
+        "image": "/prizes/icons/panda.png"
+      }
+    },
+    {
+      "order": 17,
+      "id": "ic_frog",
+      "name": "カエル",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "カエルのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/frog.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐸",
+        "image": "/prizes/icons/frog.png"
+      }
+    },
+    {
+      "order": 18,
+      "id": "ic_fox",
+      "name": "きつね",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "きつねのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/fox.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦊",
+        "image": "/prizes/icons/fox.png"
+      }
+    },
+    {
+      "order": 19,
+      "id": "ic_penguin",
+      "name": "ペンギン",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ペンギンのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/penguin.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐧",
+        "image": "/prizes/icons/penguin.png"
+      }
+    },
+    {
+      "order": 20,
+      "id": "ic_sushi",
+      "name": "おすし",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "おすしのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/sushi.png",
+      "asset": null,
+      "art": {
+        "emoji": "🍣",
+        "image": "/prizes/icons/sushi.png"
+      }
+    },
+    {
+      "order": 21,
+      "id": "ic_ramen",
+      "name": "ラーメン",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ラーメンのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/ramen.png",
+      "asset": null,
+      "art": {
+        "emoji": "🍜",
+        "image": "/prizes/icons/ramen.png"
+      }
+    },
+    {
+      "order": 22,
+      "id": "ic_cake",
+      "name": "ケーキ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ケーキのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/cake.png",
+      "asset": null,
+      "art": {
+        "emoji": "🍰",
+        "image": "/prizes/icons/cake.png"
+      }
+    },
+    {
+      "order": 23,
+      "id": "ic_soccer",
+      "name": "サッカー",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "サッカーのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/soccer.png",
+      "asset": null,
+      "art": {
+        "emoji": "⚽",
+        "image": "/prizes/icons/soccer.png"
+      }
+    },
+    {
+      "order": 24,
+      "id": "ic_baseball",
+      "name": "やきゅう",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "やきゅうのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/baseball.png",
+      "asset": null,
+      "art": {
+        "emoji": "⚾",
+        "image": "/prizes/icons/baseball.png"
+      }
+    },
+    {
+      "order": 25,
+      "id": "ic_basket",
+      "name": "バスケ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "バスケのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/basket.png",
+      "asset": null,
+      "art": {
+        "emoji": "🏀",
+        "image": "/prizes/icons/basket.png"
+      }
+    },
+    {
+      "order": 26,
+      "id": "ic_train",
+      "name": "でんしゃ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "でんしゃのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/train.png",
+      "asset": null,
+      "art": {
+        "emoji": "🚄",
+        "image": "/prizes/icons/train.png"
+      }
+    },
+    {
+      "order": 27,
+      "id": "ic_rocket",
+      "name": "ロケット",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ロケットのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/rocket.png",
+      "asset": null,
+      "art": {
+        "emoji": "🚀",
+        "image": "/prizes/icons/rocket.png"
+      }
+    },
+    {
+      "order": 28,
+      "id": "ic_car",
+      "name": "レーシングカー",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "レーシングカーのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/car.png",
+      "asset": null,
+      "art": {
+        "emoji": "🏎️",
+        "image": "/prizes/icons/car.png"
+      }
+    },
+    {
+      "order": 29,
+      "id": "ic_dino",
+      "name": "きょうりゅう",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "きょうりゅうのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/dino.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦖",
+        "image": "/prizes/icons/dino.png"
+      }
+    },
+    {
+      "order": 30,
+      "id": "ic_ghost",
+      "name": "おばけ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "おばけのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/ghost.png",
+      "asset": null,
+      "art": {
+        "emoji": "👻",
+        "image": "/prizes/icons/ghost.png"
+      }
+    },
+    {
+      "order": 31,
+      "id": "ic_alien",
+      "name": "うちゅうじん",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うちゅうじんのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/alien.png",
+      "asset": null,
+      "art": {
+        "emoji": "👽",
+        "image": "/prizes/icons/alien.png"
+      }
+    },
+    {
+      "order": 32,
+      "id": "ic_robot",
+      "name": "ロボット",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ロボットのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/robot.png",
+      "asset": null,
+      "art": {
+        "emoji": "🤖",
+        "image": "/prizes/icons/robot.png"
+      }
+    },
+    {
+      "order": 33,
+      "id": "ic_rainbow",
+      "name": "にじ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "にじのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/rainbow.png",
+      "asset": null,
+      "art": {
+        "emoji": "🌈",
+        "image": "/prizes/icons/rainbow.png"
+      }
+    },
+    {
+      "order": 34,
+      "id": "ic_volcano",
+      "name": "かざん",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "かざんのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/volcano.png",
+      "asset": null,
+      "art": {
+        "emoji": "🌋",
+        "image": "/prizes/icons/volcano.png"
+      }
+    },
+    {
+      "order": 35,
+      "id": "ic_dragon",
+      "name": "ドラゴン",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ドラゴンのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/dragon.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐉",
+        "image": "/prizes/icons/dragon.png"
+      }
+    },
+    {
+      "order": 36,
+      "id": "ic_unicorn",
+      "name": "ユニコーン",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ユニコーンのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/unicorn.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦄",
+        "image": "/prizes/icons/unicorn.png"
+      }
+    },
+    {
+      "order": 37,
+      "id": "ic_wizard",
+      "name": "まほうつかい",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "まほうつかいのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/wizard.png",
+      "asset": null,
+      "art": {
+        "emoji": "🧙",
+        "image": "/prizes/icons/wizard.png"
+      }
+    },
+    {
+      "order": 38,
+      "id": "ic_trophy",
+      "name": "トロフィー",
+      "category": "icon",
+      "rarity": "GOLD",
+      "weight": 4,
+      "minRank": "GOLD",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "トロフィーのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/trophy.png",
+      "asset": null,
+      "art": {
+        "emoji": "🏆",
+        "image": "/prizes/icons/trophy.png"
+      }
+    },
+    {
+      "order": 39,
+      "id": "ic_crown",
+      "name": "おうかん",
+      "category": "icon",
+      "rarity": "BLACK",
+      "weight": 1,
+      "minRank": "BLACK",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "おうかんのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/crown.png",
+      "asset": null,
+      "art": {
+        "emoji": "👑",
+        "image": "/prizes/icons/crown.png"
+      }
+    },
+    {
+      "order": 40,
+      "id": "fr_simple",
+      "name": "シンプル",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": true,
+      "obtainable": null,
+      "inGachaPool": false,
+      "description": "きほんのフレーム",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#94a3b8"
+      }
+    },
+    {
+      "order": 41,
+      "id": "fr_blue",
+      "name": "ブルー",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "さわやかな青",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#3b82f6"
+      }
+    },
+    {
+      "order": 42,
+      "id": "fr_green",
+      "name": "グリーン",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "げんきなみどり",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#22c55e"
+      }
+    },
+    {
+      "order": 43,
+      "id": "fr_pink",
+      "name": "ピンク",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "やさしいピンク",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#f472b6"
+      }
+    },
+    {
+      "order": 44,
+      "id": "fr_colorful",
+      "name": "カラフル",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ぐるっとカラフル",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "conic-gradient(#f87171,#fbbf24,#34d399,#60a5fa,#a78bfa,#f87171)"
+      }
+    },
+    {
+      "order": 45,
+      "id": "fr_star",
+      "name": "スター",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "星のかがやき",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#fde68a,#f59e0b)"
+      }
+    },
+    {
+      "order": 46,
+      "id": "fr_heart",
+      "name": "ハート",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ハートのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#fb7185,#f472b6)"
+      }
+    },
+    {
+      "order": 47,
+      "id": "fr_water",
+      "name": "ウォーター",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "水のながれ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#38bdf8,#0ea5e9)"
+      }
+    },
+    {
+      "order": 48,
+      "id": "fr_thunder",
+      "name": "いなずま",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ビリビリ光る",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#fef08a,#7c3aed)"
+      }
+    },
+    {
+      "order": 49,
+      "id": "fr_fire",
+      "name": "ほのお",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "もえる炎",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#fb923c,#dc2626)"
+      }
+    },
+    {
+      "order": 50,
+      "id": "fr_rainbow",
+      "name": "レインボー",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "にじいろのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "conic-gradient(#ef4444,#f97316,#facc15,#22c55e,#3b82f6,#a855f7,#ef4444)"
+      }
+    },
+    {
+      "order": 51,
+      "id": "fr_gold",
+      "name": "ゴールドクラウン",
+      "category": "frame",
+      "rarity": "GOLD",
+      "weight": 4,
+      "minRank": "GOLD",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ゴールドだけのフレーム",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "url(\"/prizes/frames/gold.png\") center / cover no-repeat, linear-gradient(135deg,#fff7cc,#f6c453,#b8860b)"
+      }
+    },
+    {
+      "order": 52,
+      "id": "fr_black",
+      "name": "ブラックプレミアム",
+      "category": "frame",
+      "rarity": "BLACK",
+      "weight": 1,
+      "minRank": "BLACK",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "さいこうきゅうのフレーム",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "url(\"/src/assets/collection/frame-legend.png\") center / cover no-repeat, linear-gradient(135deg,#facc15,#0b1220 45%,#facc15)"
+      }
+    },
+    {
+      "order": 53,
+      "id": "sd_pico",
+      "name": "ピコン",
+      "category": "sound",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": true,
+      "obtainable": null,
+      "inGachaPool": false,
+      "description": "みじかく ピコン",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/pico.mp3",
+      "art": {
+        "tune": "pico"
+      }
+    },
+    {
+      "order": 54,
+      "id": "sd_pon",
+      "name": "ポン",
+      "category": "sound",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "やさしい ポン",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/pon.mp3",
+      "art": {
+        "tune": "pon"
+      }
+    },
+    {
+      "order": 55,
+      "id": "sd_kira",
+      "name": "キラッ",
+      "category": "sound",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "たかい音で キラッ",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/kira.mp3",
+      "art": {
+        "tune": "kira"
+      }
+    },
+    {
+      "order": 56,
+      "id": "sd_chime",
+      "name": "チャイム",
+      "category": "sound",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ポーンとチャイム",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/chime.mp3",
+      "art": {
+        "tune": "chime"
+      }
+    },
+    {
+      "order": 57,
+      "id": "sd_coin",
+      "name": "コイン",
+      "category": "sound",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "コインをゲットした音",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/coin.mp3",
+      "art": {
+        "tune": "coin"
+      }
+    },
+    {
+      "order": 58,
+      "id": "sd_sparkle",
+      "name": "キラキラ",
+      "category": "sound",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "キラキラひろがる音",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/sparkle.mp3",
+      "art": {
+        "tune": "sparkle"
+      }
+    },
+    {
+      "order": 59,
+      "id": "sd_levelup",
+      "name": "レベルアップ",
+      "category": "sound",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "つよくなった音",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/levelup.mp3",
+      "art": {
+        "tune": "levelup"
+      }
+    },
+    {
+      "order": 60,
+      "id": "sd_fanfare",
+      "name": "ファンファーレ",
+      "category": "sound",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "おめでとうの音",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/fanfare.mp3",
+      "art": {
+        "tune": "fanfare"
+      }
+    },
+    {
+      "order": 61,
+      "id": "sd_gold",
+      "name": "ゴールドファンファーレ",
+      "category": "sound",
+      "rarity": "GOLD",
+      "weight": 4,
+      "minRank": "GOLD",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ゴールドだけの豪華な音",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/gold.mp3",
+      "art": {
+        "tune": "gold"
+      }
+    },
+    {
+      "order": 62,
+      "id": "sd_black",
+      "name": "ブラックシンフォニー",
+      "category": "sound",
+      "rarity": "BLACK",
+      "weight": 1,
+      "minRank": "BLACK",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "いちばん豪華な音",
+      "provider": "elevenlabs",
+      "image": null,
+      "asset": "/prizes/sounds/black.mp3",
+      "art": {
+        "tune": "black"
+      }
+    },
+    {
+      "order": 63,
+      "id": "ef_spark",
+      "name": "小さな光",
+      "category": "effect",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": true,
+      "obtainable": null,
+      "inGachaPool": false,
+      "description": "ぽわっと光る",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "fx": "spark"
+      }
+    },
+    {
+      "order": 64,
+      "id": "ef_pop",
+      "name": "ポンッ",
+      "category": "effect",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ポンッとひろがる",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "fx": "pop"
+      }
+    },
+    {
+      "order": 65,
+      "id": "ef_stars",
+      "name": "ほしがでる",
+      "category": "effect",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "星がぴょこん",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/d3/a6/gLOdk4fv.gif",
+      "asset": null,
+      "art": {
+        "fx": "stars",
+        "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/d3/a6/gLOdk4fv.gif"
+      }
+    },
+    {
+      "order": 66,
+      "id": "ef_bubble",
+      "name": "しゃぼん玉",
+      "category": "effect",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ふわふわうかぶ",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/a5166a66b33e26d783bf95ac62ea3cdb/4f/fe/wfDKG8JB.gif",
+      "asset": null,
+      "art": {
+        "fx": "bubble",
+        "image": "https://static.klipy.com/ii/a5166a66b33e26d783bf95ac62ea3cdb/4f/fe/wfDKG8JB.gif"
+      }
+    },
+    {
+      "order": 67,
+      "id": "ef_glitter",
+      "name": "キラキラ",
+      "category": "effect",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "キラキラがまう",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/d5/84/JAqu2L8b.gif",
+      "asset": null,
+      "art": {
+        "fx": "glitter",
+        "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/d5/84/JAqu2L8b.gif"
+      }
+    },
+    {
+      "order": 68,
+      "id": "ef_ring",
+      "name": "光のリング",
+      "category": "effect",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "光の輪がひろがる",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/11/58/eY5etlLo.gif",
+      "asset": null,
+      "art": {
+        "fx": "ring",
+        "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/11/58/eY5etlLo.gif"
+      }
+    },
+    {
+      "order": 69,
+      "id": "ef_coin",
+      "name": "コインラッシュ",
+      "category": "effect",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "コインがふってくる",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/70/cf/aB9r1qed.gif",
+      "asset": null,
+      "art": {
+        "fx": "coin",
+        "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/70/cf/aB9r1qed.gif"
+      }
+    },
+    {
+      "order": 70,
+      "id": "ef_confetti",
+      "name": "カラフル紙ふぶき",
+      "category": "effect",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "いろとりどりの紙ふぶき",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/bf/a3/Lr5yHhPq.gif",
+      "asset": null,
+      "art": {
+        "fx": "confetti",
+        "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/bf/a3/Lr5yHhPq.gif"
+      }
+    },
+    {
+      "order": 71,
+      "id": "ef_starfall",
+      "name": "スターシャワー",
+      "category": "effect",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "星がふりそそぐ",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/10/8a/Hs1j9E7Y.gif",
+      "asset": null,
+      "art": {
+        "fx": "starfall",
+        "image": "https://static.klipy.com/ii/c98c4a4935d23b95805f0befee091d8a/10/8a/Hs1j9E7Y.gif"
+      }
+    },
+    {
+      "order": 72,
+      "id": "ef_gold",
+      "name": "ゴールドバースト",
+      "category": "effect",
+      "rarity": "GOLD",
+      "weight": 4,
+      "minRank": "GOLD",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "金色の大きな光",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/4bbcf901ea0d5dec489bd8c608d7f1fd/8a/e9/ysRbo5x5T8f5qZ.gif",
+      "asset": null,
+      "art": {
+        "fx": "gold",
+        "image": "https://static.klipy.com/ii/4bbcf901ea0d5dec489bd8c608d7f1fd/8a/e9/ysRbo5x5T8f5qZ.gif"
+      }
+    },
+    {
+      "order": 73,
+      "id": "ef_black",
+      "name": "ブラックオーロラ",
+      "category": "effect",
+      "rarity": "BLACK",
+      "weight": 1,
+      "minRank": "BLACK",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "さいこうきゅうの大演出",
+      "provider": "klipy",
+      "image": "https://static.klipy.com/ii/40e5f3c9157feea5d28a6b4ad3880d85/9e/d7/f7hlhIFw.gif",
+      "asset": null,
+      "art": {
+        "fx": "black",
+        "image": "https://static.klipy.com/ii/40e5f3c9157feea5d28a6b4ad3880d85/9e/d7/f7hlhIFw.gif"
+      }
+    },
+    {
+      "order": 74,
+      "id": "ic_tiger",
+      "name": "とら",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "とらのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/tiger.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐯",
+        "image": "/prizes/icons/tiger.png"
+      }
+    },
+    {
+      "order": 75,
+      "id": "ic_rabbit",
+      "name": "うさぎ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うさぎのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/rabbit.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐰",
+        "image": "/prizes/icons/rabbit.png"
+      }
+    },
+    {
+      "order": 76,
+      "id": "ic_bear",
+      "name": "くま",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "くまのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/bear.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐻",
+        "image": "/prizes/icons/bear.png"
+      }
+    },
+    {
+      "order": 77,
+      "id": "ic_koala",
+      "name": "コアラ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "コアラのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/koala.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐨",
+        "image": "/prizes/icons/koala.png"
+      }
+    },
+    {
+      "order": 78,
+      "id": "ic_monkey",
+      "name": "さる",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "さるのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/monkey.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐵",
+        "image": "/prizes/icons/monkey.png"
+      }
+    },
+    {
+      "order": 79,
+      "id": "ic_hamster",
+      "name": "ハムスター",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ハムスターのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/hamster.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐹",
+        "image": "/prizes/icons/hamster.png"
+      }
+    },
+    {
+      "order": 80,
+      "id": "ic_chick",
+      "name": "ひよこ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ひよこのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/chick.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐤",
+        "image": "/prizes/icons/chick.png"
+      }
+    },
+    {
+      "order": 81,
+      "id": "ic_owl",
+      "name": "ふくろう",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ふくろうのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/owl.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦉",
+        "image": "/prizes/icons/owl.png"
+      }
+    },
+    {
+      "order": 82,
+      "id": "ic_turtle",
+      "name": "かめ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "かめのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/turtle.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐢",
+        "image": "/prizes/icons/turtle.png"
+      }
+    },
+    {
+      "order": 83,
+      "id": "ic_fish",
+      "name": "さかな",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "さかなのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/fish.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐟",
+        "image": "/prizes/icons/fish.png"
+      }
+    },
+    {
+      "order": 84,
+      "id": "ic_bee",
+      "name": "はち",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "はちのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/bee.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐝",
+        "image": "/prizes/icons/bee.png"
+      }
+    },
+    {
+      "order": 85,
+      "id": "ic_butterfly",
+      "name": "ちょうちょ",
+      "category": "icon",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ちょうちょのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/butterfly.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦋",
+        "image": "/prizes/icons/butterfly.png"
+      }
+    },
+    {
+      "order": 86,
+      "id": "ic_whale",
+      "name": "クジラ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "クジラのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/whale.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐋",
+        "image": "/prizes/icons/whale.png"
+      }
+    },
+    {
+      "order": 87,
+      "id": "ic_shark",
+      "name": "サメ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "サメのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/shark.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦈",
+        "image": "/prizes/icons/shark.png"
+      }
+    },
+    {
+      "order": 88,
+      "id": "ic_eagle",
+      "name": "ワシ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ワシのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/eagle.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦅",
+        "image": "/prizes/icons/eagle.png"
+      }
+    },
+    {
+      "order": 89,
+      "id": "ic_octopus",
+      "name": "タコ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "タコのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/octopus.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐙",
+        "image": "/prizes/icons/octopus.png"
+      }
+    },
+    {
+      "order": 90,
+      "id": "ic_crab",
+      "name": "カニ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "カニのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/crab.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦀",
+        "image": "/prizes/icons/crab.png"
+      }
+    },
+    {
+      "order": 91,
+      "id": "ic_hedgehog",
+      "name": "ハリネズミ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ハリネズミのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/hedgehog.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦔",
+        "image": "/prizes/icons/hedgehog.png"
+      }
+    },
+    {
+      "order": 92,
+      "id": "ic_wolf",
+      "name": "オオカミ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "オオカミのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/wolf.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐺",
+        "image": "/prizes/icons/wolf.png"
+      }
+    },
+    {
+      "order": 93,
+      "id": "ic_lion",
+      "name": "ライオン",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ライオンのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/lion.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦁",
+        "image": "/prizes/icons/lion.png"
+      }
+    },
+    {
+      "order": 94,
+      "id": "ic_elephant",
+      "name": "ゾウ",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ゾウのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/elephant.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐘",
+        "image": "/prizes/icons/elephant.png"
+      }
+    },
+    {
+      "order": 95,
+      "id": "ic_giraffe",
+      "name": "キリン",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "キリンのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/giraffe.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦒",
+        "image": "/prizes/icons/giraffe.png"
+      }
+    },
+    {
+      "order": 96,
+      "id": "ic_kangaroo",
+      "name": "カンガルー",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "カンガルーのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/kangaroo.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦘",
+        "image": "/prizes/icons/kangaroo.png"
+      }
+    },
+    {
+      "order": 97,
+      "id": "ic_peacock",
+      "name": "クジャク",
+      "category": "icon",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "クジャクのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/peacock.png",
+      "asset": null,
+      "art": {
+        "emoji": "🦚",
+        "image": "/prizes/icons/peacock.png"
+      }
+    },
+    {
+      "order": 98,
+      "id": "ic_astronaut",
+      "name": "うちゅうひこうし",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うちゅうひこうしのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/astronaut.png",
+      "asset": null,
+      "art": {
+        "emoji": "🧑‍🚀",
+        "image": "/prizes/icons/astronaut.png"
+      }
+    },
+    {
+      "order": 99,
+      "id": "ic_ninja",
+      "name": "にんじゃ",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "にんじゃのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/ninja.png",
+      "asset": null,
+      "art": {
+        "emoji": "🥷",
+        "image": "/prizes/icons/ninja.png"
+      }
+    },
+    {
+      "order": 100,
+      "id": "ic_knight",
+      "name": "きし",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "きしのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/knight.png",
+      "asset": null,
+      "art": {
+        "emoji": "🛡️",
+        "image": "/prizes/icons/knight.png"
+      }
+    },
+    {
+      "order": 101,
+      "id": "ic_wand",
+      "name": "まほうのつえ",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "まほうのつえのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/wand.png",
+      "asset": null,
+      "art": {
+        "emoji": "🪄",
+        "image": "/prizes/icons/wand.png"
+      }
+    },
+    {
+      "order": 102,
+      "id": "ic_ufo",
+      "name": "ユーフォー",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ユーフォーのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/ufo.png",
+      "asset": null,
+      "art": {
+        "emoji": "🛸",
+        "image": "/prizes/icons/ufo.png"
+      }
+    },
+    {
+      "order": 103,
+      "id": "ic_comet",
+      "name": "すいせい",
+      "category": "icon",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "すいせいのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/comet.png",
+      "asset": null,
+      "art": {
+        "emoji": "☄️",
+        "image": "/prizes/icons/comet.png"
+      }
+    },
+    {
+      "order": 104,
+      "id": "ic_starhero",
+      "name": "星のゆうしゃ",
+      "category": "icon",
+      "rarity": "SSR",
+      "weight": 6,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "星のゆうしゃのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/starhero.png",
+      "asset": null,
+      "art": {
+        "emoji": "🌟",
+        "image": "/prizes/icons/starhero.png"
+      }
+    },
+    {
+      "order": 105,
+      "id": "ic_galaxywhale",
+      "name": "ぎんがクジラ",
+      "category": "icon",
+      "rarity": "SSR",
+      "weight": 6,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ぎんがクジラのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/galaxywhale.png",
+      "asset": null,
+      "art": {
+        "emoji": "🌌",
+        "image": "/prizes/icons/galaxywhale.png"
+      }
+    },
+    {
+      "order": 106,
+      "id": "ic_golddragon",
+      "name": "ゴールドドラゴン",
+      "category": "icon",
+      "rarity": "GOLD",
+      "weight": 4,
+      "minRank": "GOLD",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ゴールドドラゴンのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/golddragon.png",
+      "asset": null,
+      "art": {
+        "emoji": "🐲",
+        "image": "/prizes/icons/golddragon.png"
+      }
+    },
+    {
+      "order": 107,
+      "id": "ic_blackstar",
+      "name": "ブラックスター",
+      "category": "icon",
+      "rarity": "BLACK",
+      "weight": 1,
+      "minRank": "BLACK",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ブラックスターのアイコン",
+      "provider": "lovable-ai",
+      "image": "/prizes/icons/blackstar.png",
+      "asset": null,
+      "art": {
+        "emoji": "✴️",
+        "image": "/prizes/icons/blackstar.png"
+      }
+    },
+    {
+      "order": 108,
+      "id": "bg_dawn",
+      "name": "あさやけ",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "朝のそら",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#fde68a,#fb923c 60%,#f472b6)"
+      }
+    },
+    {
+      "order": 109,
+      "id": "bg_cloud",
+      "name": "くもぞら",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "しろい雲",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#f1f5f9,#cbd5e1 60%,#94a3b8)"
+      }
+    },
+    {
+      "order": 110,
+      "id": "bg_meadow",
+      "name": "そうげん",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ひろい草原",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#d9f99d,#65a30d 70%,#365314)"
+      }
+    },
+    {
+      "order": 111,
+      "id": "bg_desert",
+      "name": "さばく",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "あつい砂ばく",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#fef3c7,#fbbf24 65%,#b45309)"
+      }
+    },
+    {
+      "order": 112,
+      "id": "bg_snow",
+      "name": "ゆきげしき",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "しずかな雪",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#ffffff,#dbeafe 60%,#93c5fd)"
+      }
+    },
+    {
+      "order": 113,
+      "id": "bg_bamboo",
+      "name": "たけばやし",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "竹のみち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#dcfce7,#16a34a 70%,#14532d)"
+      }
+    },
+    {
+      "order": 114,
+      "id": "bg_pond",
+      "name": "みずべ",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "すずしい水べ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#cffafe,#22d3ee 65%,#0e7490)"
+      }
+    },
+    {
+      "order": 115,
+      "id": "bg_field",
+      "name": "はたけ",
+      "category": "background",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "みのりの畑",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#fef9c3,#a3e635 60%,#4d7c0f)"
+      }
+    },
+    {
+      "order": 116,
+      "id": "bg_strawberry",
+      "name": "いちご",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "あまいいちご",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#fee2e2,#fb7185 60%,#be123c)"
+      }
+    },
+    {
+      "order": 117,
+      "id": "bg_mint",
+      "name": "ミント",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ひんやりミント",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#ecfdf5,#6ee7b7 60%,#0d9488)"
+      }
+    },
+    {
+      "order": 118,
+      "id": "bg_lemon",
+      "name": "レモン",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "さわやかレモン",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#fefce8,#facc15 60%,#ca8a04)"
+      }
+    },
+    {
+      "order": 119,
+      "id": "bg_island",
+      "name": "そらのしま",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "空にうかぶ島",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#bfdbfe,#38bdf8 55%,#15803d)"
+      }
+    },
+    {
+      "order": 120,
+      "id": "bg_deepsea",
+      "name": "かいてい",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ふかい海のなか",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#0ea5e9,#0c4a6e 65%,#082f49)"
+      }
+    },
+    {
+      "order": 121,
+      "id": "bg_morning",
+      "name": "もりのあさ",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "朝の森",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#fef9c3,#86efac 55%,#166534)"
+      }
+    },
+    {
+      "order": 122,
+      "id": "bg_stadium",
+      "name": "スタジアム",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "しあいの日",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#bbf7d0,#22c55e 55%,#1e3a8a)"
+      }
+    },
+    {
+      "order": 123,
+      "id": "bg_circuit",
+      "name": "サーキット",
+      "category": "background",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "スピードの世界",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(135deg,#e2e8f0,#475569 55%,#dc2626)"
+      }
+    },
+    {
+      "order": 124,
+      "id": "bg_galaxy",
+      "name": "ぎんが",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うずまく銀河",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "url(\"/src/assets/collection/background-astral.jpg\") center / cover no-repeat, radial-gradient(circle at 40% 35%,#a78bfa,#1e1b4b 70%)"
+      }
+    },
+    {
+      "order": 125,
+      "id": "bg_meteor",
+      "name": "りゅうせいぐん",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ながれ星の夜",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#1e293b,#3730a3 55%,#f59e0b)"
+      }
+    },
+    {
+      "order": 126,
+      "id": "bg_lightforest",
+      "name": "ひかりのもり",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "光る森",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "radial-gradient(circle at 50% 80%,#bbf7d0,#065f46 60%,#052e16)"
+      }
+    },
+    {
+      "order": 127,
+      "id": "bg_castle",
+      "name": "まほうのしろ",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "まほうのお城",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "linear-gradient(160deg,#c7d2fe,#6d28d9 60%,#1e1b4b)"
+      }
+    },
+    {
+      "order": 128,
+      "id": "bg_trench",
+      "name": "しんかい",
+      "category": "background",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "まっくらな深海",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "radial-gradient(circle at 50% 20%,#22d3ee,#083344 55%,#020617)"
+      }
+    },
+    {
+      "order": 129,
+      "id": "bg_crystal",
+      "name": "クリスタルパレス",
+      "category": "background",
+      "rarity": "SSR",
+      "weight": 6,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "すきとおる宮でん",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "url(\"/prizes/bg/crystal.jpg\") center / cover no-repeat, linear-gradient(135deg,#ecfeff,#a5f3fc 40%,#6366f1)"
+      }
+    },
+    {
+      "order": 130,
+      "id": "bg_dragonlair",
+      "name": "ドラゴンのすみか",
+      "category": "background",
+      "rarity": "SSR",
+      "weight": 6,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ドラゴンのいる場所",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "css": "url(\"/prizes/bg/dragonlair.jpg\") center / cover no-repeat, radial-gradient(circle at 30% 70%,#fb923c,#7f1d1d 55%,#1c1917)"
+      }
+    },
+    {
+      "order": 131,
+      "id": "fr_purple",
+      "name": "パープル",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "おちついた紫",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#a855f7"
+      }
+    },
+    {
+      "order": 132,
+      "id": "fr_orange",
+      "name": "オレンジ",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "あかるいオレンジ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#f97316"
+      }
+    },
+    {
+      "order": 133,
+      "id": "fr_yellow",
+      "name": "イエロー",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "げんきな黄色",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#eab308"
+      }
+    },
+    {
+      "order": 134,
+      "id": "fr_gray",
+      "name": "グレー",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "しぶいグレー",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#64748b"
+      }
+    },
+    {
+      "order": 135,
+      "id": "fr_brown",
+      "name": "ブラウン",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "木のいろ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#92400e"
+      }
+    },
+    {
+      "order": 136,
+      "id": "fr_teal",
+      "name": "ティール",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "すずしい青みどり",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#14b8a6"
+      }
+    },
+    {
+      "order": 137,
+      "id": "fr_red",
+      "name": "レッド",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "つよい赤",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#ef4444"
+      }
+    },
+    {
+      "order": 138,
+      "id": "fr_navy",
+      "name": "ネイビー",
+      "category": "frame",
+      "rarity": "N",
+      "weight": 55,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ふかい青",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "#1e3a8a"
+      }
+    },
+    {
+      "order": 139,
+      "id": "fr_sunset",
+      "name": "サンセット",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "夕やけのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#fbbf24,#f43f5e)"
+      }
+    },
+    {
+      "order": 140,
+      "id": "fr_ocean",
+      "name": "オーシャン",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うみのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#67e8f9,#1d4ed8)"
+      }
+    },
+    {
+      "order": 141,
+      "id": "fr_forest",
+      "name": "フォレスト",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "もりのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#86efac,#166534)"
+      }
+    },
+    {
+      "order": 142,
+      "id": "fr_candy",
+      "name": "キャンディ",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "あまいいろ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#f9a8d4,#c084fc)"
+      }
+    },
+    {
+      "order": 143,
+      "id": "fr_soda",
+      "name": "ソーダ",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "しゅわしゅわ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#a5f3fc,#60a5fa)"
+      }
+    },
+    {
+      "order": 144,
+      "id": "fr_grape",
+      "name": "グレープ",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ぶどうのいろ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#c4b5fd,#6d28d9)"
+      }
+    },
+    {
+      "order": 145,
+      "id": "fr_peach",
+      "name": "ピーチ",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ももいろ",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#fed7aa,#fb7185)"
+      }
+    },
+    {
+      "order": 146,
+      "id": "fr_lime",
+      "name": "ライム",
+      "category": "frame",
+      "rarity": "R",
+      "weight": 27,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "みずみずしい緑",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#d9f99d,#4d7c0f)"
+      }
+    },
+    {
+      "order": 147,
+      "id": "fr_crystalfr",
+      "name": "クリスタル",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "すきとおるふち",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "url(\"/src/assets/collection/frame-astral.png\") center / cover no-repeat, linear-gradient(135deg,#ecfeff,#67e8f9,#818cf8)"
+      }
+    },
+    {
+      "order": 148,
+      "id": "fr_galaxyfr",
+      "name": "ギャラクシー",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "うちゅうのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "conic-gradient(#1e1b4b,#6366f1,#a855f7,#1e1b4b)"
+      }
+    },
+    {
+      "order": 149,
+      "id": "fr_aurorafr",
+      "name": "オーロラ",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ゆれる光のふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#34d399,#818cf8)"
+      }
+    },
+    {
+      "order": 150,
+      "id": "fr_dragonfr",
+      "name": "ドラゴン",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ドラゴンのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#f97316,#7f1d1d)"
+      }
+    },
+    {
+      "order": 151,
+      "id": "fr_storm",
+      "name": "サンダーストーム",
+      "category": "frame",
+      "rarity": "SR",
+      "weight": 13,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "あらしのふち",
+      "provider": null,
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "linear-gradient(135deg,#93c5fd,#1e293b)"
+      }
+    },
+    {
+      "order": 152,
+      "id": "fr_prism",
+      "name": "プリズム",
+      "category": "frame",
+      "rarity": "SSR",
+      "weight": 6,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "ひかりをわけるふち",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "url(\"/prizes/frames/prism.png\") center / cover no-repeat, conic-gradient(#f0abfc,#a5f3fc,#fde68a,#bbf7d0,#f0abfc)"
+      }
+    },
+    {
+      "order": 153,
+      "id": "fr_neon",
+      "name": "ネオンリング",
+      "category": "frame",
+      "rarity": "SSR",
+      "weight": 6,
+      "minRank": "NORMAL",
+      "initial": false,
+      "obtainable": null,
+      "inGachaPool": true,
+      "description": "光るネオン",
+      "provider": "lovable-ai",
+      "image": null,
+      "asset": null,
+      "art": {
+        "ring": "url(\"/prizes/frames/neon.png\") center / cover no-repeat, linear-gradient(135deg,#22d3ee,#f0abfc)"
+      }
+    }
+  ]
+}
