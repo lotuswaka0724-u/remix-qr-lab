@@ -575,8 +575,8 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
                 {has ? (
                   <ItemArt item={item} />
                 ) : (
-                  <span className="grid h-14 w-14 place-content-center rounded-xl bg-muted text-2xl">
-                    ？
+                  <span className="pointer-events-none opacity-70 [filter:brightness(0)_opacity(0.55)]" aria-label="まだ持っていない">
+                    <ItemArt item={item} />
                   </span>
                 )}
                 <span className="text-xs font-bold">{has ? item.name : "？？？"}</span>
