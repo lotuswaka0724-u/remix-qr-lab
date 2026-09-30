@@ -980,6 +980,15 @@
 }
 
 .collection-page { position: relative; isolation: isolate; overflow-x: clip; background: var(--background); }
+.collection-page::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: url("/__l5e/assets-v1/e2d50001-cb94-4c02-9549-fae544e4e4e1/ambient-light-emitting-blobs.png") left top / min(80vw, 760px) auto no-repeat;
+  opacity: 0.23;
+}
 .collection-backdrop {
   position: fixed;
   inset: 0;
