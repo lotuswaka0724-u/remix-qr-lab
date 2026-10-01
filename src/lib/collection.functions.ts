@@ -93,13 +93,17 @@ const defaults = (): CollData => ({
 
 function normalizeColl(raw: Partial<CollData> | null | undefined): CollData {
   const base = defaults();
+  // 未登録に見えるID（先生の景品が一時的に読めない等）も消さずに保持する。
+  // 消すと、そのまま保存されたときに所持データが失われるため。
   const owned = Array.from(
-    new Set([...base.owned, ...(raw?.owned ?? [])].filter((id) => COLL_ITEM_BY_ID[id])),
+    new Set([...base.owned, ...(raw?.owned ?? [])].filter((id) => typeof id === "string" && id)),
   );
   const equipped: Partial<Record<CollCategory, string>> = {};
   for (const cat of COLL_CATEGORIES) {
     const want = raw?.equipped?.[cat];
-    if (want && COLL_ITEM_BY_ID[want]?.category === cat && owned.includes(want)) {
+    const known = want ? COLL_ITEM_BY_ID[want] : undefined;
+    // 未登録に見えるIDも、所持していれば装備状態を保持する（見た目は表示側で安全にフォールバック）
+    if (want && owned.includes(want) && (!known || known.category === cat)) {
       equipped[cat] = want;
     } else if (base.equipped[cat]) {
       equipped[cat] = base.equipped[cat]!;
@@ -109,17 +113,30 @@ function normalizeColl(raw: Partial<CollData> | null | undefined): CollData {
 }
 
 /** 先生が登録した景品と素材差し替えをマスターに合流させる（毎回よびだしても安全） */
+let syncedAt = 0;
+let syncing: Promise<void> | null = null;
 async function syncCustom() {
+  // 同じワーカー内では15秒間は再取得しない（毎操作ごとの重複DB読み取りを削減）
+  if (Date.now() - syncedAt < 15_000) return;
+  if (!syncing)
+    syncing = doSyncCustom().finally(() => {
+      syncing = null;
+    });
+  await syncing;
+}
+async function doSyncCustom() {
+  let ok = true;
   try {
     const { readCustomPrizes } = await import("@/lib/prizes.functions");
     registerCustomItems(await readCustomPrizes());
   } catch {
-    /* 景品テーブルが読めなくても既存アイテムはそのまま使う */
+    ok = false; /* 景品テーブルが読めなくても既存アイテムはそのまま使う */
   }
   try {
     const { readPrizeOverrides } = await import("@/lib/prizes.functions");
     const { applyAssetOverrides } = await import("@/lib/collection-catalog");
     applyAssetOverrides(await readPrizeOverrides());
+    if (ok) syncedAt = Date.now();
   } catch {
     /* 差し替えが読めなくても内蔵の見た目でそのまま動く */
   }
@@ -132,22 +149,26 @@ async function admin() {
 
 async function readRaw(studentId: string): Promise<Record<string, unknown>> {
   const db = await admin();
-  const { data } = await db
+  const { data, error } = await db
     .from("student_game")
     .select("data")
     .eq("student_id", studentId)
     .maybeSingle();
+  // 読み取り失敗を「空データ」とあつかうと、上書き保存で所持品が消えるため必ず止める
+  if (error) throw new Error(`student_game read failed: ${error.message}`);
   return (data?.data ?? {}) as Record<string, unknown>;
 }
 
 async function writeColl(studentId: string, coll: CollData, play?: PlayData) {
   const db = await admin();
   const raw = await readRaw(studentId);
-  await db.from("student_game").upsert({
+  const { error } = await db.from("student_game").upsert({
     student_id: studentId,
     data: { ...raw, coll, ...(play ? { play } : {}) } as never,
     updated_at: new Date().toISOString(),
   });
+  // 保存に失敗したら成功したように見せない（呼び出し側でエラー表示）
+  if (error) throw new Error(`student_game write failed: ${error.message}`);
 }
 
 function normalizePlay(raw: Partial<PlayData> | null | undefined): PlayData {
