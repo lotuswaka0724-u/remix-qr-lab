@@ -1,5 +1,5 @@
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import CollectionFx from "@/components/CollectionFx";
 import CollectionBackdrop from "@/components/CollectionBackdrop";
@@ -74,27 +74,45 @@ export function useCollection() {
   const load = useServerFn(getCollection);
   const draw = useServerFn(drawCollGacha);
   const equip = useServerFn(equipCollItem);
-  const [view, setView] = useState<CollView | null>(null);
+  const [view, setViewRaw] = useState<CollView | null>(null);
   const [loading, setLoading] = useState(true);
   // 先生が登録した景品もアイテム一覧に合流させる
   const custom = useCustomPrizes();
+  // 新しい保存結果を、あとから届いた古い読み込み結果で上書きしないための番号
+  const version = useRef(0);
+  const setView = useCallback((v: CollView | null) => {
+    version.current += 1;
+    setViewRaw(v);
+  }, []);
+
+  /** サーバーの最新状態を読み直す（保存後の同期・失敗時の復旧用） */
+  const refresh = useCallback(async () => {
+    const started = version.current;
+    try {
+      const v = await load({});
+      if (version.current === started) setView(v);
+    } catch {
+      /* 読み直しに失敗しても、いまの表示はそのまま */
+    }
+  }, [load, setView]);
 
   useEffect(() => {
     let off = false;
+    const started = version.current;
     void load({})
       .then((v) => {
-        if (!off) {
-          setView(v);
-          setLoading(false);
-        }
+        if (!off && version.current === started) setView(v);
       })
-      .catch(() => setLoading(false));
+      .catch(() => {})
+      .finally(() => {
+        if (!off) setLoading(false);
+      });
     return () => {
       off = true;
     };
-  }, [load]);
+  }, [load, setView]);
 
-  return { view, setView, loading: loading || !custom.ready, draw, equip };
+  return { view, setView, refresh, loading: loading || !custom.ready, draw, equip };
 }
 
 export type CollectionApi = ReturnType<typeof useCollection>;
@@ -152,7 +170,7 @@ function sortItems(items: CollItem[], by: "rarity" | "owned", owned: string[]): 
 }
 
 export default function CollectionPanel({ api, screen }: { api: CollectionApi; screen: Screen }) {
-  const { view, setView, loading, draw, equip } = api;
+  const { view, setView, refresh, loading, draw, equip } = api;
   const [busy, setBusy] = useState(false);
   const [prize, setPrize] = useState<CollPrize | null>(null);
   const [msg, setMsg] = useState("");
@@ -214,6 +232,8 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
       setPhase("idle");
       setMsg("ガチャを まわせませんでした");
       playError();
+      // 保存の途中で失敗した可能性があるので、サーバーの最新状態に合わせる
+      void refresh();
       return;
     }
     if (!res) {
@@ -266,9 +286,21 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
   const onEquip = async (item: CollItem) => {
     if (!owned.includes(item.id) || busy) return;
     setBusy(true);
-    const res = await equip({ data: { itemId: item.id } });
-    setBusy(false);
-    if (res) setView(res);
+    setMsg("");
+    let res: Awaited<ReturnType<typeof equip>>;
+    try {
+      res = await equip({ data: { itemId: item.id } });
+    } catch {
+      // 保存に失敗：成功したように見せず、サーバーの状態に合わせ直す
+      setMsg("へんこうできませんでした。もういちど ためしてね");
+      playError();
+      await refresh();
+      return;
+    } finally {
+      setBusy(false);
+    }
+    if (!res) return;
+    setView(res);
     if (res && "error" in res && res.error === "daily") {
       setMsg("きょうの へんこうは おしまい。また あした！");
       return;
@@ -464,8 +496,12 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
             size="sm"
             className="h-auto rounded-full px-3 py-1 text-xs font-bold"
             onClick={async () => {
-              const next = await markSeenFn({ data: { ids: view.play.newIds } });
-              if (next) setView(next);
+              try {
+                const next = await markSeenFn({ data: { ids: view.play.newIds } });
+                if (next) setView(next);
+              } catch {
+                void refresh();
+              }
             }}
           >
             🆕 NEW {view.play.newIds.length} → みた！
