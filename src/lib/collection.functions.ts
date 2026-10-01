@@ -178,8 +178,8 @@ function normalizePlay(raw: Partial<PlayData> | null | undefined): PlayData {
     day,
     gacha: sameDay ? Math.max(0, Number(raw?.gacha) || 0) : 0,
     custom: sameDay ? { ...(raw?.custom ?? {}) } : {},
-    newIds: (raw?.newIds ?? []).filter((id) => COLL_ITEM_BY_ID[id]),
-    recent: (raw?.recent ?? []).filter((r) => COLL_ITEM_BY_ID[r.id]).slice(0, 12),
+    newIds: (raw?.newIds ?? []).filter((id) => typeof id === "string" && id),
+    recent: (raw?.recent ?? []).filter((r) => r && typeof r.id === "string").slice(0, 12),
   };
 }
 

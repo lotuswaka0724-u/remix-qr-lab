@@ -39,7 +39,9 @@ async function admin() {
 
 export async function readClassState(): Promise<Partial<AppState>> {
   const db = await admin();
-  const { data } = await db.from("class_state").select("data").eq("id", ROW_ID).maybeSingle();
+  const { data, error } = await db.from("class_state").select("data").eq("id", ROW_ID).maybeSingle();
+  // 読み取り失敗を空データとして扱うと、続く保存で全体データを上書きしてしまうため止める
+  if (error) throw new Error(`class_state read failed: ${error.message}`);
   return (data?.data ?? {}) as Partial<AppState>;
 }
 
@@ -54,9 +56,10 @@ export async function writeClassState(incoming: Partial<AppState>) {
     ...incoming,
     completeBonusLog: freezeCompleteBonuses({ ...incoming, completeBonusLog: [...union.values()] }, prevAmount),
   };
-  await db
+  const { error } = await db
     .from("class_state")
     .upsert({ id: ROW_ID, data: state as never, updated_at: new Date().toISOString() });
+  if (error) throw new Error(`class_state write failed: ${error.message}`);
 }
 
 export async function getCodeHash(studentId: string): Promise<string | null> {
