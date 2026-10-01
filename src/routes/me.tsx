@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import CollectionIcon from "@/components/CollectionIcon";
 import CollectionBackdrop from "@/components/CollectionBackdrop";
