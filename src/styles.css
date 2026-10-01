@@ -986,8 +986,10 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: url("/__l5e/assets-v1/e2d50001-cb94-4c02-9549-fae544e4e4e1/ambient-light-emitting-blobs.png") left top / min(80vw, 760px) auto no-repeat;
-  opacity: 0.23;
+  background:
+    url("/__l5e/assets-v1/e2d50001-cb94-4c02-9549-fae544e4e4e1/ambient-light-emitting-blobs.png") left top / min(80vw, 760px) auto no-repeat,
+    url("/__l5e/assets-v1/e2d50001-cb94-4c02-9549-fae544e4e4e1/ambient-light-emitting-blobs.png") right bottom / min(70vw, 620px) auto no-repeat;
+  opacity: 0.26;
 }
 .collection-backdrop {
   position: fixed;
