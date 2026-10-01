@@ -1,5 +1,5 @@
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import CollectionFx from "@/components/CollectionFx";
 import CollectionBackdrop from "@/components/CollectionBackdrop";

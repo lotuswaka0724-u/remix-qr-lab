@@ -53,6 +53,25 @@ function MyPage() {
 
   const coll = useCollection();
 
+  // ガチャでポイントを使ったら、ヘッダーのポイント表示もサーバーの最新値に合わせる
+  const collPoints = coll.view?.points;
+  const lastPoints = useRef<number | undefined>(undefined);
+  useEffect(() => {
+    if (collPoints === undefined) return;
+    const prev = lastPoints.current;
+    lastPoints.current = collPoints;
+    if (prev === undefined || prev === collPoints) return;
+    let off = false;
+    void fetchView({})
+      .then((v) => {
+        if (!off && v) setView(v);
+      })
+      .catch(() => {});
+    return () => {
+      off = true;
+    };
+  }, [collPoints, fetchView]);
+
   useEffect(() => {
     let off = false;
     void fetchView({})
