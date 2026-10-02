@@ -341,7 +341,7 @@ function MyPage() {
         {screen === "homework" && homeworkCard}
         {screen === "points" && pointsCard}
         {(screen === "gacha" || screen === "collection") && (
-          <CollectionPanel api={coll} screen={screen} />
+          <CollectionPanel api={coll} screen={screen} onShowBox={() => setScreen("collection")} />
         )}
 
         <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
