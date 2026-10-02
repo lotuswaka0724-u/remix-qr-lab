@@ -169,7 +169,15 @@ function sortItems(items: CollItem[], by: "rarity" | "owned", owned: string[]): 
     .map((e) => e.item);
 }
 
-export default function CollectionPanel({ api, screen }: { api: CollectionApi; screen: Screen }) {
+export default function CollectionPanel({
+  api,
+  screen,
+  onShowBox,
+}: {
+  api: CollectionApi;
+  screen: Screen;
+  onShowBox?: () => void;
+}) {
   const { view, setView, refresh, loading, draw, equip } = api;
   const [busy, setBusy] = useState(false);
   const [prize, setPrize] = useState<CollPrize | null>(null);
@@ -281,6 +289,7 @@ export default function CollectionPanel({ api, screen }: { api: CollectionApi; s
     setPrize(null);
     setPhase("idle");
     setBusy(false);
+    if (showInBox) onShowBox?.();
   };
 
   const onEquip = async (item: CollItem) => {
