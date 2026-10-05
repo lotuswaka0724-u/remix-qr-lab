@@ -1164,19 +1164,6 @@
     size: A4;
     margin: 0;
   }
-  body.printing-material * {
-    visibility: hidden !important;
-  }
-  body.printing-material #material-qr-sheet,
-  body.printing-material #material-qr-sheet * {
-    visibility: visible !important;
-  }
-  body.printing-material #material-qr-sheet {
-    position: absolute;
-    inset: 0 auto auto 0;
-    margin: 0;
-    border: none;
-  }
 }
 
 /* ---------- QRカード印刷（メンバーズカード風・A4） ---------- */
@@ -1278,30 +1265,63 @@
 }
 
 @media print {
-  body.printing-cards * {
-    visibility: hidden !important;
+  /* Hide non-print siblings with display, not visibility: invisible teacher UI
+     still occupies pages in Safari. Keep only the target's ancestor chain. */
+  body:is(.printing-cards, .printing-material, .printing-hwstate) *:not(:has(#qr-card-sheet, #material-qr-sheet, #hwstate-qr-sheet)):not(#qr-card-sheet, #material-qr-sheet, #hwstate-qr-sheet):not(#qr-card-sheet *, #material-qr-sheet *, #hwstate-qr-sheet *) {
+    display: none !important;
+  }
+  body:is(.printing-cards, .printing-material, .printing-hwstate),
+  body:is(.printing-cards, .printing-material, .printing-hwstate) *:has(#qr-card-sheet, #material-qr-sheet, #hwstate-qr-sheet) {
+    min-height: 0 !important;
+    height: auto !important;
+    max-width: none !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    background: transparent !important;
+    backdrop-filter: none !important;
+  }
+  body:is(.printing-cards, .printing-material, .printing-hwstate) {
+    background: #fff !important;
+    color: #111;
   }
   body.printing-cards #qr-card-sheet,
-  body.printing-cards #qr-card-sheet * {
-    visibility: visible !important;
+  body.printing-material #material-qr-sheet {
+    position: static;
+    width: 210mm;
+    min-height: 0;
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    box-sizing: border-box;
   }
   body.printing-cards #qr-card-sheet {
-    position: absolute;
-    inset: 0 auto auto 0;
-    margin: 0;
+    padding: 10mm 8mm;
+  }
+  body.printing-material #material-qr-sheet {
+    padding: 10mm;
+  }
+  body.printing-hwstate #hwstate-qr-sheet {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 4mm;
+    width: 210mm;
+    padding: 10mm;
+    box-sizing: border-box;
+    color: #111;
+  }
+  body.printing-hwstate #hwstate-qr-sheet figure {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  .id-card, .material-cell {
+    page-break-inside: avoid;
   }
   .id-card {
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
-  }
-
-  /* わすれましたカード印刷 */
-  body.printing-hwstate * {
-    visibility: hidden !important;
-  }
-  body.printing-hwstate #hwstate-qr-sheet,
-  body.printing-hwstate #hwstate-qr-sheet * {
-    visibility: visible !important;
   }
 }
 
