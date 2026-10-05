@@ -1282,6 +1282,8 @@
     box-shadow: none !important;
     background: transparent !important;
     backdrop-filter: none !important;
+    filter: none !important;
+    transform: none !important;
   }
   body:is(.printing-cards, .printing-material, .printing-hwstate) {
     background: #fff !important;
