@@ -735,7 +735,7 @@ function ScanPage() {
                               frameId={badges[s.id]?.frame}
                               size={20}
                             />
-                            <span className="truncate text-[15px]">{s.name}</span>
+                            <span className="text-[15px]">{s.name}</span>
                             {allDone && (
                               <span className="shrink-0 text-xs font-bold text-primary">✓</span>
                             )}
