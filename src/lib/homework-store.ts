@@ -387,8 +387,11 @@ const cache = () => {
 };
 
 async function pullFromCloud() {
+  const startedAt = localEditAt;
   const remote = await getClassState();
   if (!remote) return false; // 先生としてログインしていない
+  // 読み込み中・保存待ちのあいだに端末で記録した内容を、古いデータで上書きしない
+  if (pushTimer || pushing || localEditAt !== startedAt) return true;
   if (Object.keys(remote).length === 0) {
     void pushToCloud();
     return true;

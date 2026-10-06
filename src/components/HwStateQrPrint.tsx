@@ -150,34 +150,34 @@ export default function HwStateQrPrint() {
         )}
       </ul>
 
-      <div id="hwstate-qr-sheet" className="grid gap-4 sm:grid-cols-2">
+      <div id="hwstate-qr-sheet" className="grid grid-cols-3 gap-2 sm:grid-cols-5">
         {chosen.map((c) => (
           <figure
             key={c.key}
-            className={`flex break-inside-avoid flex-col items-center gap-2 rounded-3xl border-4 p-4 ${META.card}`}
+            className={`flex break-inside-avoid flex-col items-center gap-0.5 rounded-xl border-2 p-1.5 ${META.card}`}
           >
-            <span className="text-4xl leading-none">{META.icon}</span>
-            <figcaption className="text-center font-display text-2xl font-bold leading-tight">
-              <span className="block text-xl">
-                {c.studentName}／{c.assignmentName}
+            <figcaption className="w-full text-center font-display text-[10px] font-bold leading-tight">
+              <span className="block truncate">{c.studentName}</span>
+              <span className="block truncate">{c.assignmentName}</span>
+              <span className="block">
+                {META.icon} {META.label}
               </span>
-              {META.label}
             </figcaption>
-            <div className="rounded-2xl bg-white p-2">
+            <div className="rounded-md bg-white p-0.5">
               {c.url ? (
                 <img
                   src={c.url}
                   alt={`${c.studentName} ${c.assignmentName} ${META.label} のQRコード`}
-                  className="mx-auto w-44"
+                  className="mx-auto w-[84px]"
                 />
               ) : (
-                <div className="mx-auto grid h-44 w-44 place-content-center text-xs text-muted-foreground">
+                <div className="mx-auto grid h-[84px] w-[84px] place-content-center text-[9px] text-muted-foreground">
                   作成中…
                 </div>
               )}
             </div>
-            <span className={`rounded-full px-4 py-1 font-display text-xl font-bold ${META.badge}`}>
-              {pt >= 0 ? `＋${pt}` : pt} ポイント
+            <span className={`rounded-full px-1.5 font-display text-[10px] font-bold ${META.badge}`}>
+              {pt >= 0 ? `＋${pt}` : pt}pt
             </span>
           </figure>
         ))}
