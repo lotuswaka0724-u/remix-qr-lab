@@ -318,7 +318,8 @@ function ScanPage() {
           return;
         }
         setPendingStudent(null);
-        playBadgeFx(student.id);
+        // わすれましたは専用の音（成功音設定）だけを鳴らす。アイテムの音は重ねない
+        playBadgeFx(student.id, false);
         record(student, target, "FORGOT");
       })();
       return;
