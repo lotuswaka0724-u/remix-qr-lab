@@ -705,7 +705,7 @@ function ScanPage() {
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-primary text-left text-xs text-primary-foreground">
                     <th className="w-8 px-1.5 py-1 font-bold">番号</th>
-                    <th className="px-1.5 py-1 font-bold">氏名</th>
+                    <th className="w-[9.5em] px-1.5 py-1 font-bold">氏名</th>
                     {todayAssignments.map((a) => (
                       <th key={a.id} className="px-1 py-1 text-center font-bold">
                         <span className="line-clamp-1">{a.name}</span>
@@ -728,7 +728,7 @@ function ScanPage() {
                         <td className="px-1.5 py-0.5 text-center tabular-nums text-muted-foreground">
                           {s.number}
                         </td>
-                        <td className={`max-w-0 px-1.5 py-0.5 font-bold ${allDone ? "text-primary" : ""}`}>
+                        <td className={`whitespace-nowrap px-1.5 py-0.5 font-bold ${allDone ? "text-primary" : ""}`}>
                           <span className="flex min-w-0 items-center gap-1">
                             <CollectionIcon
                               iconId={badges[s.id]?.icon}
