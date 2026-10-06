@@ -356,6 +356,8 @@ const emit = () => listeners.forEach((l) => l());
 let cloudReady = false;
 let pushTimer: ReturnType<typeof setTimeout> | undefined;
 let applyingRemote = false;
+let pushing = false;
+let localEditAt = 0;
 
 export const mergeState = (parsed: Partial<AppState>): AppState => {
   const base = defaultState();
@@ -420,15 +422,20 @@ async function startCloudSync() {
 }
 
 async function pushToCloud() {
+  pushTimer = undefined;
+  pushing = true;
   try {
     await saveClassState({ data: { state: JSON.parse(JSON.stringify(state)) as AppState } });
   } catch {
     /* 通信できないときは端末内保存のみ */
+  } finally {
+    pushing = false;
   }
 }
 
 function schedulePush() {
   if (typeof window === "undefined" || applyingRemote) return;
+  localEditAt++;
   if (pushTimer) clearTimeout(pushTimer);
   pushTimer = setTimeout(() => void pushToCloud(), 400);
 }
