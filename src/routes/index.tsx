@@ -286,12 +286,12 @@ function ScanPage() {
     afterRecord(student, target, res, before);
   };
 
-  const playBadgeFx = (studentId: string) => {
+  const playBadgeFx = (studentId: string, withSound = true) => {
     const badge = badges[studentId];
     const myRank = rankOf(state, studentId);
     const tune = soundTune(badge?.sound);
     const asset = soundAsset(badge?.sound) ?? tuneAsset(tune);
-    if (tune || asset) playCollectionSound(tune, myRank, asset);
+    if (withSound && (tune || asset)) playCollectionSound(tune, myRank, asset);
     const fx = effectFx(badge?.effect) ?? (myRank === "NORMAL" ? null : myRank.toLowerCase());
     if (fx) setCollFx({ fx, id: Date.now(), image: effectImage(badge?.effect) ?? fxImage(fx) });
   };
@@ -318,7 +318,8 @@ function ScanPage() {
           return;
         }
         setPendingStudent(null);
-        playBadgeFx(student.id);
+        // わすれましたは専用の音（成功音設定）だけを鳴らす。アイテムの音は重ねない
+        playBadgeFx(student.id, false);
         record(student, target, "FORGOT");
       })();
       return;
@@ -382,7 +383,7 @@ function ScanPage() {
   ).length;
 
   return (
-    <main className="mx-auto w-full max-w-[1600px] px-3 pb-3 pt-2 lg:h-[calc(100svh-62px)] lg:overflow-hidden">
+    <main className="mx-auto w-full max-w-[1920px] px-3 pb-2 pt-2 lg:flex lg:h-[calc(100svh-62px)] lg:flex-col lg:overflow-hidden">
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
       <CollectionFx
@@ -397,7 +398,7 @@ function ScanPage() {
       />
 
       {/* ---- 今日の提出状況（横長バー） ---- */}
-      <section className="glass-panel mb-3 px-4 py-2.5">
+      <section className="glass-panel mb-2 px-4 py-2">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <p className="font-display text-sm font-bold">今日の提出状況</p>
           <p className="font-display text-xl font-bold leading-none">
@@ -434,10 +435,54 @@ function ScanPage() {
         </div>
       </section>
 
-      <div className="grid gap-3 lg:h-[calc(100%-84px)] lg:grid-cols-[300px_minmax(0,1fr)]">
+      {/* ---- 今日のランキング（10位まで横一列） ---- */}
+      <section className="glass-panel mb-2 flex items-center gap-2 px-3 py-1.5">
+        <a
+          href="/points"
+          className="shrink-0 font-display text-sm font-bold leading-tight"
+          title="ポイント"
+        >
+          ランキング
+        </a>
+        <ol className="grid min-w-0 flex-1 grid-cols-5 gap-1.5 lg:grid-cols-10">
+          {rank.slice(0, 10).map((r, i) => (
+            <li
+              key={r.student.id}
+              className={`flex min-w-0 items-center gap-1 rounded-xl px-1.5 py-1 text-sm ${
+                i < 3 ? "bg-primary/15 font-bold text-primary" : "bg-muted/50"
+              }`}
+            >
+              <span className="shrink-0 font-display font-bold tabular-nums">{i + 1}</span>
+              <CollectionIcon
+                iconId={badges[r.student.id]?.icon}
+                frameId={badges[r.student.id]?.frame}
+                size={22}
+              />
+              <span className="min-w-0 flex-1 leading-tight">
+                <span className="block truncate font-bold">{r.student.name}</span>
+                <span className="block truncate text-[11px] tabular-nums opacity-80">
+                  {r.points}pt{" "}
+                  <span
+                    className={`rounded-full px-1 text-[9px] font-bold ${
+                      RANK_STYLE[rankOfPoints(state.rankRules, r.points)].badge
+                    }`}
+                  >
+                    {RANK_STYLE[rankOfPoints(state.rankRules, r.points)].label}
+                  </span>
+                </span>
+              </span>
+            </li>
+          ))}
+          {rank.length === 0 && (
+            <li className="col-span-full text-center text-xs text-muted-foreground">名簿がありません</li>
+          )}
+        </ol>
+      </section>
+
+      <div className="grid gap-2 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(320px,30%)_minmax(0,1fr)]">
         {/* ---- 左：スキャナー ---- */}
-        <div className="flex min-h-0 flex-col gap-3">
-          <section className="glass-panel flex min-h-0 flex-col overflow-hidden p-3">
+        <div className="flex min-h-0 flex-col">
+          <section className="glass-panel flex min-h-0 flex-1 flex-col overflow-auto p-3">
             <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
               <h2 className="truncate font-display text-sm font-bold">カメラ読み取り</h2>
               <Button
@@ -611,56 +656,14 @@ function ScanPage() {
               </div>
             )}
           </section>
-
-          {/* ---- ポイントランキング ---- */}
-          <section className="glass-panel flex min-h-0 flex-1 flex-col overflow-hidden p-3">
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="font-display text-sm font-bold">ポイントランキング</h2>
-              <a
-                href="/points"
-                className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary"
-              >
-                ポイント
-              </a>
-            </div>
-            <ol className="min-h-0 flex-1 space-y-1 overflow-auto">
-              {rank.map((r, i) => (
-                <li
-                  key={r.student.id}
-                  className={`flex items-center gap-2 rounded-xl px-2 py-1.5 text-sm ${
-                    i < 3 ? "bg-primary/10 font-bold text-primary" : "bg-muted/50"
-                  }`}
-                >
-                  <span className="w-5 shrink-0 text-center tabular-nums">{i + 1}</span>
-                  <CollectionIcon
-                    iconId={badges[r.student.id]?.icon}
-                    frameId={badges[r.student.id]?.frame}
-                    size={22}
-                  />
-                  <span className="min-w-0 flex-1 truncate">{r.student.name}</span>
-                  <span
-                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[10px] font-bold tracking-wider ${
-                      RANK_STYLE[rankOfPoints(state.rankRules, r.points)].badge
-                    }`}
-                  >
-                    {RANK_STYLE[rankOfPoints(state.rankRules, r.points)].label}
-                  </span>
-                  <span className="shrink-0 tabular-nums">{r.points}pt</span>
-                </li>
-              ))}
-              {rank.length === 0 && (
-                <li className="py-4 text-center text-xs text-muted-foreground">名簿がありません</li>
-              )}
-            </ol>
-          </section>
         </div>
 
-        {/* ---- 中央：提出一覧 ---- */}
+        {/* ---- 右：提出一覧（2列でクラス全員を一画面に） ---- */}
         <section className="glass-panel flex min-h-0 flex-col overflow-hidden">
-          <div className="flex flex-wrap items-center gap-2 border-b border-border/70 px-3 py-2">
+          <div className="flex flex-wrap items-center gap-2 border-b border-border/70 px-3 py-1.5">
             <h2 className="mr-auto font-display text-sm font-bold">提出一覧</h2>
             <select
-              className="rounded-full border border-input bg-background px-3 py-1.5 text-xs"
+              className="rounded-full border border-input bg-background px-3 py-1 text-xs"
               value={classFilter}
               onChange={(e) => setClassFilter(e.target.value)}
             >
@@ -672,7 +675,7 @@ function ScanPage() {
               ))}
             </select>
             <select
-              className="rounded-full border border-input bg-background px-3 py-1.5 text-xs"
+              className="rounded-full border border-input bg-background px-3 py-1 text-xs"
               value={focusHw}
               onChange={(e) => setFocusHw(e.target.value)}
             >
@@ -685,7 +688,7 @@ function ScanPage() {
             </select>
             <Button
               size="sm"
-              className="rounded-full"
+              className="h-7 rounded-full"
               variant={locked ? "outline" : "default"}
               onClick={() => setLocked((v) => !v)}
             >
@@ -693,109 +696,105 @@ function ScanPage() {
             </Button>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto">
-            <table className="w-full min-w-[480px] text-sm">
-              <thead className="sticky top-0 z-10">
-                <tr className="bg-primary text-left text-xs text-primary-foreground">
-                  <th className="px-3 py-2 font-bold">番号</th>
-                  <th className="px-3 py-2 font-bold">氏名</th>
-                  {todayAssignments.map((a) => (
-                    <th key={a.id} className="px-3 py-2 text-center font-bold">
-                      {a.name}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {students.map((s) => {
-                  const allDone =
-                    todayAssignments.length > 0 &&
-                    todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id]));
-                  return (
-                    <tr
-                      key={s.id}
-                      className={`border-t border-border/60 odd:bg-muted/30 ${
-                        allDone ? "bg-primary/5 odd:bg-primary/10" : ""
-                      } ${flashRow === s.id ? "fx-row-hit" : ""}`}
-                    >
-                      <td className="px-3 py-1.5 tabular-nums text-muted-foreground">{s.number}</td>
-                      <td className={`px-3 py-1.5 font-bold ${allDone ? "text-primary" : ""}`}>
-                        <span className="inline-flex items-center gap-1.5">
-                          <CollectionIcon
-                            iconId={badges[s.id]?.icon}
-                            frameId={badges[s.id]?.frame}
-                            size={24}
-                          />
-                          {s.name}
-                        </span>
-                        {allDone && (
-                          <span className="ml-1 text-xs font-bold text-primary">✓完了</span>
-                        )}
-                      </td>
-
-                      {todayAssignments.map((a) => {
-                        const st = toStatus(day[s.id]?.[a.id]);
-                        const meta = STATUS_META[st];
-                        return (
-                          <td key={a.id} className="px-2 py-1.5 text-center">
-                            <div className="flex flex-col items-center gap-1">
-                              <button
-                                type="button"
-                                disabled={locked}
-                                onClick={() => cycleRecord(s.id, a.id)}
-                                title={meta.label}
-                                className={`h-8 w-8 rounded-xl text-base font-bold transition-all ${meta.tone} ${
-                                  st === "none"
-                                    ? "hover:bg-secondary"
-                                    : "shadow-[var(--shadow-lift)]"
-                                } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
-                                aria-label={`${s.name} ${a.name} ${meta.label}`}
-                              >
-                                {meta.short}
-                              </button>
-                              {st !== "none" && (
-                                <span className="text-[10px] font-bold text-muted-foreground">
-                                  {st === "submitted" ? "" : meta.label}
-                                </span>
-                              )}
-                              <div className="flex gap-1">
-                                <button
-                                  type="button"
-                                  onClick={() => teacherMark(s, a, "REDO")}
-                                  className="rounded-full bg-[#fef9c3] px-1.5 py-0.5 text-[10px] font-bold text-[#713f12]"
-                                  aria-label={`${s.name} ${a.name} 直しあり`}
-                                >
-                                  直しあり
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => teacherMark(s, a, "SCHOOL_DONE")}
-                                  className="rounded-full bg-[#ede9fe] px-1.5 py-0.5 text-[10px] font-bold text-[#4c1d95]"
-                                  aria-label={`${s.name} ${a.name} 学校でやった`}
-                                >
-                                  学校
-                                </button>
-                              </div>
-                            </div>
-                          </td>
-                        );
-                      })}
-                    </tr>
-                  );
-                })}
-
-                {students.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={2 + todayAssignments.length}
-                      className="px-3 py-10 text-center text-muted-foreground"
-                    >
-                      名簿がまだありません。管理画面から追加してください。
-                    </td>
+          <div className="grid min-h-0 flex-1 gap-2 overflow-auto p-1.5 xl:grid-cols-2">
+            {(students.length > 15
+              ? [students.slice(0, Math.ceil(students.length / 2)), students.slice(Math.ceil(students.length / 2))]
+              : [students]
+            ).map((col, ci) => (
+              <table key={ci} className="w-full self-start text-sm">
+                <thead className="sticky top-0 z-10">
+                  <tr className="bg-primary text-left text-xs text-primary-foreground">
+                    <th className="w-8 px-1.5 py-1 font-bold">番号</th>
+                    <th className="w-[9.5em] px-1.5 py-1 font-bold">氏名</th>
+                    {todayAssignments.map((a) => (
+                      <th key={a.id} className="px-1 py-1 text-center font-bold">
+                        <span className="line-clamp-1">{a.name}</span>
+                      </th>
+                    ))}
                   </tr>
-                )}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {col.map((s) => {
+                    const allDone =
+                      todayAssignments.length > 0 &&
+                      todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id]));
+                    return (
+                      <tr
+                        key={s.id}
+                        className={`border-t border-border/60 odd:bg-muted/30 ${
+                          allDone ? "bg-primary/5 odd:bg-primary/10" : ""
+                        } ${flashRow === s.id ? "fx-row-hit" : ""}`}
+                      >
+                        <td className="px-1.5 py-0.5 text-center tabular-nums text-muted-foreground">
+                          {s.number}
+                        </td>
+                        <td className={`whitespace-nowrap px-1.5 py-0.5 font-bold ${allDone ? "text-primary" : ""}`}>
+                          <span className="flex min-w-0 items-center gap-1">
+                            <CollectionIcon
+                              iconId={badges[s.id]?.icon}
+                              frameId={badges[s.id]?.frame}
+                              size={20}
+                            />
+                            <span className="text-[15px]">{s.name}</span>
+                            {allDone && (
+                              <span className="shrink-0 text-xs font-bold text-primary">✓</span>
+                            )}
+                          </span>
+                        </td>
+
+                        {todayAssignments.map((a) => {
+                          const st = toStatus(day[s.id]?.[a.id]);
+                          const meta = STATUS_META[st];
+                          return (
+                            <td key={a.id} className="px-1 py-0.5 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <button
+                                  type="button"
+                                  disabled={locked}
+                                  onClick={() => cycleRecord(s.id, a.id)}
+                                  title={meta.label}
+                                  className={`h-7 w-7 shrink-0 rounded-lg text-sm font-bold transition-all ${meta.tone} ${
+                                    st === "none"
+                                      ? "hover:bg-secondary"
+                                      : "shadow-[var(--shadow-lift)]"
+                                  } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
+                                  aria-label={`${s.name} ${a.name} ${meta.label}`}
+                                >
+                                  {meta.short}
+                                </button>
+                                <div className="flex flex-col gap-px">
+                                  <button
+                                    type="button"
+                                    onClick={() => teacherMark(s, a, "REDO")}
+                                    className="rounded-full bg-[#fef9c3] px-1 text-[9px] font-bold leading-[13px] text-[#713f12]"
+                                    aria-label={`${s.name} ${a.name} 直しあり`}
+                                  >
+                                    直し
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => teacherMark(s, a, "SCHOOL_DONE")}
+                                    className="rounded-full bg-[#ede9fe] px-1 text-[9px] font-bold leading-[13px] text-[#4c1d95]"
+                                    aria-label={`${s.name} ${a.name} 学校でやった`}
+                                  >
+                                    学校
+                                  </button>
+                                </div>
+                              </div>
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ))}
+            {students.length === 0 && (
+              <p className="px-3 py-10 text-center text-muted-foreground">
+                名簿がまだありません。管理画面から追加してください。
+              </p>
+            )}
           </div>
         </section>
       </div>

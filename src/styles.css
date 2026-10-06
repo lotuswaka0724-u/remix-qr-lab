@@ -1307,8 +1307,8 @@
   }
   body.printing-hwstate #hwstate-qr-sheet {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 4mm;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 3mm;
     width: 210mm;
     padding: 10mm;
     box-sizing: border-box;
