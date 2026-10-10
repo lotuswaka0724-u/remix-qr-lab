@@ -188,7 +188,7 @@ export default function CollectionPanel({
   if (!view) return null;
 
   const onDraw = () => {
-    if (busy || drawBusy || !view.gachaOn || view.points < view.cost || view.play.gachaLeft <= 0) return;
+    if (busy || gachaSession.getSnapshot().phase !== "idle" || !view.gachaOn || view.points < view.cost || view.play.gachaLeft <= 0) return;
     prepareGachaAudio();
     setMsg("");
     void gachaSession.draw(() => draw({}), setView);
