@@ -37,8 +37,23 @@ export default function GachaFilm({ run, active, onDone }: { run: number; active
     };
   }, [active, done]);
 
+  useEffect(() => {
+    if (!failed) return;
+    stopGachaAudio();
+    const timer = window.setTimeout(done, 900);
+    return () => window.clearTimeout(timer);
+  }, [failed, done]);
+
   const playSound = () => {
-    if (soundStarted.current || finished.current || silent) return;
+    if (finished.current || silent || resumePending.current) return;
+    if (soundStarted.current) {
+      const track = getGachaAudio();
+      if (!track || track.ended || !track.paused) return;
+      resumePending.current = true;
+      track.currentTime = video.current?.currentTime ?? track.currentTime;
+      void track.play().catch(() => setSilent(true)).finally(() => { resumePending.current = false; });
+      return;
+    }
     soundStarted.current = true;
     void startGachaAudio(video.current?.currentTime ?? 0).then((ok) => {
       if (finished.current) stopGachaAudio();
@@ -69,10 +84,6 @@ export default function GachaFilm({ run, active, onDone }: { run: number; active
           const element = video.current;
           if (!track || !element || silent || !soundStarted.current || finished.current || element.paused) return;
           if (Math.abs(track.currentTime - element.currentTime) > 0.4) track.currentTime = element.currentTime;
-          if (track.paused && !track.ended && !resumePending.current) {
-            resumePending.current = true;
-            void track.play().catch(() => setSilent(true)).finally(() => { resumePending.current = false; });
-          }
         }} />
       )}
       <div className="gacha-film-bottom">
