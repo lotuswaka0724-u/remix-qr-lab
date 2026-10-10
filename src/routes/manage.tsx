@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
+import manageCss from "@/teacher-manage.css?url";
+import teacherWorld from "@/assets/collection/student-crystal-world.asset.json";
 
 import CsvPanel from "@/components/CsvPanel";
 import HwStateQrPrint from "@/components/HwStateQrPrint";
@@ -33,6 +35,7 @@ import { RANK_STYLE } from "@/lib/rank-style";
 
 export const Route = createFileRoute("/manage")({
   head: () => ({
+    links: [{ rel: "stylesheet", href: manageCss }],
     meta: [
       { title: "管理 | 宿題チェッカー" },
       {
@@ -60,7 +63,10 @@ function ManagePage() {
   const [qrMode, setQrMode] = useState<"card" | "material" | "hwstate">("card");
 
   return (
-    <main className="mx-auto max-w-5xl space-y-5 px-4 py-6">
+    <main
+      className="teacher-manage-page mx-auto max-w-5xl space-y-5 px-4 py-6"
+      style={{ "--manage-world-image": `url("${teacherWorld.url}")` } as CSSProperties}
+    >
       <h1 className="font-display text-2xl font-bold">管理</h1>
 
       <section className="paper-card p-4">
