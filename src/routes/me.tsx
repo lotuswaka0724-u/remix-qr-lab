@@ -57,6 +57,7 @@ function MyPage() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [screen, setScreen] = useState<Screen>("home");
+  const [ranking, setRanking] = useState<RankingEntry[] | null>(null);
 
   const coll = useCollection();
 
