@@ -17,4 +17,3 @@
 - Keep teacher history visual overrides in a route-loaded screen-only stylesheet scoped to its page root; this preserves shared navigation, other pages and print appearance.
 - Keep teacher board visual overrides in a route-loaded screen-only stylesheet scoped to its page root; this preserves shared navigation, other pages and print appearance.
 - Keep teacher manage visual overrides in a route-loaded screen-only stylesheet scoped to its page root; this preserves child panels' logic, other pages and print appearance.
-- Keep shared teacher header/nav overrides in a screen-only stylesheet scoped to the teacher shell header; this isolates the header skin from student pages and printing.
