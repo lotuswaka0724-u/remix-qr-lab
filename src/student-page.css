@@ -355,6 +355,12 @@
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
   }
+  /* Separate unprefixed rule: the CSS build merged the pair above and kept only the -webkit- form, so Chrome still blurred
+     every video frame. The film is opaque, so its shared dialog blur is invisible but costly. */
+  .student-page .student-gacha.gacha-panel,
+  .student-page .student-gacha .gacha-film {
+    backdrop-filter: none !important;
+  }
   .student-page .student-gacha .gacha-heading { letter-spacing: 0; }
   .student-page .student-gacha .gacha-points { font-size: 3rem; line-height: 1.1; }
   .student-page .student-gacha .gacha-stage {
