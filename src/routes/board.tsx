@@ -1,19 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
+import boardCss from "@/teacher-board.css?url";
+import teacherWorld from "@/assets/collection/student-crystal-world.asset.json";
 
 import { Button } from "@/components/ui/button";
 import { isSubmitted, todayKey, useAppState } from "@/lib/homework-store";
 
 export const Route = createFileRoute("/board")({
   head: () => ({
+    links: [{ rel: "stylesheet", href: boardCss }],
     meta: [
-      { title: "未提出ボード | 宿題チェッカー" },
+      { title: "教師用 未提出ボード | REMIX QR LAB" },
       {
         name: "description",
         content:
           "未提出の児童と宿題を大きな文字で一覧表示。教室のモニターや黒板前での確認に最適です。",
       },
-      { property: "og:title", content: "未提出ボード | 宿題チェッカー" },
+      { property: "og:title", content: "教師用 未提出ボード | REMIX QR LAB" },
       {
         property: "og:description",
         content: "未提出の児童と宿題を大きな文字で一覧表示。教室での声かけにそのまま使えます。",
