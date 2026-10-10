@@ -19,7 +19,7 @@ describe("名簿CSVの読み", () => {
   });
   it("読みが空欄でも登録できる", () => {
     const r = parseRoster([["2", "石田花子", "3年2組", ""]], [], "1年1組");
-    expect(r.added[0].reading).toBeUndefined();
+    expect(r.added[0]?.reading).toBeUndefined();
   });
   it("番号・氏名・クラスが一致した既存児童だけ読みを更新し、重複追加しない", () => {
     const r = parseRoster([["1", "青山太郎", "3年2組", "アオヤマタロウ"]], existing, "1年1組");
