@@ -240,7 +240,7 @@ function RootComponent() {
                 宿題チェッカー
               </span>
             </Link>
-            <nav className="order-last flex w-full min-w-0 items-center gap-1 overflow-x-auto rounded-full bg-muted p-1 text-sm font-bold sm:order-none sm:ml-auto sm:w-auto">
+            <nav className="order-last flex w-full min-w-0 flex-wrap items-center gap-1 rounded-2xl bg-muted p-1 text-sm font-bold sm:order-none sm:ml-auto sm:w-auto sm:flex-nowrap sm:rounded-full">
               {NAV.map((n) => (
                 <Link
                   key={n.to}
