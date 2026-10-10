@@ -31,7 +31,7 @@ export default function CsvPanel() {
       setState((s) => ({
         ...s,
         students: [
-          ...s.students.map((st) => (readings[st.id] ? { ...st, reading: readings[st.id] } : st)),
+          ...s.students.map((st) => { const r = readings[st.id]; return r ? { ...st, reading: r } : st; }),
           ...added.map((a) => ({ id: `st_${uid()}`, ...a })),
         ],
       }));
