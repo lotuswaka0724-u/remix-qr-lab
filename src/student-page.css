@@ -15,6 +15,8 @@
     --border: oklch(0.72 0.08 224 / 0.42);
     --input: oklch(0.7 0.074 224 / 0.6);
     --ring: var(--primary);
+    --warning-soft: oklch(0.29 0.06 84 / 0.85);
+    --warning-foreground: oklch(0.91 0.085 88);
     --student-surface: linear-gradient(145deg, oklch(0.29 0.053 247 / 0.76), oklch(0.18 0.052 272 / 0.84));
     --student-inset: linear-gradient(135deg, oklch(0.25 0.057 250 / 0.58), oklch(0.19 0.045 274 / 0.65));
     --student-button: linear-gradient(170deg, oklch(0.34 0.069 253), oklch(0.2 0.058 270) 70%);
@@ -46,7 +48,7 @@
   }
 
   /* Keep equipped backgrounds visible and responsive to the existing equipment state. */
-  .student-page > .collection-backdrop { opacity: 0.78; }
+  .student-page > .collection-backdrop { opacity: 0.42; }
   .student-page > .collection-backdrop-paper { opacity: 0.12; }
 
   .student-page :is(.kid-panel, .kid-stage, .glass-panel, .gacha-panel) {
@@ -66,6 +68,7 @@
     color: var(--primary);
     font-size: 3.25rem;
     line-height: 3rem;
+    height: 3rem;
     text-shadow: 0 0 14px var(--student-point-glow), 0 0 26px var(--student-point-halo);
   }
 
@@ -89,7 +92,7 @@
     text-shadow: 0 0 12px var(--student-point-glow);
   }
 
-  .student-page :is(.student-command, .gacha-btn) {
+  .student-page :is(.student-command, .gacha-btn, button.bg-primary, button.bg-secondary) {
     background: var(--student-button);
     color: var(--foreground);
     box-shadow: inset 0 0 0 1px var(--student-edge), var(--student-button-shadow);
@@ -97,7 +100,7 @@
     text-shadow: none;
   }
 
-  .student-page :is(.student-command, .gacha-btn):hover:not(:disabled) {
+  .student-page :is(.student-command, .gacha-btn, button.bg-primary, button.bg-secondary):hover:not(:disabled) {
     background: var(--student-button-hover);
   }
 
