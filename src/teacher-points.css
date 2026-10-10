@@ -1,0 +1,122 @@
+/* Route-loaded visual skin. Screen-only rules never affect shared navigation or printing. */
+@media screen {
+  .teacher-points-page {
+    --background: oklch(0.15 0.038 263);
+    --foreground: oklch(0.97 0.014 222);
+    --card: oklch(0.22 0.043 263);
+    --card-foreground: var(--foreground);
+    --primary: oklch(0.85 0.1 209);
+    --primary-foreground: oklch(0.16 0.036 265);
+    --secondary: oklch(0.28 0.05 265);
+    --secondary-foreground: var(--foreground);
+    --muted: oklch(0.27 0.039 263);
+    --muted-foreground: oklch(0.84 0.025 237);
+    --accent: oklch(0.75 0.1 287);
+    --border: oklch(0.8 0.055 214 / 0.28);
+    --input: oklch(0.79 0.05 214 / 0.42);
+    --ring: var(--primary);
+    --points-clear: oklch(0.98 0.018 210 / 0);
+    --points-reflection: oklch(0.98 0.018 210 / 0.13);
+    --points-edge: oklch(0.94 0.036 210 / 0.42);
+    --points-depth: oklch(0.08 0.027 266 / 0.55);
+    --points-glow: oklch(0.82 0.08 212 / 0.16);
+    --points-row: oklch(0.2 0.035 262 / 0.56);
+    --points-inset: oklch(0.14 0.031 263 / 0.5);
+    --points-selection: oklch(0.33 0.059 248 / 0.8);
+    --points-surface: linear-gradient(165deg, var(--points-reflection), var(--points-clear) 38%), linear-gradient(135deg, oklch(0.26 0.043 252 / 0.58), oklch(0.16 0.035 268 / 0.76));
+    --points-button: linear-gradient(180deg, var(--points-reflection), var(--points-clear) 40%), linear-gradient(165deg, oklch(0.33 0.059 255), oklch(0.22 0.05 269));
+    --points-veil: linear-gradient(180deg, oklch(0.13 0.034 265 / 0.86), oklch(0.16 0.035 263 / 0.8));
+    --points-shadow: inset 0 1px 0 var(--points-edge), inset 1px 0 0 var(--points-reflection), inset 0 -1px 0 var(--points-depth), 0 10px 24px -15px var(--points-depth);
+    position: relative;
+    isolation: isolate;
+    color: var(--foreground);
+  }
+
+  .teacher-points-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--points-veil), var(--points-world-image) center / cover no-repeat, var(--background);
+  }
+
+  .teacher-points-page .glass-panel {
+    background: var(--points-surface);
+    border-color: var(--border);
+    box-shadow: var(--points-shadow);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+  }
+
+  .teacher-points-page .points-student {
+    height: auto;
+    min-height: 48px;
+    white-space: normal;
+    border-radius: 8px;
+    background: var(--points-row);
+    color: var(--foreground);
+    box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 0 var(--points-reflection);
+    transition: background-color 160ms, box-shadow 160ms;
+  }
+
+  .teacher-points-page .points-student:hover { background: var(--secondary); }
+
+  .teacher-points-page .points-student[aria-pressed="true"] {
+    background: var(--points-selection);
+    box-shadow: inset 3px 0 0 var(--primary), inset 0 0 0 1px var(--primary), inset 0 1px 0 var(--points-edge), 0 0 14px -6px var(--points-glow);
+  }
+
+  .teacher-points-page .points-rank {
+    color: var(--muted-foreground);
+    font-size: 12px;
+    font-weight: 700;
+    opacity: 1;
+  }
+
+  .teacher-points-page .points-student:nth-child(-n+3) .points-rank,
+  .teacher-points-page .points-student[aria-pressed="true"] .points-rank { color: var(--primary); }
+
+  .teacher-points-page .points-name { font-size: 15px; }
+  .teacher-points-page .points-row-total { color: var(--primary); font-size: 17px; font-weight: 900; }
+  .teacher-points-page .points-unit { font-size: 11px; font-weight: 500; color: var(--muted-foreground); }
+  .teacher-points-page .points-total {
+    color: var(--primary);
+    text-shadow: 0 0 12px var(--points-glow);
+  }
+
+  .teacher-points-page .points-grant-form {
+    background: var(--points-inset);
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 0 var(--points-reflection);
+  }
+
+  .teacher-points-page :is(input, select) {
+    min-height: 44px;
+    background: var(--background);
+    color: var(--foreground);
+    border-color: var(--input);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 3px var(--points-depth);
+    font-size: 14px;
+  }
+
+  .teacher-points-page :is(input, select):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  .teacher-points-page .points-grant-button {
+    min-height: 44px;
+    background: var(--points-button);
+    color: var(--foreground);
+    box-shadow: inset 0 0 0 1px var(--input), inset 0 1px 0 var(--points-edge), inset 0 -2px 2px var(--points-depth), 0 3px 8px -4px var(--points-depth);
+  }
+
+  .teacher-points-page .points-grant-button:hover { box-shadow: inset 0 0 0 1px var(--primary), var(--points-shadow); }
+  .teacher-points-page .points-note { background: var(--points-inset); color: var(--muted-foreground); border-radius: 8px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .teacher-points-page .points-student { transition: none; }
+  }
+}
