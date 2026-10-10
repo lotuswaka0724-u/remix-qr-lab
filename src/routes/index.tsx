@@ -50,6 +50,7 @@ import {
   type Assignment,
   type HwState,
   type Student,
+  spokenName,
 } from "@/lib/homework-store";
 import { verifyForgotToken } from "@/lib/hwqr.functions";
 import { RANK_STYLE } from "@/lib/rank-style";
@@ -222,10 +223,11 @@ function ScanPage() {
       // 宿題名（教材名）を入れて読み上げる。例:「山田さん、音読カードを提出しました。」
       const hwName = target.name?.trim();
       const phrase = hwName ? `${hwName}${HW_PHRASE[hw]}` : HW_STATE_META[hw].label;
+      const said = spokenName(state.students.find((s) => s.id === student.id), student.name);
       speak(
         rankUp
-          ? `${student.name}さん、${RANK_STYLE[rankUp].jp}カードになりました`
-          : `${student.name}さん、${phrase}`,
+          ? `${said}さん、${RANK_STYLE[rankUp].jp}カードになりました`
+          : `${said}さん、${phrase}`,
       );
     }
     celebrate(
@@ -383,7 +385,7 @@ function ScanPage() {
     setPendingStudent({ student, assignment });
     playBadgeFx(student.id);
     playSuccess(state.settings.sound);
-    if (state.settings.speak) speak(`${student.name}さん、カードをかざしてください`);
+    if (state.settings.speak) speak(`${spokenName(state.students.find((s) => s.id === student.id), student.name)}さん、カードをかざしてください`);
     toast.success(`${student.name} さん`, {
       description: "「わすれました」のカードを読み取ってください",
     });

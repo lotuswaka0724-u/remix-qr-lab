@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { downloadCsv, parseCsv } from "@/lib/csv";
+import { parseRoster } from "@/lib/roster-csv";
 import { isSubmitted, setState, todayKey, useAppState } from "@/lib/homework-store";
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -16,38 +17,29 @@ export default function CsvPanel() {
     setBusy(true);
     try {
       const rows = parseCsv(await file.text());
-      const header = rows[0]?.map((c) => c.replace(/["\s]/g, "")) ?? [];
-      const hasHeader = header.some((c) => /番号|no\.?|number|名前|氏名|name|クラス|class/i.test(c));
-      const body = hasHeader ? rows.slice(1) : rows;
+      const { added, readings } = parseRoster(
+        rows,
+        state.students,
+        state.students[0]?.className || "1年1組",
+      );
+      const updated = Object.keys(readings).length;
 
-      const added: { id: string; number: number; name: string; className: string }[] = [];
-      body.forEach((r, i) => {
-        // 想定: 番号, 氏名, クラス（番号やクラスは省略可）
-        let [a = "", b = "", c = ""] = r;
-        let number = Number(a);
-        let name = b;
-        let className = c;
-        if (!Number.isFinite(number) || a === "") {
-          number = i + 1;
-          name = a || b;
-          className = b && a ? b : c;
-        }
-        name = (name || "").trim();
-        if (!name) return;
-        added.push({
-          id: `st_${uid()}`,
-          number,
-          name,
-          className: (className || state.students[0]?.className || "1年1組").trim(),
-        });
-      });
-
-      if (added.length === 0) {
+      if (added.length === 0 && updated === 0) {
         toast.error("読み取れる名前がありませんでした");
         return;
       }
-      setState((s) => ({ ...s, students: [...s.students, ...added] }));
-      toast.success(`${added.length}人を名簿に追加しました`);
+      setState((s) => ({
+        ...s,
+        students: [
+          ...s.students.map((st) => { const r = readings[st.id]; return r ? { ...st, reading: r } : st; }),
+          ...added.map((a) => ({ id: `st_${uid()}`, ...a })),
+        ],
+      }));
+      toast.success(
+        [added.length ? `${added.length}人を名簿に追加しました` : "", updated ? `${updated}人の読みを更新しました` : ""]
+          .filter(Boolean)
+          .join("／"),
+      );
     } catch {
       toast.error("CSVの読み込みに失敗しました");
     } finally {
