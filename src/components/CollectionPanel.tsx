@@ -169,6 +169,9 @@ export default function CollectionPanel({
   } | null>(null);
 
   const markSeenFn = useServerFn(markCollSeen);
+  useEffect(() => {
+    if (phase === "video" && (!active || screen !== "gacha")) gachaSession.finish(gachaState.run);
+  }, [active, screen, phase, gachaSession, gachaState.run]);
 
   const owned = useMemo(() => view?.coll.owned ?? [], [view?.coll.owned]);
   const equipped = view?.coll.equipped ?? {};

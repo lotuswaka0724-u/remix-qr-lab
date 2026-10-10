@@ -7,6 +7,7 @@ export const GACHA_MEDIA = { video: video.url, poster: poster.url, score: score.
 
 // Dedicated media element; never stop or modify the shared QR/equipment audio context.
 let soundtrack: HTMLAudioElement | null = null;
+let preparing: Promise<void> | null = null;
 export function prepareGachaAudio() {
   if (typeof window === "undefined") return;
   if (!soundtrack) {
@@ -17,11 +18,18 @@ export function prepareGachaAudio() {
   const track = soundtrack;
   // Unlock only this media element on the draw gesture, without an audible preview.
   track.muted = true;
-  void track.play().then(() => {
+  preparing = track.play().then(() => {
     track.pause();
     track.currentTime = 0;
     track.muted = false;
   }).catch(() => { track.muted = false; });
+}
+export async function startGachaAudio(time: number) {
+  await preparing;
+  const track = soundtrack;
+  if (!track) return false;
+  track.currentTime = time;
+  try { await track.play(); return true; } catch { return false; }
 }
 export function getGachaAudio() { return soundtrack; }
 export function stopGachaAudio() {

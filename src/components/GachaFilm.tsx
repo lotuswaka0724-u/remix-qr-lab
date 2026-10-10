@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { GACHA_MEDIA, getGachaAudio, stopGachaAudio } from "@/lib/gacha-media";
+import { GACHA_MEDIA, getGachaAudio, startGachaAudio, stopGachaAudio } from "@/lib/gacha-media";
 
 export default function GachaFilm({ run, active, onDone }: { run: number; active: boolean; onDone: (run: number) => void }) {
   const video = useRef<HTMLVideoElement>(null);
@@ -9,6 +9,7 @@ export default function GachaFilm({ run, active, onDone }: { run: number; active
   const soundStarted = useRef(false);
   const [failed, setFailed] = useState(false);
   const [silent, setSilent] = useState(false);
+  const resumePending = useRef(false);
   const done = useCallback(() => {
     if (finished.current) return;
     finished.current = true;
@@ -39,10 +40,10 @@ export default function GachaFilm({ run, active, onDone }: { run: number; active
   const playSound = () => {
     if (soundStarted.current || finished.current || silent) return;
     soundStarted.current = true;
-    const track = getGachaAudio();
-    if (!track) { setSilent(true); return; }
-    track.currentTime = video.current?.currentTime ?? 0;
-    void track.play().catch(() => setSilent(true));
+    void startGachaAudio(video.current?.currentTime ?? 0).then((ok) => {
+      if (finished.current) stopGachaAudio();
+      else if (!ok) setSilent(true);
+    });
   };
   const fail = () => {
     if (finished.current) return;
@@ -68,7 +69,10 @@ export default function GachaFilm({ run, active, onDone }: { run: number; active
           const element = video.current;
           if (!track || !element || silent || !soundStarted.current || finished.current || element.paused) return;
           if (Math.abs(track.currentTime - element.currentTime) > 0.4) track.currentTime = element.currentTime;
-          if (track.paused && !track.ended) void track.play().catch(() => setSilent(true));
+          if (track.paused && !track.ended && !resumePending.current) {
+            resumePending.current = true;
+            void track.play().catch(() => setSilent(true)).finally(() => { resumePending.current = false; });
+          }
         }} />
       )}
       <div className="gacha-film-bottom">
