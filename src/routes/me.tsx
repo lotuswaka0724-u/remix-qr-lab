@@ -253,6 +253,40 @@ function MyPage() {
     </section>
   );
 
+  const rankingCard = (
+    <section className="kid-panel ranking-panel p-4">
+      <h2 className="mb-3 font-display text-base font-bold">🏆 クラスの ランキング TOP10</h2>
+      {ranking === null ? (
+        <p className="text-sm text-muted-foreground">よみこみ中…</p>
+      ) : ranking.length === 0 ? (
+        <p className="text-sm text-muted-foreground">まだランキングが ありません。</p>
+      ) : (
+        <ol className="space-y-1.5">
+          {ranking.map((r, i) => (
+            <li
+              key={r.id}
+              className={`ranking-row flex items-center gap-3 rounded-2xl px-3 py-2 ${
+                i < 3 ? `ranking-top ranking-top-${i + 1}` : ""
+              } ${r.isMe ? "ranking-me" : ""}`}
+            >
+              <span className="ranking-pos shrink-0 font-display text-lg font-bold tabular-nums">
+                {i + 1}
+              </span>
+              <span className="min-w-0 flex-1 truncate font-bold">
+                {r.name}
+                {r.isMe && <span className="ranking-me-badge ml-2 rounded-full px-2 py-0.5 text-[10px] font-bold">あなた</span>}
+              </span>
+              <span className="ranking-points shrink-0 font-display text-base font-bold tabular-nums">
+                {r.points.toLocaleString()}
+                <span className="ml-0.5 text-[10px] font-normal">pt</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+
   const navItems: { id: Screen; label: string; icon: string }[] = [
     { id: "home", label: "ホーム", icon: "🏠" },
     { id: "homework", label: "宿題", icon: "📚" },
