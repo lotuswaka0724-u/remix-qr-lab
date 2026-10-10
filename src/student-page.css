@@ -131,6 +131,96 @@
     box-shadow: 0 -1px 16px oklch(0.12 0.039 264 / 0.44);
   }
 
+  /* BOX-only overrides: preserve shared student surfaces, art and all grid breakpoints. */
+  .student-page .collection-box {
+    --box-surface: linear-gradient(160deg, var(--student-reflection), var(--student-clear) 35%), linear-gradient(135deg, oklch(0.25 0.041 253 / 0.48), oklch(0.16 0.038 271 / 0.68));
+    --box-art-surface: oklch(0.14 0.033 266 / 0.38);
+    --box-selected: linear-gradient(160deg, var(--student-reflection), var(--student-clear) 42%), linear-gradient(135deg, oklch(0.32 0.059 248 / 0.8), oklch(0.23 0.05 276 / 0.85));
+    --box-selected-shadow: inset 0 0 0 1px var(--primary), inset 0 1px 0 var(--student-sheen), 0 0 12px -5px var(--student-point-glow);
+  }
+
+  .student-page .collection-box .box-item {
+    background: var(--box-surface);
+    color: var(--foreground);
+    border-radius: 8px;
+    box-shadow: inset 0 0 0 1px var(--student-edge), var(--shadow-card);
+    backdrop-filter: blur(12px) saturate(120%);
+    -webkit-backdrop-filter: blur(12px) saturate(120%);
+    white-space: normal;
+    overflow-wrap: anywhere;
+    transition: box-shadow 160ms, transform 160ms;
+  }
+
+  .student-page .collection-box .box-item[data-owned="false"] {
+    opacity: 1;
+    color: var(--muted-foreground);
+    background: var(--student-inset);
+  }
+
+  .student-page .collection-box .box-item[aria-pressed="true"] {
+    background: var(--box-selected);
+    box-shadow: var(--box-selected-shadow), var(--student-button-shadow);
+  }
+
+  .student-page .collection-box .box-item:hover:not(:disabled) {
+    box-shadow: inset 0 0 0 1px var(--primary), var(--shadow-card);
+  }
+
+  .student-page .collection-box .box-art {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    background: var(--box-art-surface);
+    box-shadow: inset 0 1px 0 var(--student-reflection), inset 0 -1px 0 var(--student-edge-shadow);
+  }
+
+  .student-page .collection-box .box-item-name { font-size: 13px; line-height: 1.5; }
+  .student-page .collection-box .box-rarity {
+    font-size: 11px;
+    line-height: 1.4;
+    min-width: 40px;
+    box-shadow: inset 0 1px 0 var(--student-sheen), 0 2px 4px var(--student-edge-shadow);
+  }
+
+  .student-page .collection-box .box-equipped {
+    font-size: 11px;
+    line-height: 1.5;
+    padding: 2px 7px;
+    border-radius: 4px;
+    color: var(--primary);
+    background: var(--box-art-surface);
+  }
+
+  .student-page .collection-box :is(.box-choice, .box-preview) {
+    min-height: 44px;
+    border-radius: 8px;
+    color: var(--foreground);
+    background: var(--student-button);
+    box-shadow: inset 0 0 0 1px var(--student-edge), var(--student-button-shadow);
+  }
+
+  .student-page .collection-box .box-choice[aria-pressed="true"] {
+    color: var(--primary);
+    background: var(--box-selected);
+    box-shadow: var(--box-selected-shadow);
+  }
+
+  .student-page .collection-box :is(.box-records > div, .box-recent, .box-sets, .box-equipment-summary) {
+    background: var(--student-inset);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 var(--student-edge), inset 0 -1px 0 var(--student-edge-shadow);
+  }
+
+  .student-page .collection-box .box-equipment-summary { line-height: 1.8; }
+  .student-page .collection-box .box-sets summary { min-height: 32px; display: list-item; align-content: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .student-page .collection-box .box-item { transition: none; transform: none; }
+  }
+
   .student-page .student-tab { color: var(--muted-foreground); }
   .student-page .student-tab[aria-current="page"] {
     background: var(--student-button);
