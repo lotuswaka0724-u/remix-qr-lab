@@ -53,6 +53,8 @@ import {
 } from "@/lib/homework-store";
 import { verifyForgotToken } from "@/lib/hwqr.functions";
 import { RANK_STYLE } from "@/lib/rank-style";
+import teacherCss from "@/teacher-page.css?url";
+import teacherWorld from "@/assets/collection/student-crystal-world.asset.json";
 
 const QrScanner = lazy(() => import("@/components/QrScanner"));
 
@@ -68,6 +70,7 @@ const HW_PHRASE: Record<HwState, string> = {
 
 export const Route = createFileRoute("/")({
   head: () => ({
+    links: [{ rel: "stylesheet", href: teacherCss }],
     meta: [
       { title: "スキャン | 宿題チェッカー" },
       {
@@ -383,7 +386,7 @@ function ScanPage() {
   ).length;
 
   return (
-    <main className="mx-auto w-full max-w-[1920px] px-3 pb-2 pt-2 lg:flex lg:h-[calc(100svh-62px)] lg:flex-col lg:overflow-hidden">
+    <main className="teacher-scan-page mx-auto w-full max-w-[1920px] px-3 pb-2 pt-2 lg:flex lg:h-[calc(100svh-62px)] lg:flex-col lg:overflow-hidden" style={{ "--teacher-world-image": `url("${teacherWorld.url}")` } as React.CSSProperties}>
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
       <CollectionFx
@@ -401,7 +404,7 @@ function ScanPage() {
       <section className="glass-panel mb-2 px-4 py-2">
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <p className="font-display text-sm font-bold">今日の提出状況</p>
-          <p className="font-display text-xl font-bold leading-none">
+          <p className="teacher-metric font-display text-xl font-bold leading-none">
             {done}
             <span className="text-xs font-bold text-muted-foreground"> / {total} 件</span>
           </p>
@@ -429,14 +432,14 @@ function ScanPage() {
               style={{ width: `${pct}%` }}
             />
           </div>
-          <span className="w-14 shrink-0 text-right font-display text-lg font-bold text-primary">
+          <span className="teacher-metric w-14 shrink-0 text-right font-display text-lg font-bold text-primary">
             {pct}%
           </span>
         </div>
       </section>
 
       {/* ---- 今日のランキング（10位まで横一列） ---- */}
-      <section className="glass-panel mb-2 flex items-center gap-2 px-3 py-1.5">
+      <section className="teacher-ranking glass-panel mb-2 flex items-center gap-2 px-3 py-1.5">
         <a
           href="/points"
           className="shrink-0 font-display text-sm font-bold leading-tight"
@@ -452,7 +455,7 @@ function ScanPage() {
                 i < 3 ? "bg-primary/15 font-bold text-primary" : "bg-muted/50"
               }`}
             >
-              <span className="shrink-0 font-display font-bold tabular-nums">{i + 1}</span>
+              <span className="teacher-rank-number shrink-0 font-display font-bold tabular-nums">{i + 1}</span>
               <CollectionIcon
                 iconId={badges[r.student.id]?.icon}
                 frameId={badges[r.student.id]?.frame}
@@ -460,7 +463,7 @@ function ScanPage() {
               />
               <span className="min-w-0 flex-1 leading-tight">
                 <span className="block truncate font-bold">{r.student.name}</span>
-                <span className="block truncate text-[11px] tabular-nums opacity-80">
+                <span className="teacher-rank-points block truncate text-[11px] tabular-nums opacity-80">
                   {r.points}pt{" "}
                   <span
                     className={`rounded-full px-1 text-[9px] font-bold ${
@@ -482,7 +485,7 @@ function ScanPage() {
       <div className="grid gap-2 lg:min-h-0 lg:flex-1 lg:grid-cols-[minmax(320px,30%)_minmax(0,1fr)]">
         {/* ---- 左：スキャナー ---- */}
         <div className="flex min-h-0 flex-col">
-          <section className="glass-panel flex min-h-0 flex-1 flex-col overflow-auto p-3">
+          <section className="teacher-scanner glass-panel flex min-h-0 flex-1 flex-col overflow-auto p-3">
             <div className="mb-2 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2">
               <h2 className="truncate font-display text-sm font-bold">カメラ読み取り</h2>
               <Button
@@ -659,7 +662,7 @@ function ScanPage() {
         </div>
 
         {/* ---- 右：提出一覧（2列でクラス全員を一画面に） ---- */}
-        <section className="glass-panel flex min-h-0 flex-col overflow-hidden">
+        <section className="teacher-submissions glass-panel flex min-h-0 flex-col overflow-hidden">
           <div className="flex flex-wrap items-center gap-2 border-b border-border/70 px-3 py-1.5">
             <h2 className="mr-auto font-display text-sm font-bold">提出一覧</h2>
             <select

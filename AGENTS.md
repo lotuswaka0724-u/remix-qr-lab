@@ -10,3 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Keep student visual overrides in a route-loaded, screen-only stylesheet scoped to the student page root; this prevents teacher and print styling changes.
+- Keep scan-page visual overrides in a route-loaded, screen-only stylesheet scoped to the teacher scan root; this isolates its skin from student pages, shared navigation and printing.
