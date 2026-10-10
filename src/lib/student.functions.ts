@@ -164,6 +164,26 @@ export const studentDrawGacha = createServerFn({ method: "POST" }).handler(async
   return { ok: true as const, prize: picked.name, view: project(next, studentId)! };
 });
 
+/** 同じクラスのポイントランキング上位10件（読み取り専用。名前とポイントだけ返す） */
+export const getClassRanking = createServerFn({ method: "GET" }).handler(async () => {
+  const { getGate, readClassState } = await import("@/lib/gate.server");
+  const gate = await getGate();
+  if (gate.data.role !== "student" || !gate.data.studentId) return null;
+  const studentId = gate.data.studentId;
+  const state = await readClassState();
+  const me = (state.students ?? []).find((s) => s.id === studentId);
+  if (!me) return null;
+  const { ranking } = await import("@/lib/homework-store");
+  return ranking(state, me.className)
+    .slice(0, 10)
+    .map((r) => ({
+      id: r.student.id,
+      name: r.student.name,
+      points: r.points,
+      isMe: r.student.id === studentId,
+    }));
+});
+
 export const studentLogout = createServerFn({ method: "POST" }).handler(async () => {
   const { getGate } = await import("@/lib/gate.server");
   const gate = await getGate();
