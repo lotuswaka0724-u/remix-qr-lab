@@ -90,7 +90,8 @@
   .teacher-scan-page .teacher-mode-btn[aria-checked="true"] {
     background: linear-gradient(180deg, oklch(0.62 0.15 230), oklch(0.45 0.16 265));
     border-color: oklch(0.85 0.12 210);
-    color: oklch(0.99 0 0);
+    color: oklch(0.99 0 0) !important;
+    opacity: 1;
     box-shadow: 0 0 0 2px oklch(0.8 0.13 210 / 0.45), 0 0 18px oklch(0.75 0.14 215 / 0.5);
   }
   .teacher-scan-page .teacher-mode-btn[aria-checked="false"] {
