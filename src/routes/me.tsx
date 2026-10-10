@@ -12,11 +12,14 @@ import studentCss from "@/student-page.css?url";
 import { playError } from "@/lib/feedback";
 import { STATUS_META } from "@/lib/homework-store";
 import {
+  getClassRanking,
   getStudentView,
   studentLogin,
   studentLogout,
   type StudentView,
 } from "@/lib/student.functions";
+
+type RankingEntry = { id: string; name: string; points: number; isMe: boolean };
 
 export const Route = createFileRoute("/me")({
   head: () => ({
