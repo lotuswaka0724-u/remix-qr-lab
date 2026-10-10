@@ -352,8 +352,8 @@
     --gacha-metal: oklch(0.43 0.04 245);
     --gacha-fine-glow: 0 0 24px var(--student-point-glow);
     /* Fixed film/result overlays must use the viewport, not this glass card. */
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
   .student-page .student-gacha .gacha-heading { letter-spacing: 0; }
   .student-page .student-gacha .gacha-points { font-size: 3rem; line-height: 1.1; }
