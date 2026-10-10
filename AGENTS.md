@@ -8,3 +8,5 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep student visual overrides in a route-loaded, screen-only stylesheet scoped to the student page root; this prevents teacher and print styling changes.
