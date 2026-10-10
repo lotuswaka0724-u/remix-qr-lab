@@ -12,11 +12,17 @@ export type Student = {
   className: string;
   /** カードに出すローマ字表記（姓→名）。入っていればこれを優先して使う */
   romaji?: string;
+  /** 読み上げ用の読み（ふりがな）。空なら登録名をそのまま読み上げる */
+  reading?: string;
   /** ログイン番号のもと（年度＋学年＋クラス＋出席番号） */
   fiscalYear?: number;
   grade?: number;
   classNumber?: number;
 };
+
+/** 読み上げに使う名前（読みがあれば読み、なければ登録名） */
+export const spokenName = (s: { name: string; reading?: string } | undefined, fallback = "") =>
+  s?.reading?.trim() || s?.name || fallback;
 
 /** 児童のログイン番号（年度＋学年＋クラス＋出席番号を数字でつなげたもの） */
 export const loginNumber = (s: Student) =>
