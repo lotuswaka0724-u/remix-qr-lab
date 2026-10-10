@@ -1,0 +1,93 @@
+/* Board-only screen skin. Shared navigation and printing retain their original styles. */
+@media screen {
+  .teacher-board-page {
+    --background: oklch(0.15 0.038 263);
+    --foreground: oklch(0.97 0.014 222);
+    --card: oklch(0.22 0.043 263);
+    --card-foreground: var(--foreground);
+    --primary: oklch(0.85 0.1 209);
+    --primary-foreground: oklch(0.16 0.036 265);
+    --muted: oklch(0.27 0.039 263);
+    --muted-foreground: oklch(0.83 0.025 237);
+    --accent: oklch(0.75 0.1 287);
+    --border: oklch(0.8 0.055 214 / 0.28);
+    --ring: var(--primary);
+    --board-clear: oklch(0.98 0.018 210 / 0);
+    --board-reflection: oklch(0.98 0.018 210 / 0.12);
+    --board-edge: oklch(0.94 0.036 210 / 0.36);
+    --board-depth: oklch(0.08 0.027 266 / 0.55);
+    --board-glow: oklch(0.82 0.08 212 / 0.13);
+    --board-row: oklch(0.16 0.034 264 / 0.48);
+    --board-surface: linear-gradient(165deg, var(--board-reflection), var(--board-clear) 38%), linear-gradient(135deg, oklch(0.26 0.043 252 / 0.58), oklch(0.16 0.035 268 / 0.78));
+    --board-button: linear-gradient(180deg, var(--board-reflection), var(--board-clear) 40%), linear-gradient(165deg, oklch(0.3 0.053 255), oklch(0.2 0.047 269));
+    --board-veil: linear-gradient(180deg, oklch(0.13 0.034 265 / 0.91), oklch(0.16 0.035 263 / 0.87));
+    --board-shadow: inset 0 1px 0 var(--board-edge), inset 1px 0 0 var(--board-reflection), inset 0 -1px 0 var(--board-depth), 0 10px 24px -15px var(--board-depth);
+    position: relative;
+    isolation: isolate;
+    color: var(--foreground);
+  }
+
+  .teacher-board-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--board-veil), var(--board-world-image) center / cover no-repeat, var(--background);
+  }
+
+  .teacher-board-page .paper-card {
+    background: var(--board-surface);
+    border-color: var(--border);
+    border-radius: 8px;
+    box-shadow: var(--board-shadow);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+  }
+
+  .teacher-board-page h1 { color: var(--foreground); }
+
+  .teacher-board-page :is(select, .board-toggle) {
+    background: var(--board-button);
+    color: var(--foreground);
+    border-color: var(--border);
+    border-radius: 8px;
+    min-height: 44px;
+    box-shadow: var(--board-shadow);
+  }
+  .teacher-board-page select option { background: var(--background); color: var(--foreground); }
+  .teacher-board-page .board-toggle:hover { border-color: var(--primary); color: var(--primary); }
+  .teacher-board-page :is(select, .board-toggle):focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+
+  .teacher-board-page .board-row {
+    box-shadow: var(--board-shadow), inset 0 0 0 1px var(--board-edge);
+    line-height: 1.5;
+  }
+
+  .teacher-board-page .board-number {
+    color: var(--primary);
+    background: var(--board-row);
+    box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 0 var(--board-reflection);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .teacher-board-page .board-name {
+    color: var(--foreground);
+    text-shadow: 0 0 10px var(--board-glow);
+    overflow-wrap: anywhere;
+  }
+  .teacher-board-page .board-meta { color: var(--muted-foreground); }
+
+  .teacher-board-page .board-missing {
+    color: oklch(0.88 0.09 25);
+    background: linear-gradient(165deg, oklch(0.55 0.15 25 / 0.24), oklch(0.45 0.13 25 / 0.16));
+    box-shadow: inset 0 0 0 1px oklch(0.7 0.12 25 / 0.4), inset 0 1px 0 var(--board-reflection);
+    text-shadow: 0 0 8px oklch(0.88 0.09 25 / 0.35);
+  }
+
+  .teacher-board-page .board-clear-title {
+    color: var(--primary);
+    text-shadow: 0 0 12px var(--board-glow);
+  }
+  .teacher-board-page .board-clear-note { color: var(--muted-foreground); }
+}
