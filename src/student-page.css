@@ -346,7 +346,7 @@
   }
 
   /* Cinematic gacha only: no shared geometry, BOX, teacher or print changes. */
-  .student-page .student-gacha {
+  .student-page .student-gacha.gacha-panel {
     --gacha-film-dark: oklch(0.1 0.028 267);
     --gacha-film-veil: oklch(0.11 0.033 269 / 0.94);
     --gacha-metal: oklch(0.43 0.04 245);
