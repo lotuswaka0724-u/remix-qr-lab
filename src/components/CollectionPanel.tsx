@@ -338,7 +338,7 @@ export default function CollectionPanel({
           : "";
 
   const gacha = (
-    <section className="gacha-panel space-y-4 p-4 text-center sm:p-5">
+    <section className="student-gacha gacha-panel space-y-4 p-4 text-center sm:p-5">
       <div className="gacha-heading">
         <span className="gacha-heading-mark" aria-hidden>✦</span>
         <h2 className="font-display text-lg font-bold">コレクションガチャ</h2>
@@ -348,8 +348,8 @@ export default function CollectionPanel({
         {view.points}
         <span className="ml-1 text-base">pt</span>
       </p>
-      <p className="text-xs text-muted-foreground">
-        1かい {view.cost}pt ／ あつめた {progress.have} / {progress.all} こ
+      <p className="gacha-cost text-xs text-muted-foreground">
+        <span className="gacha-cost-value">1かい {view.cost}pt</span> ／ あつめた {progress.have} / {progress.all} こ
       </p>
       <div className={`gacha-stage gacha-stage-${phase}`} aria-live="polite">
         <img className="gacha-stage-scene" src={gachaStage} alt="" width={1536} height={1024} />
@@ -420,7 +420,7 @@ export default function CollectionPanel({
         {view.play.gachaLeft > 0 ? `きょうのガチャ ${view.play.gachaLimit - view.play.gachaLeft} / ${view.play.gachaLimit}` : "きょうのガチャは おしまい。また あしたね 🌙"}
       </p>
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
-      <div className="grid grid-cols-3 gap-2 text-xs">
+      <div className="gacha-records grid grid-cols-3 gap-2 text-xs">
         <div className="rounded-lg bg-card/20 p-2">✅ コンプリート<br /><b className="text-base">{view.stats.completeTotal}</b> 回</div>
         <div className="rounded-lg bg-card/20 p-2">🔥 れんぞく<br /><b className="text-base">{view.stats.streak}</b> 回</div>
         <div className="rounded-lg bg-card/20 p-2">🎁 つぎのボーナス<br /><b className="text-base">{(Math.floor(view.stats.completeTotal / 5) + 1) * 5}</b> 回目</div>
@@ -465,7 +465,7 @@ export default function CollectionPanel({
             </div>
             <div className="gacha-result-copy">
               <span
-                className={`inline-block rounded-full px-4 py-1 font-display text-sm font-bold ${COLL_RARITY_META[prize.rarity].tone}`}
+                className={`gacha-rarity inline-block rounded-full px-4 py-1 font-display text-sm font-bold ${COLL_RARITY_META[prize.rarity].tone}`}
               >
                 {prize.rarity}
               </span>
