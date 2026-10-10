@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import studentWorld from "@/assets/collection/student-crystal-world.asset.json";
 import studentCss from "@/student-page.css?url";
 import { playError } from "@/lib/feedback";
+import { stopGachaAudio } from "@/lib/gacha-media";
 import { STATUS_META } from "@/lib/homework-store";
 import {
   getClassRanking,
@@ -60,6 +61,7 @@ function MyPage() {
   const [ranking, setRanking] = useState<RankingEntry[] | null>(null);
 
   const coll = useCollection();
+  useEffect(() => () => stopGachaAudio(), []);
 
   // ガチャでポイントを使ったら、ヘッダーのポイント表示もサーバーの最新値に合わせる
   const collPoints = coll.view?.points;
@@ -404,9 +406,9 @@ function MyPage() {
             {rankingCard}
           </>
         )}
-        {(screen === "gacha" || screen === "collection") && (
-          <CollectionPanel api={coll} screen={screen} onShowBox={() => setScreen("collection")} />
-        )}
+        <div hidden={screen !== "gacha" && screen !== "collection"}>
+          <CollectionPanel api={coll} screen={screen === "collection" ? "collection" : "gacha"} active={screen === "gacha" || screen === "collection"} onShowBox={() => setScreen("collection")} />
+        </div>
 
         <nav className="student-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
           <ul className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 py-2">

@@ -1,10 +1,13 @@
 import { useServerFn } from "@tanstack/react-start";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 
 import CollectionFx from "@/components/CollectionFx";
 import CollectionBackdrop from "@/components/CollectionBackdrop";
 import CollectionIcon from "@/components/CollectionIcon";
-import gachaStage from "@/assets/collection/gacha-stage.jpg";
+import GachaFilm from "@/components/GachaFilm";
+import { GACHA_MEDIA, prepareGachaAudio } from "@/lib/gacha-media";
+import { createGachaSession } from "@/lib/gacha-session";
+import { ArrowRight, RotateCcw, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   backgroundCss,
@@ -19,7 +22,6 @@ import {
   fxImage,
   soundAsset,
   soundTune,
-  tuneAsset,
   type CollCategory,
   type CollItem,
 } from "@/lib/collection-catalog";
@@ -28,54 +30,25 @@ import {
   equipCollItem,
   getCollection,
   markCollSeen,
-  type CollPrize,
   type CollView,
 } from "@/lib/collection.functions";
 import {
   playCollectionSound,
   playError,
-  playGachaEject,
-  playGachaOpen,
-  playGachaPress,
-  playGachaSpin,
   previewCollectionSound,
 } from "@/lib/feedback";
 import { useCustomPrizes } from "@/lib/use-custom-prizes";
 import { COLL_SETS, setMembers } from "@/lib/daily-play";
 
 type Screen = "gacha" | "collection";
-type GachaPhase =
-  | "idle"
-  | "press"
-  | "spinning"
-  | "suspense"
-  | "eject"
-  | "opening"
-  | "result";
-
-const waitFor = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
-
-function prizeTune(rarity: CollPrize["rarity"]) {
-  if (rarity === "BLACK") return "black";
-  if (rarity === "GOLD") return "gold";
-  if (rarity === "SSR") return "levelup";
-  if (rarity === "N") return "pico";
-  return "fanfare";
-}
-
-function prizeFx(rarity: CollPrize["rarity"]) {
-  if (rarity === "BLACK") return "black";
-  if (rarity === "GOLD") return "gold";
-  if (rarity === "SSR" || rarity === "SR") return "starfall";
-  return rarity === "R" ? "confetti" : "glitter";
-}
-
 export function useCollection() {
   const load = useServerFn(getCollection);
   const draw = useServerFn(drawCollGacha);
   const equip = useServerFn(equipCollItem);
   const [view, setViewRaw] = useState<CollView | null>(null);
   const [loading, setLoading] = useState(true);
+  const [gachaSession] = useState(createGachaSession);
+  const gachaState = useSyncExternalStore(gachaSession.subscribe, gachaSession.getSnapshot, gachaSession.getServerSnapshot);
   // 先生が登録した景品もアイテム一覧に合流させる
   const custom = useCustomPrizes();
   // 新しい保存結果を、あとから届いた古い読み込み結果で上書きしないための番号
@@ -112,7 +85,7 @@ export function useCollection() {
     };
   }, [load, setView]);
 
-  return { view, setView, refresh, loading: loading || !custom.ready, draw, equip };
+  return { view, setView, refresh, loading: loading || !custom.ready, draw, equip, load, gachaSession, gachaState };
 }
 
 export type CollectionApi = ReturnType<typeof useCollection>;
@@ -173,14 +146,17 @@ export default function CollectionPanel({
   api,
   screen,
   onShowBox,
+  active = true,
 }: {
   api: CollectionApi;
   screen: Screen;
   onShowBox?: () => void;
+  active?: boolean;
 }) {
-  const { view, setView, refresh, loading, draw, equip } = api;
+  const { view, setView, refresh, loading, draw, equip, load, gachaSession, gachaState } = api;
   const [busy, setBusy] = useState(false);
-  const [prize, setPrize] = useState<CollPrize | null>(null);
+  const { prize, phase } = gachaState;
+  const drawBusy = phase !== "idle";
   const [msg, setMsg] = useState("");
   const [cat, setCat] = useState<CollCategory>("icon");
   const [sortBy, setSortBy] = useState<"rarity" | "owned">("rarity");
@@ -191,9 +167,11 @@ export default function CollectionPanel({
     /** 演出の豪華さ。ガチャ結果では「景品のレアリティ」だけを使う（児童ランクは使わない） */
     rank?: "NORMAL" | "GOLD" | "BLACK";
   } | null>(null);
-  const [phase, setPhase] = useState<GachaPhase>("idle");
-  const [spinHard, setSpinHard] = useState(false);
+
   const markSeenFn = useServerFn(markCollSeen);
+  useEffect(() => {
+    if (phase === "video" && (!active || screen !== "gacha")) gachaSession.finish(gachaState.run);
+  }, [active, screen, phase, gachaSession, gachaState.run]);
 
   const owned = useMemo(() => view?.coll.owned ?? [], [view?.coll.owned]);
   const equipped = view?.coll.equipped ?? {};
@@ -209,86 +187,16 @@ export default function CollectionPanel({
   if (loading) return <p className="p-6 text-center text-sm text-muted-foreground">よみこみ中…</p>;
   if (!view) return null;
 
-  const onDraw = async () => {
-    // 連打防止：演出中・結果表示中は、いちども抽選しない
-    if (busy) return;
-    setBusy(true);
+  const onDraw = () => {
+    if (busy || gachaSession.getSnapshot().phase !== "idle" || !view.gachaOn || view.points < view.cost || view.play.gachaLeft <= 0) return;
+    prepareGachaAudio();
     setMsg("");
-    setPrize(null);
-
-    // ① ボタンを押した（0〜0.2秒）
-    setPhase("press");
-    playGachaPress();
-    const started = Date.now();
-    // 抽選は1回だけ。結果は演出に渡すだけで、あとから変わらない。
-    const drawing = draw({}).catch(() => "failed" as const);
-    await waitFor(200);
-
-    // ② 抽選中（装置がうごく。動きはだんだん強くなる）
-    setSpinHard(false);
-    setPhase("spinning");
-    playGachaSpin(1200);
-    const ramp = window.setTimeout(() => setSpinHard(true), 700);
-    const res = await drawing;
-    const spinWait = Math.max(0, 1600 - (Date.now() - started));
-    if (spinWait) await waitFor(spinWait);
-    window.clearTimeout(ramp);
-    setSpinHard(false);
-
-    if (res === "failed") {
-      setBusy(false);
-      setPhase("idle");
-      setMsg("ガチャを まわせませんでした");
-      playError();
-      // 保存の途中で失敗した可能性があるので、サーバーの最新状態に合わせる
-      void refresh();
-      return;
-    }
-    if (!res) {
-      setBusy(false);
-      setPhase("idle");
-      return;
-    }
-    setView(res);
-    if ("error" in res && res.error) {
-      setBusy(false);
-      setPhase("idle");
-      playError();
-      setMsg(res.error === "points" ? "ポイントが たりません" : res.error === "daily" ? "きょうのガチャは おしまい。また あした！" : "いまはガチャができません");
-      return;
-    }
-    if ("prize" in res && res.prize) {
-      const p = res.prize;
-      // ③ 結果直前の停止・ため
-      setPhase("suspense");
-      await waitFor(p.rarity === "BLACK" ? 520 : p.rarity === "GOLD" ? 440 : 320);
-
-      // ④ カプセル排出（排出口 → 中央）
-      setPhase("eject");
-      playGachaEject();
-      await waitFor(760);
-
-      // ⑤ カプセルがひらく
-      setPhase("opening");
-      playGachaOpen();
-      const rank = p.rarity === "BLACK" ? "BLACK" : p.rarity === "GOLD" ? "GOLD" : "NORMAL";
-      await waitFor(420);
-
-      // ⑥ 景品出現・光の演出・獲得音を同じタイムラインで開始する。
-      const tune = prizeTune(p.rarity);
-      const fx = prizeFx(p.rarity);
-      setPrize(p);
-      setPhase("result");
-      setFxPlay({ fx, id: Date.now(), image: fxImage(fx), rank });
-      playCollectionSound(tune, rank, tuneAsset(tune));
-    }
+    void gachaSession.draw(() => draw({}), setView);
   };
 
   const closeResult = (showInBox = false) => {
     if (showInBox && prize) setCat(prize.category);
-    setPrize(null);
-    setPhase("idle");
-    setBusy(false);
+    gachaSession.close();
     if (showInBox) onShowBox?.();
   };
 
@@ -325,18 +233,6 @@ export default function CollectionPanel({
       });
   };
 
-  // 装置のうごき：押す → ゆっくり → だんだん強く → 一瞬とまる
-  const machineClass =
-    phase === "press"
-      ? "gacha-machine-press"
-      : phase === "spinning"
-        ? spinHard
-          ? "gacha-machine-spin-hard"
-          : "gacha-machine-spin"
-        : phase === "suspense"
-          ? "gacha-machine-suspense"
-          : "";
-
   const gacha = (
     <section className="student-gacha gacha-panel space-y-4 p-4 text-center sm:p-5">
       <div className="gacha-heading">
@@ -352,73 +248,23 @@ export default function CollectionPanel({
         <span className="gacha-cost-value">1かい {view.cost}pt</span> ／ あつめた {progress.have} / {progress.all} こ
       </p>
       <div className={`gacha-stage gacha-stage-${phase}`} aria-live="polite">
-        <img className="gacha-stage-scene" src={gachaStage} alt="" width={1536} height={1024} />
-        <span className="gacha-stage-grid" aria-hidden />
-        <span className="gacha-stage-sparkles" aria-hidden />
-        <div
-          className={`gacha-machine ${machineClass}`}
-          style={phase === "eject" || phase === "opening" ? { opacity: 0.92 } : undefined}
-        >
-          <img src="/prizes/gacha/machine.png" alt="ガチャマシン" width={1024} height={1024} />
-          <span className="gacha-machine-glow" aria-hidden />
-          <span className="gacha-inner-capsule" aria-hidden />
-        </div>
-        {phase === "eject" && (
-          <div className="gacha-capsule-out" aria-label="カプセルが出ました">
-            <img src="/prizes/gacha/capsule.png" alt="" width={1024} height={1024} />
-          </div>
-        )}
-        {(phase === "spinning" || phase === "suspense") && (
-          <div className="cyber-core" aria-hidden>
-            {Array.from({ length: 16 }, (_, i) => (
-              <span
-                key={i}
-                className={`cyber-core-mote ${i % 2 ? "cyber-core-mote-pink" : ""}`}
-                style={{
-                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                  ["--a" as any]: `${i * 22.5}deg`,
-                  animationDelay: `${(i % 8) * 110}ms`,
-                }}
-              />
-            ))}
-            <span className="cyber-core-ring" />
-            <span className="cyber-core-ring cyber-core-ring-2" />
-            <span className="cyber-core-orb" />
-          </div>
-        )}
-        {phase === "opening" && (
-          <>
-            <div className="gacha-stage-burst" aria-hidden>
-              <img src="/prizes/gacha/burst.png" alt="" width={1024} height={1024} />
-            </div>
-            <span className="gacha-capsule-shell gacha-shell-top" aria-hidden />
-            <span className="gacha-capsule-shell gacha-shell-bottom" aria-hidden />
-            <span className="cyber-flash" aria-hidden />
-            <span className="cyber-ripple" aria-hidden />
-            <span className="cyber-ripple cyber-ripple-2" aria-hidden />
-            <span className="cyber-ripple cyber-ripple-3" aria-hidden />
-          </>
-        )}
-        <p className="gacha-stage-label">
-          {phase === "idle" && "なにが出るかな？"}
-          {phase === "press" && "スイッチ ON！"}
-          {phase === "spinning" && "カプセルを えらんでいます…"}
-          {phase === "suspense" && "…！"}
-          {phase === "eject" && "カプセルが 出てきた！"}
-          {phase === "opening" && "オープン！"}
-        </p>
+        <img className="gacha-console-art" src={GACHA_MEDIA.poster} alt="宇宙に浮かぶクリスタルのガチャマシン" width={1280} height={720} />
+        <div className="gacha-console-caption"><span>CRYSTAL CHAMBER</span><span>{phase === "drawing" ? "抽選結果を確認しています…" : "なにが出るかな？"}</span></div>
+        {phase === "drawing" && <div className="gacha-saving" role="status"><span className="gacha-loading-ring" aria-hidden />保存結果を確認中…</div>}
       </div>
       <Button
         type="button"
-        className={`gacha-btn ${phase === "press" ? "gacha-btn-pressed" : ""}`}
-        disabled={busy || !view.gachaOn || view.points < view.cost || view.play.gachaLeft <= 0}
+        className="gacha-btn"
+        disabled={busy || drawBusy || !view.gachaOn || view.points < view.cost || view.play.gachaLeft <= 0}
         onClick={onDraw}
       >
-        {busy ? "まわしています…" : `🎰 ガチャをひく（${view.cost}pt）`}
+        <Sparkles /> {phase === "drawing" ? "保存結果を確認中…" : drawBusy ? "結果を確認してね" : `ガチャをひく（${view.cost}pt）`} <ArrowRight />
       </Button>
       <p className="text-sm font-bold">
         {view.play.gachaLeft > 0 ? `きょうのガチャ ${view.play.gachaLimit - view.play.gachaLeft} / ${view.play.gachaLimit}` : "きょうのガチャは おしまい。また あしたね 🌙"}
       </p>
+      {gachaState.message && <p className={phase === "uncertain" ? "text-sm text-destructive" : "text-sm text-muted-foreground"} role="status">{gachaState.message}</p>}
+      {phase === "uncertain" && <div className="flex flex-wrap justify-center gap-2"><Button variant="outline" onClick={() => { void gachaSession.recover(() => load({}), setView); }}>保存結果を確認する</Button><Button variant="secondary" onClick={onShowBox}>アイテムBOXへ <ArrowRight /></Button></div>}
       {msg && <p className="text-base font-bold text-destructive">{msg}</p>}
       <div className="gacha-records grid grid-cols-3 gap-2 text-xs">
         <div className="rounded-lg bg-card/20 p-2">✅ コンプリート<br /><b className="text-base">{view.stats.completeTotal}</b> 回</div>
@@ -426,9 +272,10 @@ export default function CollectionPanel({
         <div className="rounded-lg bg-card/20 p-2">🎁 つぎのボーナス<br /><b className="text-base">{(Math.floor(view.stats.completeTotal / 5) + 1) * 5}</b> 回目</div>
       </div>
 
+      {phase === "video" && <GachaFilm key={gachaState.run} run={gachaState.run} active={active && screen === "gacha"} onDone={gachaSession.finish} />}
       {prize && phase === "result" && (
         <div
-          className={`gacha-result-overlay gacha-result-${prize.rarity.toLowerCase()}`}
+          className={`gacha-result-overlay gacha-acquisition gacha-result-${prize.rarity.toLowerCase()}`}
           role="dialog"
           aria-modal="true"
           aria-label={`${prize.name}をゲット`}
@@ -456,11 +303,12 @@ export default function CollectionPanel({
             ))}
           </div>
           <div className="gacha-result-card cyber-card">
+            <span className="gacha-result-kicker">REMIX QR LAB / COLLECTION</span>
             <p className="gacha-result-get">GET!</p>
             <div className="gacha-result-art">
               {(() => {
                 const item = COLL_ITEMS.find((i) => i.id === prize.id);
-                return item ? <ItemArt item={item} size={152} /> : null;
+                return item ? <ItemArt item={item} size={216} /> : null;
               })()}
             </div>
             <div className="gacha-result-copy">
@@ -482,10 +330,10 @@ export default function CollectionPanel({
               )}
               <div className="mt-4 grid grid-cols-2 gap-2">
                 <Button variant="secondary" className="rounded-full" onClick={() => closeResult()}>
-                  とじる
+                  <RotateCcw /> もう一度ガチャ
                 </Button>
                 <Button className="rounded-full" onClick={() => closeResult(true)}>
-                  アイテムBOXで見る
+                  アイテムBOXへ <ArrowRight />
                 </Button>
               </div>
             </div>
