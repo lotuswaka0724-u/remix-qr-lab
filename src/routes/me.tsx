@@ -398,7 +398,12 @@ function MyPage() {
         )}
 
         {screen === "homework" && homeworkCard}
-        {screen === "points" && pointsCard}
+        {screen === "points" && (
+          <>
+            {pointsCard}
+            {rankingCard}
+          </>
+        )}
         {(screen === "gacha" || screen === "collection") && (
           <CollectionPanel api={coll} screen={screen} onShowBox={() => setScreen("collection")} />
         )}
