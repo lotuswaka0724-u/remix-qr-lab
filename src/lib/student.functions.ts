@@ -174,7 +174,7 @@ export const getClassRanking = createServerFn({ method: "GET" }).handler(async (
   const me = (state.students ?? []).find((s) => s.id === studentId);
   if (!me) return null;
   const { ranking } = await import("@/lib/homework-store");
-  return ranking(state, me.className)
+  return ranking(state as AppState, me.className)
     .slice(0, 10)
     .map((r) => ({
       id: r.student.id,
