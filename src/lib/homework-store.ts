@@ -470,6 +470,9 @@ function persist() {
   emit();
 }
 
+/** いまの状態（操作の直後に読むため） */
+export const getAppState = () => state;
+
 export function setState(updater: (prev: AppState) => AppState) {
   state = updater(state);
   persist();
