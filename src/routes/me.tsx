@@ -48,6 +48,7 @@ type Screen = "home" | "homework" | "points" | "gacha" | "collection";
 function MyPage() {
   const login = useServerFn(studentLogin);
   const fetchView = useServerFn(getStudentView);
+  const fetchRanking = useServerFn(getClassRanking);
   const logout = useServerFn(studentLogout);
 
   const [view, setView] = useState<StudentView | null>(null);
