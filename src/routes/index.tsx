@@ -68,6 +68,14 @@ const HW_PHRASE: Record<HwState, string> = {
   NO_REPORT: "は まだ出ていません",
 };
 
+/** 一覧のチェックを押したときの操作モード（既存の処理を呼び分けるだけ） */
+type MarkMode = "normal" | "redo" | "school";
+const MARK_MODES: { id: MarkMode; label: string; hint: string }[] = [
+  { id: "normal", label: "通常モード", hint: "チェックを押すと提出状態を切り替えます" },
+  { id: "redo", label: "直しモード", hint: "チェックを押すと「直しあり」で記録します" },
+  { id: "school", label: "学校モード", hint: "チェックを押すと「学校でやった」で記録します" },
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     links: [{ rel: "stylesheet", href: teacherCss }],
