@@ -1,0 +1,58 @@
+/* Teacher shell header / navigation — screen-only, scoped to the shared
+   teacher header. Never applied on student pages or in print output. */
+
+@media screen {
+  .teacher-shell-header .teacher-shell-brand {
+    color: oklch(0.96 0.02 220);
+    text-shadow:
+      0 0 14px oklch(0.8 0.14 200 / 0.35),
+      0 1px 0 oklch(0.3 0.06 265 / 0.6);
+  }
+
+  .teacher-shell-header .teacher-shell-nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    margin-left: auto;
+    padding: 0.35rem;
+    border-radius: 9999px;
+    background: oklch(0.22 0.05 265 / 0.6);
+    border: 1px solid oklch(0.78 0.1 200 / 0.22);
+    box-shadow:
+      inset 0 1px 0 oklch(0.95 0.04 210 / 0.18),
+      0 4px 18px oklch(0.1 0.05 265 / 0.45);
+    backdrop-filter: blur(12px) saturate(120%);
+  }
+
+  .teacher-shell-header .teacher-shell-tab {
+    display: inline-flex;
+    align-items: center;
+    white-space: nowrap;
+    padding: 0.45rem 1.15rem;
+    border-radius: 9999px;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    color: oklch(0.85 0.04 215 / 0.85);
+    transition:
+      color 150ms ease,
+      background-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .teacher-shell-header .teacher-shell-tab:hover {
+    color: oklch(0.97 0.03 210);
+    background: oklch(0.3 0.06 260 / 0.5);
+  }
+
+  .teacher-shell-header .teacher-shell-tab[data-status="active"] {
+    color: oklch(0.95 0.05 195);
+    background: oklch(0.28 0.06 250 / 0.85);
+    border: 1px solid oklch(0.8 0.13 195 / 0.55);
+    box-shadow:
+      inset 0 1px 0 oklch(0.95 0.05 205 / 0.25),
+      0 0 14px oklch(0.75 0.14 195 / 0.35);
+    text-shadow: 0 0 10px oklch(0.8 0.14 195 / 0.45);
+  }
+}
