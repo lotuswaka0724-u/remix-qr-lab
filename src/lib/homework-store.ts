@@ -213,6 +213,8 @@ export type HwEvent = {
   at: number;
   /** 「今日の記録をリセット」で無効にした記録（履歴は残すが、判定・点数には使わない） */
   voided?: boolean;
+  /** 先生の「取り消し」で無効にした記録（履歴には残す） */
+  undone?: boolean;
 };
 
 /**
@@ -650,6 +652,73 @@ export function earnedPoints(state: AppState, studentId: string) {
   }
   for (const v of fixed.values()) total += v;
   return total;
+}
+
+/* ---------- 先生の「取り消し」（直前1操作） ---------- */
+
+/** 1つの「日付・児童・宿題」の記録の写し */
+export type CellSnapshot = {
+  date: string;
+  studentId: string;
+  assignmentId: string;
+  value: Status | boolean | undefined;
+  /** その宿題の記録（id → 無効かどうか） */
+  events: Record<string, boolean>;
+};
+
+export function snapshotCell(
+  s: AppState,
+  studentId: string,
+  assignmentId: string,
+  date: string = todayKey(),
+): CellSnapshot {
+  const events: Record<string, boolean> = {};
+  for (const e of s.hwEvents ?? [])
+    if (e.date === date && e.studentId === studentId && e.assignmentId === assignmentId)
+      events[e.id] = !!e.voided;
+  return { date, studentId, assignmentId, value: s.records[date]?.[studentId]?.[assignmentId], events };
+}
+
+const sameSnapshot = (a: CellSnapshot, b: CellSnapshot) =>
+  toStatus(a.value) === toStatus(b.value) &&
+  Object.keys(a.events).length === Object.keys(b.events).length &&
+  Object.entries(a.events).every(([id, v]) => b.events[id] === v);
+
+/** 操作の前後で記録が変わったか */
+export const cellChanged = (before: CellSnapshot, after: CellSnapshot) => !sameSnapshot(before, after);
+
+/**
+ * 直前の1操作を取り消す。対象の「日付・児童・宿題」だけを操作前の状態に戻す。
+ * 操作で増えた記録は消さずに無効（undone）にし、操作で無効になった記録は元に戻す。
+ * ポイントは記録から毎回計算するため、これで増減も元どおりになる。
+ * 操作のあとに同じ宿題がまた変わっていたら、なにもしない。
+ */
+export function undoCellChange(before: CellSnapshot, after: CellSnapshot): { ok: boolean; message: string } {
+  const { date, studentId, assignmentId } = before;
+  if (!sameSnapshot(snapshotCell(state, studentId, assignmentId, date), after)) {
+    return { ok: false, message: "そのあと記録が変わったため、取り消せません" };
+  }
+  setState((s) => {
+    const day = { ...(s.records[date] ?? {}) };
+    const forStudent = { ...(day[studentId] ?? {}) };
+    if (before.value === undefined) delete forStudent[assignmentId];
+    else forStudent[assignmentId] = before.value;
+    day[studentId] = forStudent;
+    return {
+      ...s,
+      records: { ...s.records, [date]: day },
+      hwEvents: (s.hwEvents ?? []).map((e) => {
+        if (e.date !== date || e.studentId !== studentId || e.assignmentId !== assignmentId) return e;
+        if (!(e.id in before.events)) return { ...e, voided: true, undone: true };
+        const wasVoided = before.events[e.id]!;
+        if (!!e.voided === wasVoided) return e;
+        if (wasVoided) return { ...e, voided: true };
+        const { voided: _v, ...rest } = e;
+        return rest;
+      }),
+    };
+  });
+  return { ok: true, message: "取り消しました" };
 }
 
 /* ---------- 宿題じょうたいQRの処理 ---------- */
