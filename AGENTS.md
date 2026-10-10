@@ -14,3 +14,4 @@
 - Keep teacher points visual overrides in a route-loaded, screen-only stylesheet scoped to its page root; this isolates list and grant-control styling from all other pages and printing.
 - Scope item BOX visual overrides beneath both the student page and collection BOX root in the student screen stylesheet; this keeps home, gacha, prize rendering and print styles unchanged.
 - Scope gacha visual overrides beneath both the student page and gacha root in the student screen stylesheet; this isolates machine and result styling without changing draw logic or animation timelines.
+- Keep teacher history visual overrides in a route-loaded screen-only stylesheet scoped to its page root; this preserves shared navigation, other pages and print appearance.

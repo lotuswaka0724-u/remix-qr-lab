@@ -1,0 +1,85 @@
+/* History-only screen skin. Shared navigation and printing retain their original styles. */
+@media screen {
+  .teacher-history-page {
+    --background: oklch(0.15 0.038 263);
+    --foreground: oklch(0.97 0.014 222);
+    --card: oklch(0.22 0.043 263);
+    --card-foreground: var(--foreground);
+    --primary: oklch(0.85 0.1 209);
+    --primary-foreground: oklch(0.16 0.036 265);
+    --muted: oklch(0.27 0.039 263);
+    --muted-foreground: oklch(0.83 0.025 237);
+    --accent: oklch(0.75 0.1 287);
+    --border: oklch(0.8 0.055 214 / 0.28);
+    --ring: var(--primary);
+    --history-clear: oklch(0.98 0.018 210 / 0);
+    --history-reflection: oklch(0.98 0.018 210 / 0.12);
+    --history-edge: oklch(0.94 0.036 210 / 0.36);
+    --history-depth: oklch(0.08 0.027 266 / 0.55);
+    --history-glow: oklch(0.82 0.08 212 / 0.13);
+    --history-row: oklch(0.16 0.034 264 / 0.48);
+    --history-surface: linear-gradient(165deg, var(--history-reflection), var(--history-clear) 38%), linear-gradient(135deg, oklch(0.26 0.043 252 / 0.58), oklch(0.16 0.035 268 / 0.78));
+    --history-button: linear-gradient(180deg, var(--history-reflection), var(--history-clear) 40%), linear-gradient(165deg, oklch(0.3 0.053 255), oklch(0.2 0.047 269));
+    --history-veil: linear-gradient(180deg, oklch(0.13 0.034 265 / 0.91), oklch(0.16 0.035 263 / 0.87));
+    --history-shadow: inset 0 1px 0 var(--history-edge), inset 1px 0 0 var(--history-reflection), inset 0 -1px 0 var(--history-depth), 0 10px 24px -15px var(--history-depth);
+    position: relative;
+    isolation: isolate;
+    color: var(--foreground);
+  }
+
+  .teacher-history-page::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: var(--history-veil), var(--history-world-image) center / cover no-repeat, var(--background);
+  }
+
+  .teacher-history-page .paper-card {
+    background: var(--history-surface);
+    border-color: var(--border);
+    border-radius: 8px;
+    box-shadow: var(--history-shadow);
+    backdrop-filter: blur(18px) saturate(120%);
+    -webkit-backdrop-filter: blur(18px) saturate(120%);
+  }
+
+  .teacher-history-page :is(h1, h2, .history-date) { color: var(--foreground); }
+  .teacher-history-page h2 { font-size: 1.125rem; line-height: 1.5; }
+  .teacher-history-page :is(select, .history-export) {
+    background: var(--history-button);
+    color: var(--foreground);
+    border-color: var(--border);
+    border-radius: 8px;
+    min-height: 44px;
+    box-shadow: var(--history-shadow);
+  }
+  .teacher-history-page select option { background: var(--background); color: var(--foreground); }
+  .teacher-history-page .history-export:hover { border-color: var(--primary); color: var(--primary); }
+  .teacher-history-page :is(select, .history-export):focus-visible { outline: 2px solid var(--ring); outline-offset: 3px; }
+
+  .teacher-history-page .history-event {
+    background: var(--history-row);
+    border-radius: 8px;
+    box-shadow: inset 0 1px 0 var(--history-reflection);
+    line-height: 1.6;
+  }
+  .teacher-history-page .history-name { color: var(--foreground); overflow-wrap: anywhere; }
+  .teacher-history-page .history-state { color: var(--foreground); }
+  .teacher-history-page .history-delta { color: var(--primary); }
+  .teacher-history-page .history-total { line-height: 1.6; }
+  .teacher-history-page .history-summary {
+    font-size: 0.875rem;
+    color: var(--primary);
+    background: var(--history-row);
+    box-shadow: inset 0 0 0 1px var(--border), inset 0 1px 0 var(--history-reflection);
+    font-variant-numeric: tabular-nums;
+  }
+  .teacher-history-page .history-progress { background: var(--history-row); }
+  .teacher-history-page .history-progress > div {
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    box-shadow: 0 0 8px var(--history-glow);
+  }
+  .teacher-history-page .history-student-row { line-height: 1.65; overflow-wrap: anywhere; }
+}

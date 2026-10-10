@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
+import historyCss from "@/teacher-history.css?url";
+import teacherWorld from "@/assets/collection/student-crystal-world.asset.json";
 
 import { Button } from "@/components/ui/button";
 import { downloadCsv } from "@/lib/csv";
@@ -7,13 +9,14 @@ import { HW_STATE_META, isSubmitted, useAppState } from "@/lib/homework-store";
 
 export const Route = createFileRoute("/history")({
   head: () => ({
+    links: [{ rel: "stylesheet", href: historyCss }],
     meta: [
-      { title: "履歴 | 宿題チェッカー" },
+      { title: "教師用 履歴・記録 | REMIX QR LAB" },
       {
         name: "description",
         content: "日ごとの提出率と児童別の提出回数をふりかえり。過去の記録をCSVで書き出せます。",
       },
-      { property: "og:title", content: "履歴 | 宿題チェッカー" },
+      { property: "og:title", content: "教師用 履歴・記録 | REMIX QR LAB" },
       {
         property: "og:description",
         content: "日ごとの提出率と児童別の提出回数をふりかえれる履歴ページです。",
@@ -82,7 +85,7 @@ function HistoryPage() {
   }, [state.hwEvents, state.assignments, state.students, classFilter]);
 
   return (
-    <main className="mx-auto max-w-5xl space-y-4 px-4 py-6">
+    <main className="teacher-history-page mx-auto max-w-5xl space-y-4 px-4 py-6" style={{ "--history-world-image": `url("${teacherWorld.url}")` } as CSSProperties}>
       <div className="flex flex-wrap items-center gap-2">
         <h1 className="mr-auto font-display text-2xl font-bold">提出の履歴</h1>
         <select
@@ -100,6 +103,7 @@ function HistoryPage() {
         </select>
         <Button
           variant="outline"
+          className="history-export"
           onClick={() =>
             downloadCsv("提出履歴.csv", [
               ["日付", "氏名", "提出した宿題"],
@@ -127,19 +131,19 @@ function HistoryPage() {
             {hwLog.map((e) => (
               <li
                 key={e.id}
-                className="flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl bg-muted/60 px-3 py-2 text-sm"
+                className="history-event flex flex-wrap items-center gap-x-3 gap-y-0.5 rounded-xl bg-muted/60 px-3 py-2 text-sm"
               >
                 <span className="tabular-nums text-muted-foreground">{e.when}</span>
-                <span className="font-bold">{e.studentName}</span>
+                <span className="history-name font-bold">{e.studentName}</span>
                 <span className="text-muted-foreground">{e.className}</span>
                 <span>{e.assignmentName}</span>
-                <span className="font-bold">
+                <span className="history-state font-bold">
                   {e.icon} {e.label}
                 </span>
-                <span className="ml-auto font-bold tabular-nums">
+                <span className="history-delta ml-auto font-bold tabular-nums">
                   {e.delta >= 0 ? `＋${e.delta}` : e.delta}ポイント
                 </span>
-                <span className="text-xs text-muted-foreground tabular-nums">
+                <span className="history-total text-xs text-muted-foreground tabular-nums">
                   ぜんぶで {e.total}ポイント
                 </span>
               </li>
@@ -162,18 +166,18 @@ function HistoryPage() {
             return (
               <li key={d.date} className="paper-card p-4">
                 <div className="flex flex-wrap items-center gap-3">
-                  <p className="font-display text-lg font-bold">{d.date}</p>
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
+                  <p className="history-date font-display text-lg font-bold">{d.date}</p>
+                  <span className="history-summary rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary">
                     提出 {d.done} / {d.total}（{rate}%）
                   </span>
                 </div>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                <div className="history-progress mt-2 h-2 overflow-hidden rounded-full bg-muted">
                   <div className="h-full rounded-full bg-primary" style={{ width: `${rate}%` }} />
                 </div>
                 <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">
                   {d.perStudent.map((p) => (
-                    <li key={p.student.id} className="flex gap-2 text-sm">
-                      <span className="w-28 shrink-0 font-bold">{p.student.name}</span>
+                    <li key={p.student.id} className="history-student-row flex gap-2 text-sm">
+                      <span className="history-name w-28 shrink-0 font-bold">{p.student.name}</span>
                       <span className="text-muted-foreground">
                         {p.items.length ? p.items.join(" / ") : "提出なし"}
                       </span>
