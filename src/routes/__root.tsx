@@ -15,6 +15,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { gateStatus, teacherLogin } from "@/lib/class-sync.functions";
 import appCss from "../styles.css?url";
+import teacherHeaderCss from "../teacher-header.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 
 function NotFoundComponent() {
@@ -93,6 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
+      { rel: "stylesheet", href: teacherHeaderCss },
       { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
@@ -233,22 +235,22 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen">
-        <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
+        <header className="teacher-shell-header sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
           <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-content-center rounded-xl bg-primary font-display text-lg font-bold text-primary-foreground">
-                宿
-              </span>
-              <span className="font-display text-lg font-bold tracking-tight">宿題チェッカー</span>
+            <Link
+              to="/"
+              className="teacher-shell-brand font-display text-lg font-bold tracking-tight"
+            >
+              宿題チェッカー
             </Link>
-            <nav className="ml-auto flex items-center gap-1 rounded-full bg-muted p-1 text-sm font-bold">
+            <nav className="teacher-shell-nav ml-auto p-1 text-sm font-bold">
               {NAV.map((n) => (
                 <Link
                   key={n.to}
                   to={n.to}
                   activeOptions={{ exact: n.to === "/" }}
-                  className="rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
-                  activeProps={{ className: "bg-card text-primary shadow-[var(--shadow-card)]" }}
+                  className="teacher-shell-tab text-muted-foreground transition-colors hover:text-foreground"
+                  activeProps={{ className: "teacher-shell-tab bg-card text-primary shadow-[var(--shadow-card)]" }}
                 >
                   {n.label}
                 </Link>
