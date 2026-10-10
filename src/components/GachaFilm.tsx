@@ -55,10 +55,11 @@ export default function GachaFilm({ run, active, onDone }: { run: number; active
       return;
     }
     soundStarted.current = true;
+    resumePending.current = true;
     void startGachaAudio(video.current?.currentTime ?? 0).then((ok) => {
       if (finished.current) stopGachaAudio();
       else if (!ok) setSilent(true);
-    });
+    }).finally(() => { resumePending.current = false; });
   };
   const fail = () => {
     if (finished.current) return;
