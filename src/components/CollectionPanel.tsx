@@ -496,7 +496,7 @@ export default function CollectionPanel({
   );
 
   const list = (
-    <section className="kid-panel space-y-3 p-4">
+    <section className="collection-box kid-panel space-y-3 p-4">
       <div className="flex flex-wrap items-center gap-2">
         <h2 className="mr-auto font-display text-lg font-bold">📖 コレクション {progress.have}/{progress.all} GET!</h2>
         {view.play.newIds.length > 0 && (
@@ -518,7 +518,7 @@ export default function CollectionPanel({
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-2 text-xs sm:grid-cols-4" aria-label="じぶんの記録">
+      <div className="box-records grid grid-cols-2 gap-2 text-xs sm:grid-cols-4" aria-label="じぶんの記録">
         <div className="rounded-xl bg-muted/60 p-2">✅ コンプリート（ぜんぶで）<br /><b className="text-base">{view.stats.completeTotal}</b> 回</div>
         <div className="rounded-xl bg-muted/60 p-2">🔥 れんぞくコンプリート<br /><b className="text-base">{view.stats.streak}</b> 回</div>
         <div className="rounded-xl bg-muted/60 p-2">🎰 ガチャをひいた<br /><b className="text-base">{view.stats.draws}</b> 回</div>
@@ -526,7 +526,7 @@ export default function CollectionPanel({
       </div>
 
       {view.play.recent.length > 0 && (
-        <div className="flex items-center gap-2 overflow-x-auto rounded-xl bg-muted/40 p-2">
+        <div className="box-recent flex items-center gap-2 overflow-x-auto rounded-xl bg-muted/40 p-2">
           <span className="shrink-0 text-xs font-bold">🕒 さいきんGET</span>
           {view.play.recent.slice(0, 5).map((r) => {
             const it = COLL_ITEMS.find((i) => i.id === r.id);
@@ -540,7 +540,7 @@ export default function CollectionPanel({
         </div>
       )}
 
-      <details className="rounded-xl bg-muted/40 p-2 text-xs">
+      <details className="box-sets rounded-xl bg-muted/40 p-2 text-xs">
         <summary className="cursor-pointer font-bold">🧩 セットコレクション</summary>
         <ul className="mt-2 grid grid-cols-2 gap-1 sm:grid-cols-3">
           {COLL_SETS.map((set) => {
@@ -557,7 +557,7 @@ export default function CollectionPanel({
         </ul>
       </details>
 
-      <div className="flex flex-wrap gap-1.5">
+      <div className="box-categories flex flex-wrap gap-1.5" role="group" aria-label="カテゴリ">
         {COLL_CATEGORIES.map((c) => {
           const items = collItemsOf(c);
           const have = items.filter((i) => owned.includes(i.id)).length;
@@ -567,8 +567,9 @@ export default function CollectionPanel({
               type="button"
               size="sm"
               variant={cat === c ? "default" : "secondary"}
+              aria-pressed={cat === c}
               onClick={() => setCat(c)}
-              className="h-auto rounded-full px-3 py-1.5 text-xs font-bold"
+              className="box-choice h-auto rounded-full px-3 py-1.5 text-xs font-bold"
             >
               {COLL_CATEGORY_ICON[c]} {COLL_CATEGORY_LABEL[c]} {have}/{items.length}
             </Button>
@@ -576,7 +577,7 @@ export default function CollectionPanel({
         })}
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5">
+      <div className="box-sorting flex flex-wrap items-center gap-1.5" role="group" aria-label="ならびかえ">
         <span className="text-xs font-bold text-muted-foreground">ならびかえ</span>
         {(
           [
@@ -589,15 +590,16 @@ export default function CollectionPanel({
             type="button"
             size="sm"
             variant={sortBy === key ? "default" : "secondary"}
+            aria-pressed={sortBy === key}
             onClick={() => setSortBy(key)}
-            className="h-auto rounded-full px-3 py-1.5 text-xs font-bold"
+            className="box-choice h-auto rounded-full px-3 py-1.5 text-xs font-bold"
           >
             {label}
           </Button>
         ))}
       </div>
 
-      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <ul className="box-items grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {sortItems(collItemsOf(cat), sortBy, owned).map((item) => {
           const has = owned.includes(item.id);
           const inUse = equipped[cat] === item.id;
@@ -608,8 +610,10 @@ export default function CollectionPanel({
                 type="button"
                 variant="ghost"
                 disabled={!has}
+                aria-pressed={inUse}
+                data-owned={has}
                 onClick={() => void onEquip(item)}
-                className={`h-auto min-h-40 w-full flex-col items-center gap-1.5 rounded-2xl p-3 text-center ring-2 transition-all ${
+                className={`box-item h-auto min-h-40 w-full flex-col items-center gap-1.5 rounded-2xl p-3 text-center ring-2 transition-all ${
                   inUse
                     ? "bg-primary/10 ring-primary"
                     : has
@@ -617,6 +621,7 @@ export default function CollectionPanel({
                       : "bg-muted/60 opacity-60 ring-transparent"
                 }`}
               >
+                <span className="box-art">
                 {has ? (
                   <ItemArt item={item} />
                 ) : (
@@ -624,17 +629,18 @@ export default function CollectionPanel({
                     <ItemArt item={item} />
                   </span>
                 )}
-                <span className="text-xs font-bold">{has ? item.name : "？？？"}</span>
+                </span>
+                <span className="box-item-name text-xs font-bold">{has ? item.name : "？？？"}</span>
                 {has && view.play.newIds.includes(item.id) && (
                   <span className="rounded-full bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground">🆕 NEW!</span>
                 )}
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${COLL_RARITY_META[item.rarity].tone}`}
+                  className={`box-rarity rounded-full px-2 py-0.5 text-[10px] font-bold ${COLL_RARITY_META[item.rarity].tone}`}
                 >
                   {item.rarity}
                 </span>
                 {inUse && (
-                  <span className="text-[10px] font-bold text-primary">つかっています</span>
+                  <span className="box-equipped text-[10px] font-bold text-primary">✓ つかっています</span>
                 )}
                 {has && dupe > 0 && (
                   <span className="text-[10px] text-muted-foreground">かぶり ×{dupe}</span>
@@ -645,7 +651,7 @@ export default function CollectionPanel({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="mt-1 w-full rounded-xl text-xs font-bold"
+                  className="box-preview mt-1 w-full rounded-xl text-xs font-bold"
                   onClick={(e) => {
                     e.stopPropagation();
                     previewCollectionSound(
@@ -663,7 +669,7 @@ export default function CollectionPanel({
         })}
       </ul>
 
-      <div className="rounded-2xl bg-muted/60 p-3 text-xs text-muted-foreground">
+      <div className="box-equipment-summary rounded-2xl bg-muted/60 p-3 text-xs text-muted-foreground">
         いま つかっているもの：
         {COLL_CATEGORIES.map((c) => {
           const id = equipped[c];
