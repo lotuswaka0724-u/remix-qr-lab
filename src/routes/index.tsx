@@ -51,6 +51,11 @@ import {
   type HwState,
   type Student,
   spokenName,
+  getAppState,
+  snapshotCell,
+  cellChanged,
+  undoCellChange,
+  type CellSnapshot,
 } from "@/lib/homework-store";
 import { verifyForgotToken } from "@/lib/hwqr.functions";
 import { RANK_STYLE } from "@/lib/rank-style";
@@ -131,6 +136,10 @@ function ScanPage() {
   } | null>(null);
   const [manual, setManual] = useState("");
   const [markMode, setMarkMode] = useState<MarkMode>("normal");
+  /** 取り消せる直前の1操作（一覧のチェック操作のみ） */
+  const [lastOp, setLastOp] = useState<
+    { before: CellSnapshot; after: CellSnapshot; label: string } | null
+  >(null);
 
   /** 児童がガチャで手に入れた アイコン・フレーム・音・エフェクト */
   const loadBadges = useServerFn(getClassBadges);
@@ -538,6 +547,30 @@ function ScanPage() {
             <p className="-mt-1 mb-2 text-xs font-bold text-primary">
               いまは「{MARK_MODES.find((m) => m.id === markMode)?.label}」：{MARK_MODES.find((m) => m.id === markMode)?.hint}
             </p>
+            <div className="mb-2 flex items-center gap-2 border-t border-border/60 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!lastOp}
+                className="teacher-undo-btn min-h-11 shrink-0 rounded-xl border-destructive/60 px-4 font-bold text-destructive"
+                onClick={() => {
+                  if (!lastOp) {
+                    toast.info("取り消せる操作がありません");
+                    return;
+                  }
+                  if (!window.confirm(`「${lastOp.label}」の直前の操作を取り消しますか？`)) return;
+                  const res = undoCellChange(lastOp.before, lastOp.after);
+                  setLastOp(null);
+                  if (res.ok) toast.success(res.message, { description: lastOp.label });
+                  else toast.info(res.message, { description: lastOp.label });
+                }}
+              >
+                ↶ 取り消し
+              </Button>
+              <span className="min-w-0 truncate text-xs text-muted-foreground">
+                {lastOp ? `直前：${lastOp.label}` : "取り消せる操作はありません"}
+              </span>
+            </div>
 
             <Suspense fallback={<div className="aspect-[4/3] animate-pulse rounded-xl bg-muted" />}>
               <QrScanner active={scanning} onDetected={handleDetected} />
@@ -793,9 +826,13 @@ function ScanPage() {
                                   type="button"
                                   disabled={markMode === "normal" && locked}
                                   onClick={() => {
+                                    const before = snapshotCell(getAppState(), s.id, a.id);
                                     if (markMode === "redo") teacherMark(s, a, "REDO");
                                     else if (markMode === "school") teacherMark(s, a, "SCHOOL_DONE");
                                     else cycleRecord(s.id, a.id);
+                                    const after = snapshotCell(getAppState(), s.id, a.id, before.date);
+                                    if (cellChanged(before, after))
+                                      setLastOp({ before, after, label: `${s.name}／${a.name}` });
                                   }}
                                   title={meta.label}
                                   className={`h-9 w-9 shrink-0 rounded-lg text-base font-bold transition-all ${meta.tone} ${
