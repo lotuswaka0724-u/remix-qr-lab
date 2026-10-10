@@ -95,6 +95,22 @@ function MyPage() {
     };
   }, [fetchView]);
 
+  // ポイント画面をひらいたとき、クラスのランキングを読み取り専用で取る
+  useEffect(() => {
+    if (!view || screen !== "points") return;
+    let off = false;
+    void fetchRanking({})
+      .then((r) => {
+        if (!off) setRanking(r);
+      })
+      .catch(() => {
+        if (!off) setRanking(null);
+      });
+    return () => {
+      off = true;
+    };
+  }, [view, screen, fetchRanking]);
+
   const onLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (busy) return;
