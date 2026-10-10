@@ -68,6 +68,14 @@ const HW_PHRASE: Record<HwState, string> = {
   NO_REPORT: "は まだ出ていません",
 };
 
+/** 一覧のチェックを押したときの操作モード（既存の処理を呼び分けるだけ） */
+type MarkMode = "normal" | "redo" | "school";
+const MARK_MODES: { id: MarkMode; label: string; hint: string }[] = [
+  { id: "normal", label: "通常モード", hint: "チェックを押すと提出状態を切り替えます" },
+  { id: "redo", label: "直しモード", hint: "チェックを押すと「直しあり」で記録します" },
+  { id: "school", label: "学校モード", hint: "チェックを押すと「学校でやった」で記録します" },
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     links: [{ rel: "stylesheet", href: teacherCss }],
@@ -121,6 +129,7 @@ function ScanPage() {
     total: number;
   } | null>(null);
   const [manual, setManual] = useState("");
+  const [markMode, setMarkMode] = useState<MarkMode>("normal");
 
   /** 児童がガチャで手に入れた アイコン・フレーム・音・エフェクト */
   const loadBadges = useServerFn(getClassBadges);
@@ -501,6 +510,33 @@ function ScanPage() {
               </Button>
             </div>
 
+            {/* ---- チェックを押したときの操作モード ---- */}
+            <div role="radiogroup" aria-label="チェックの操作モード" className="mb-2 grid grid-cols-3 gap-1.5">
+              {MARK_MODES.map((m) => {
+                const on = markMode === m.id;
+                return (
+                  <button
+                    key={m.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setMarkMode(m.id)}
+                    className={`teacher-mode-btn min-h-12 rounded-xl border-2 px-2 text-sm font-bold transition-all ${
+                      on
+                        ? "border-primary"
+                        : "border-border bg-muted/40 text-muted-foreground"
+                    }`}
+                  >
+                    {on ? "● " : ""}
+                    {m.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="-mt-1 mb-2 text-xs font-bold text-primary">
+              いまは「{MARK_MODES.find((m) => m.id === markMode)?.label}」：{MARK_MODES.find((m) => m.id === markMode)?.hint}
+            </p>
+
             <Suspense fallback={<div className="aspect-[4/3] animate-pulse rounded-xl bg-muted" />}>
               <QrScanner active={scanning} onDetected={handleDetected} />
             </Suspense>
@@ -750,39 +786,25 @@ function ScanPage() {
                           const meta = STATUS_META[st];
                           return (
                             <td key={a.id} className="px-1 py-0.5 text-center">
-                              <div className="flex items-center justify-center gap-1">
+                              <div className="flex items-center justify-center">
                                 <button
                                   type="button"
-                                  disabled={locked}
-                                  onClick={() => cycleRecord(s.id, a.id)}
+                                  disabled={markMode === "normal" && locked}
+                                  onClick={() => {
+                                    if (markMode === "redo") teacherMark(s, a, "REDO");
+                                    else if (markMode === "school") teacherMark(s, a, "SCHOOL_DONE");
+                                    else cycleRecord(s.id, a.id);
+                                  }}
                                   title={meta.label}
-                                  className={`h-7 w-7 shrink-0 rounded-lg text-sm font-bold transition-all ${meta.tone} ${
+                                  className={`h-9 w-9 shrink-0 rounded-lg text-base font-bold transition-all ${meta.tone} ${
                                     st === "none"
                                       ? "hover:bg-secondary"
                                       : "shadow-[var(--shadow-lift)]"
-                                  } ${locked ? "cursor-not-allowed opacity-70" : ""}`}
-                                  aria-label={`${s.name} ${a.name} ${meta.label}`}
+                                  } ${markMode === "normal" && locked ? "cursor-not-allowed opacity-70" : ""}`}
+                                  aria-label={`${s.name} ${a.name} ${meta.label}（${MARK_MODES.find((m) => m.id === markMode)?.label}）`}
                                 >
                                   {meta.short}
                                 </button>
-                                <div className="flex flex-col gap-px">
-                                  <button
-                                    type="button"
-                                    onClick={() => teacherMark(s, a, "REDO")}
-                                    className="rounded-full bg-[#fef9c3] px-1 text-[9px] font-bold leading-[13px] text-[#713f12]"
-                                    aria-label={`${s.name} ${a.name} 直しあり`}
-                                  >
-                                    直し
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => teacherMark(s, a, "SCHOOL_DONE")}
-                                    className="rounded-full bg-[#ede9fe] px-1 text-[9px] font-bold leading-[13px] text-[#4c1d95]"
-                                    aria-label={`${s.name} ${a.name} 学校でやった`}
-                                  >
-                                    学校
-                                  </button>
-                                </div>
                               </div>
                             </td>
                           );
