@@ -523,7 +523,7 @@ function ScanPage() {
                     onClick={() => setMarkMode(m.id)}
                     className={`teacher-mode-btn min-h-12 rounded-xl border-2 px-2 text-sm font-bold transition-all ${
                       on
-                        ? "border-primary bg-primary text-primary-foreground shadow-[var(--shadow-lift)]"
+                        ? "border-primary text-primary-foreground"
                         : "border-border bg-muted/40 text-muted-foreground"
                     }`}
                   >
