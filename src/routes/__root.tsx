@@ -234,20 +234,19 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <div className="min-h-screen">
         <header className="sticky top-0 z-30 border-b border-border/70 bg-background/85 backdrop-blur">
-          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-3 px-4 py-3">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="grid h-9 w-9 place-content-center rounded-xl bg-primary font-display text-lg font-bold text-primary-foreground">
-                宿
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
+            <Link to="/" className="flex min-w-0 items-center">
+              <span className="truncate font-display text-lg font-bold tracking-tight">
+                宿題チェッカー
               </span>
-              <span className="font-display text-lg font-bold tracking-tight">宿題チェッカー</span>
             </Link>
-            <nav className="ml-auto flex items-center gap-1 rounded-full bg-muted p-1 text-sm font-bold">
+            <nav className="order-last flex w-full min-w-0 items-center gap-1 overflow-x-auto rounded-full bg-muted p-1 text-sm font-bold sm:order-none sm:ml-auto sm:w-auto">
               {NAV.map((n) => (
                 <Link
                   key={n.to}
                   to={n.to}
                   activeOptions={{ exact: n.to === "/" }}
-                  className="rounded-full px-3 py-1.5 text-muted-foreground transition-colors hover:text-foreground"
+                  className="shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-muted-foreground transition-colors hover:text-foreground"
                   activeProps={{ className: "bg-card text-primary shadow-[var(--shadow-card)]" }}
                 >
                   {n.label}
