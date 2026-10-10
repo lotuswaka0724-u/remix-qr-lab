@@ -221,6 +221,123 @@
     .student-page .collection-box .box-item { transition: none; transform: none; }
   }
 
+  /* Gacha-only skin: retain assets, geometry, rarity semantics and animation timelines. */
+  .student-page .student-gacha {
+    --gacha-depth: oklch(0.12 0.036 267 / 0.86);
+    --gacha-art-surface: oklch(0.19 0.038 259 / 0.54);
+    --gacha-violet-glow: oklch(0.73 0.105 284 / 0.2);
+    --gacha-result-surface: linear-gradient(155deg, var(--student-reflection), var(--student-clear) 35%), linear-gradient(135deg, oklch(0.25 0.047 251 / 0.82), oklch(0.15 0.044 272 / 0.94));
+    --gacha-result-shadow: var(--shadow-card), 0 0 32px -12px var(--student-point-glow), 0 18px 60px var(--student-glass-shadow);
+    -webkit-backdrop-filter: blur(20px) saturate(125%);
+  }
+
+  .student-page .student-gacha .gacha-heading {
+    color: var(--foreground);
+    text-shadow: 0 0 12px var(--student-point-glow);
+    letter-spacing: 0;
+  }
+
+  .student-page .student-gacha .gacha-cost { line-height: 1.6; }
+  .student-page .student-gacha .gacha-cost-value { color: var(--primary); font-weight: 700; }
+
+  .student-page .student-gacha .gacha-stage {
+    background: var(--gacha-depth);
+    border-color: var(--student-edge);
+    box-shadow: inset 0 1px 0 var(--student-sheen), inset 0 -20px 32px var(--student-glass-shadow), 0 8px 22px -12px var(--student-point-halo);
+  }
+
+  .student-page .student-gacha .gacha-stage-scene { opacity: 0.65; filter: saturate(0.65); }
+  .student-page .student-gacha .gacha-machine img {
+    filter: saturate(0.78) drop-shadow(0 8px 10px var(--student-glass-shadow)) drop-shadow(0 0 8px var(--student-point-glow));
+  }
+
+  .student-page .student-gacha .gacha-stage-label {
+    color: var(--foreground);
+    background: var(--gacha-depth);
+    border-color: var(--student-edge);
+    box-shadow: inset 0 1px 0 var(--student-reflection);
+  }
+
+  .student-page .student-gacha .gacha-btn {
+    letter-spacing: 0;
+    font-size: 1.125rem;
+    text-shadow: 0 0 10px var(--student-point-glow);
+  }
+  .student-page .student-gacha .gacha-btn::after {
+    background: linear-gradient(180deg, var(--student-reflection), var(--student-clear));
+  }
+  .student-page .student-gacha .gacha-btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 3px; }
+
+  .student-page .student-gacha .gacha-records > div {
+    background: var(--student-inset);
+    box-shadow: inset 0 1px 0 var(--student-edge), inset 0 -1px 0 var(--student-edge-shadow);
+    color: var(--muted-foreground);
+    overflow-wrap: anywhere;
+  }
+  .student-page .student-gacha .gacha-records b { color: var(--foreground); }
+
+  .student-page .student-gacha .gacha-result-backdrop {
+    background: var(--gacha-depth);
+    backdrop-filter: blur(12px) saturate(110%);
+    -webkit-backdrop-filter: blur(12px) saturate(110%);
+  }
+  .student-page .student-gacha .gacha-result-card {
+    background: var(--gacha-result-surface);
+    border-color: var(--student-edge);
+    border-radius: 8px;
+    color: var(--foreground);
+    /* The existing aura animation writes box-shadow; retain its timing while refining its paint. */
+    box-shadow: var(--gacha-result-shadow) !important;
+    backdrop-filter: blur(20px) saturate(125%);
+    -webkit-backdrop-filter: blur(20px) saturate(125%);
+  }
+  .student-page .student-gacha :is(.gacha-result-gold, .gacha-result-black) .gacha-result-card {
+    border-color: var(--warning);
+  }
+  .student-page .student-gacha .gacha-result-get {
+    color: var(--primary);
+    font-size: 1.75rem;
+    text-shadow: 0 0 14px var(--student-point-glow);
+    letter-spacing: 0;
+  }
+  .student-page .student-gacha .gacha-result-art {
+    border-radius: 8px;
+    background: linear-gradient(145deg, var(--student-reflection-soft), var(--student-clear)), var(--gacha-art-surface);
+    box-shadow: inset 0 1px 0 var(--student-edge), inset 0 -1px 0 var(--student-edge-shadow);
+  }
+  .student-page .student-gacha .gacha-rarity {
+    box-shadow: inset 0 1px 0 var(--student-sheen), 0 3px 8px var(--student-glass-shadow);
+  }
+  .student-page .student-gacha .gacha-result-copy { overflow-wrap: anywhere; }
+  .student-page .student-gacha .gacha-result-copy button {
+    height: auto;
+    min-height: 44px;
+    white-space: normal;
+    border-radius: 8px;
+  }
+
+  /* Recolor existing effects only: no new animation or changes to phase control. */
+  .student-page .student-gacha .cyber-core-orb {
+    background: radial-gradient(circle at 35% 30%, var(--foreground), var(--primary) 35%, var(--accent) 75%, var(--student-clear));
+    box-shadow: 0 0 18px var(--student-point-glow), inset 0 0 12px var(--student-reflection);
+  }
+  .student-page .student-gacha :is(.cyber-core-ring, .cyber-ripple) {
+    border-color: var(--primary);
+    box-shadow: 0 0 12px var(--student-point-glow), inset 0 0 8px var(--gacha-violet-glow);
+  }
+  .student-page .student-gacha :is(.cyber-core-ring-2, .cyber-ripple-2) { border-color: var(--accent); }
+  .student-page .student-gacha .cyber-ripple-3 { border-color: var(--foreground); }
+  .student-page .student-gacha .cyber-core-mote { background: var(--primary); box-shadow: 0 0 8px var(--student-point-glow); }
+  .student-page .student-gacha .cyber-core-mote-pink { background: var(--accent); box-shadow: 0 0 8px var(--gacha-violet-glow); }
+  .student-page .student-gacha .cyber-flash {
+    background: radial-gradient(circle, var(--foreground), var(--gacha-violet-glow) 40%, var(--student-clear) 75%);
+  }
+  .student-page .student-gacha .cyber-aura span {
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--student-point-glow), 0 0 18px var(--gacha-violet-glow);
+  }
+  .student-page .student-gacha .cyber-aura span:nth-child(odd) { color: var(--accent); }
+
   .student-page .student-tab { color: var(--muted-foreground); }
   .student-page .student-tab[aria-current="page"] {
     background: var(--student-button);
