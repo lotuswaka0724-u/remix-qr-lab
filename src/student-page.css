@@ -68,7 +68,7 @@
     color: var(--primary);
     font-size: 3.25rem;
     line-height: 3rem;
-    height: 3rem;
+    height: 3.125rem;
     text-shadow: 0 0 14px var(--student-point-glow), 0 0 26px var(--student-point-halo);
   }
 
