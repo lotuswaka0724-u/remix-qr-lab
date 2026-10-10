@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, type CSSProperties } from "react";
 import { toast } from "sonner";
+import pointsCss from "@/teacher-points.css?url";
+import teacherWorld from "@/assets/collection/student-crystal-world.asset.json";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,13 +17,14 @@ import {
 
 export const Route = createFileRoute("/points")({
   head: () => ({
+    links: [{ rel: "stylesheet", href: pointsCss }],
     meta: [
-      { title: "ポイント一覧 | 宿題チェッカー" },
+      { title: "教師用ポイント一覧 | REMIX QR LAB" },
       {
         name: "description",
         content: "宿題の提出でたまった児童ごとのポイントとランキングを確認できるページです。",
       },
-      { property: "og:title", content: "ポイント一覧 | 宿題チェッカー" },
+      { property: "og:title", content: "教師用ポイント一覧 | REMIX QR LAB" },
       {
         property: "og:description",
         content: "児童ひとりひとりの獲得ポイントと使用ポイントを確認できる一覧ページ。",
@@ -49,7 +52,7 @@ function PointsPage() {
   const available = student ? availablePoints(state, student.id) : 0;
 
   return (
-    <main className="mx-auto max-w-5xl space-y-4 px-4 py-6">
+    <main className="teacher-points-page mx-auto max-w-5xl space-y-4 px-4 py-6" style={{ "--points-world-image": `url("${teacherWorld.url}")` } as CSSProperties}>
       <h1 className="font-display text-2xl font-bold">ポイント一覧</h1>
 
       <section className="glass-panel p-4">
@@ -57,6 +60,7 @@ function PointsPage() {
           <h2 className="mr-auto font-display text-base font-bold">だれのポイント？</h2>
           <select
             className="rounded-full border border-input bg-background px-3 py-1.5 text-xs"
+            aria-label="クラスで絞り込み"
             value={classFilter}
             onChange={(e) => setClassFilter(e.target.value)}
           >
@@ -71,24 +75,26 @@ function PointsPage() {
 
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {rank.map((r, i) => (
-            <button
+            <Button
               key={r.student.id}
               type="button"
+              variant="ghost"
+              aria-pressed={studentId === r.student.id}
               onClick={() => {
                 setStudentId(r.student.id);
               }}
-              className={`flex items-center gap-2 rounded-2xl px-3 py-2 text-left text-sm transition-all ${
+              className={`points-student flex items-center gap-2 rounded-2xl px-3 py-2 text-left text-sm transition-all ${
                 studentId === r.student.id
                   ? "bg-primary text-primary-foreground shadow-[var(--shadow-lift)]"
                   : "bg-muted/60 hover:bg-secondary"
               }`}
             >
-              <span className="w-5 shrink-0 text-center tabular-nums opacity-70">{i + 1}</span>
-              <span className="min-w-0 flex-1 truncate font-bold">{r.student.name}</span>
-              <span className="shrink-0 tabular-nums">
-                {availablePoints(state, r.student.id)}pt
+              <span className="points-rank w-5 shrink-0 text-center tabular-nums opacity-70">{i + 1}</span>
+              <span className="points-name min-w-0 flex-1 truncate font-bold">{r.student.name}</span>
+              <span className="points-row-total shrink-0 tabular-nums">
+                {availablePoints(state, r.student.id)}<span className="points-unit ml-0.5">pt</span>
               </span>
-            </button>
+            </Button>
           ))}
         </div>
       </section>
@@ -100,13 +106,13 @@ function PointsPage() {
             ためた {earnedPoints(state, student.id)}pt ／ つかった {spentPoints(state, student.id)}
             pt
           </p>
-          <p className="mt-2 font-display text-5xl font-bold text-primary tabular-nums">
+          <p className="points-total mt-2 font-display text-5xl font-bold text-primary tabular-nums">
             {available}
             <span className="ml-1 text-base">pt</span>
           </p>
 
           <form
-            className="mx-auto mt-5 flex max-w-md flex-wrap items-center justify-center gap-2 rounded-2xl bg-muted/60 p-3"
+            className="points-grant-form mx-auto mt-5 flex max-w-md flex-wrap items-center justify-center gap-2 rounded-2xl bg-muted/60 p-3"
             onSubmit={(e) => {
               e.preventDefault();
               const amount = Number(grant);
@@ -142,10 +148,10 @@ function PointsPage() {
               maxLength={40}
               className="min-w-[8rem] flex-1 bg-card"
             />
-            <Button type="submit">わたす</Button>
+            <Button type="submit" className="points-grant-button">わたす</Button>
           </form>
 
-          <p className="mx-auto mt-3 max-w-md rounded-2xl bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
+          <p className="points-note mx-auto mt-3 max-w-md rounded-2xl bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
             ガチャとアイテムBOXは、児童本人のマイページから利用できます。
           </p>
         </section>
