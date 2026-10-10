@@ -50,11 +50,14 @@ function BoardPage() {
     .filter((r) => r.missing.length > 0);
 
   return (
-    <main className={`mx-auto max-w-5xl px-4 py-6 ${big ? "text-xl" : ""}`}>
+    <main
+      className={`teacher-board-page mx-auto max-w-5xl px-4 py-6 ${big ? "text-xl" : ""}`}
+      style={{ "--board-world-image": `url("${teacherWorld.url}")` } as CSSProperties}
+    >
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <h1 className="mr-auto font-display text-2xl font-bold">未提出・忘れ リスト</h1>
         <select
-          className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          className="board-filter rounded-lg border border-input bg-background px-3 py-2 text-sm"
           value={classFilter}
           onChange={(e) => setClassFilter(e.target.value)}
         >
@@ -65,27 +68,32 @@ function BoardPage() {
             </option>
           ))}
         </select>
-        <Button variant={big ? "default" : "outline"} size="sm" onClick={() => setBig((v) => !v)}>
+        <Button
+          variant={big ? "default" : "outline"}
+          size="sm"
+          className="board-toggle"
+          onClick={() => setBig((v) => !v)}
+        >
           {big ? "通常表示" : "全画面（大きく表示）"}
         </Button>
       </div>
 
       {rows.length === 0 ? (
-        <div className="paper-card grid place-content-center gap-2 p-16 text-center">
-          <p className="font-display text-3xl font-bold text-success">全員そろいました！</p>
-          <p className="text-muted-foreground">今日の宿題に未提出はありません。</p>
+        <div className="paper-card board-clear grid place-content-center gap-2 p-16 text-center">
+          <p className="board-clear-title font-display text-3xl font-bold text-success">全員そろいました！</p>
+          <p className="board-clear-note text-muted-foreground">今日の宿題に未提出はありません。</p>
         </div>
       ) : (
         <ol className={`grid gap-3 ${big ? "" : "sm:grid-cols-2"}`}>
           {rows.map((r, i) => (
-            <li key={r.student.id} className="paper-card flex items-start gap-3 p-4">
-              <span className="grid h-9 w-9 shrink-0 place-content-center rounded-xl bg-accent-soft font-display font-bold text-accent-foreground">
+            <li key={r.student.id} className="paper-card board-row flex items-start gap-3 p-4">
+              <span className="board-number grid h-9 w-9 shrink-0 place-content-center rounded-xl bg-accent-soft font-display font-bold text-accent-foreground">
                 {i + 1}
               </span>
               <div className="min-w-0">
-                <p className={`font-display font-bold ${big ? "text-3xl" : "text-lg"}`}>
+                <p className={`board-name font-display font-bold ${big ? "text-3xl" : "text-lg"}`}>
                   {r.student.name}
-                  <span className="ml-2 text-xs font-medium text-muted-foreground">
+                  <span className="board-meta ml-2 text-xs font-medium text-muted-foreground">
                     {r.student.className} / {r.student.number}番
                   </span>
                 </p>
@@ -93,7 +101,7 @@ function BoardPage() {
                   {r.missing.map((m) => (
                     <li
                       key={m.id}
-                      className={`rounded-full bg-destructive/10 px-2.5 py-1 font-bold text-destructive ${big ? "text-lg" : "text-xs"}`}
+                      className={`board-missing rounded-full bg-destructive/10 px-2.5 py-1 font-bold text-destructive ${big ? "text-lg" : "text-xs"}`}
                     >
                       {m.name}
                     </li>
