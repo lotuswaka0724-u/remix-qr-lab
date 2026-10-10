@@ -7,6 +7,8 @@ import CollectionBackdrop from "@/components/CollectionBackdrop";
 import CollectionPanel, { useCollection } from "@/components/CollectionPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import studentWorld from "@/assets/collection/student-crystal-world.asset.json";
+import studentCss from "@/student-page.css?url";
 import { playError } from "@/lib/feedback";
 import { STATUS_META } from "@/lib/homework-store";
 import {
@@ -18,6 +20,7 @@ import {
 
 export const Route = createFileRoute("/me")({
   head: () => ({
+    links: [{ rel: "stylesheet", href: studentCss }],
     meta: [
       { title: "わたしのページ | 宿題チェッカー" },
       {
@@ -118,7 +121,7 @@ function MyPage() {
 
   if (!view) {
     return (
-      <main className="mx-auto max-w-sm px-4 py-12">
+      <main className="student-page mx-auto max-w-sm px-4 py-12" style={{ "--student-world-image": `url("${studentWorld.url}")` } as React.CSSProperties}>
         <form onSubmit={onLogin} className="glass-panel space-y-5 p-6 text-center">
           <h1 className="font-display text-2xl font-bold">ログイン番号を いれてください</h1>
           <Input
@@ -132,7 +135,7 @@ function MyPage() {
             aria-label="ログイン番号"
           />
           {error && <p className="text-base font-bold text-destructive">{error}</p>}
-          <Button type="submit" disabled={busy} className="h-14 w-full rounded-full text-lg">
+          <Button type="submit" disabled={busy} className="student-command h-14 w-full rounded-full text-lg">
             ログイン
           </Button>
         </form>
@@ -201,7 +204,7 @@ function MyPage() {
   const pointsCard = (
     <section className="kid-panel p-5 text-center">
       <h2 className="font-display text-base font-bold">🪙 ポイント</h2>
-      <p className="mt-2 font-display text-5xl font-bold text-primary tabular-nums">
+      <p className="student-points mt-2 font-display text-5xl font-bold text-primary tabular-nums">
         {view.available}
         <span className="ml-1 text-base">pt</span>
       </p>
@@ -211,7 +214,7 @@ function MyPage() {
       {coll.view && (
         <p className="mt-2 text-xs font-bold text-primary">カードランク：{coll.view.rank}</p>
       )}
-      <Button className="mt-4 rounded-full px-8" onClick={() => setScreen("gacha")}>
+      <Button className="student-command mt-4 rounded-full px-8" onClick={() => setScreen("gacha")}>
         🎰 ガチャへ
       </Button>
       {view.log.length > 0 && (
@@ -238,7 +241,7 @@ function MyPage() {
   ];
 
   return (
-    <div className="collection-page min-h-svh">
+    <div className="student-page collection-page min-h-svh" style={{ "--student-world-image": `url("${studentWorld.url}")` } as React.CSSProperties}>
       <CollectionBackdrop backgroundId={equipped.background} />
       <main className="relative z-10 mx-auto max-w-5xl space-y-4 px-3 py-5 pb-28">
         <header className="kid-panel flex flex-wrap items-center gap-3 p-3">
@@ -249,7 +252,7 @@ function MyPage() {
               {view.className} ／ {view.date}
             </p>
           </div>
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--primary),var(--accent))] px-4 py-2 font-display text-sm font-bold text-primary-foreground tabular-nums">
+          <span className="student-point-pill inline-flex items-center gap-1.5 rounded-full bg-[linear-gradient(135deg,var(--primary),var(--accent))] px-4 py-2 font-display text-sm font-bold text-primary-foreground tabular-nums">
             🪙 ポイント {view.available.toLocaleString()} pt
           </span>
           {/* ガチャ画面では児童自身のランクは表示しない（景品に集中させるため） */}
@@ -260,6 +263,7 @@ function MyPage() {
           )}
 
           <Button
+            className="student-command"
             variant="ghost"
             size="sm"
             onClick={async () => {
@@ -289,14 +293,14 @@ function MyPage() {
                 </button>
 
                 <div className="min-w-[220px] flex-1 space-y-3">
-                  <div className="rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
+                  <div className="student-inset rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
                     <p className="font-display text-lg font-bold">こんにちは！</p>
                     <p className="text-sm text-muted-foreground">
                       宿題を出して ポイントをためて ガチャを まわそう！
                     </p>
                   </div>
 
-                  <div className="rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
+                  <div className="student-inset rounded-3xl bg-card px-4 py-3 shadow-[var(--shadow-card)]">
                     <p className="flex items-center text-sm font-bold">
                       今日の宿題
                       <span className="ml-auto font-display text-lg text-primary tabular-nums">
@@ -316,7 +320,7 @@ function MyPage() {
                   <button
                     type="button"
                     onClick={() => setScreen("collection")}
-                    className="flex w-full items-center gap-3 rounded-3xl bg-card px-4 py-3 text-left shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5"
+                    className="student-inset flex w-full items-center gap-3 rounded-3xl bg-card px-4 py-3 text-left shadow-[var(--shadow-card)] transition-transform hover:-translate-y-0.5"
                   >
                     <span className="text-3xl">🗂️</span>
                     <span>
@@ -344,14 +348,15 @@ function MyPage() {
           <CollectionPanel api={coll} screen={screen} onShowBox={() => setScreen("collection")} />
         )}
 
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
+        <nav className="student-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
           <ul className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 py-2">
             {navItems.map((n) => (
               <li key={n.id} className="flex-1">
                 <button
                   type="button"
+                  aria-current={screen === n.id ? "page" : undefined}
                   onClick={() => setScreen(n.id)}
-                  className={`flex w-full min-w-[64px] flex-col items-center rounded-2xl px-2 py-1.5 text-[11px] font-bold transition-all ${
+                  className={`student-tab flex w-full min-w-[64px] flex-col items-center rounded-2xl px-2 py-1.5 text-[11px] font-bold transition-all ${
                     screen === n.id ? "bg-primary text-primary-foreground" : "hover:bg-secondary"
                   }`}
                 >
