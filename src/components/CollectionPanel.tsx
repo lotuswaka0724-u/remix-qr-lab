@@ -101,8 +101,8 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
   if (item.category === "background")
     return (
       <span
-        className="grid place-content-center overflow-hidden rounded-xl bg-muted px-1"
-        style={{ width: size, height: size, fontSize: Math.max(10, size * 0.2) }}
+        className="grid w-full place-content-center overflow-hidden rounded-xl bg-muted px-1"
+        style={{ minWidth: size, height: size, fontSize: Math.max(10, size * 0.2) }}
       >
         <NamePlate plateId={item.id} className="font-bold">なまえ</NamePlate>
       </span>
@@ -158,6 +158,7 @@ export default function CollectionPanel({
 }) {
   const { view, setView, refresh, loading, draw, equip, load, gachaSession, gachaState } = api;
   const [busy, setBusy] = useState(false);
+  const equipLock = useRef(false);
   const { prize, phase } = gachaState;
   const drawBusy = phase !== "idle";
   const [msg, setMsg] = useState("");
@@ -204,12 +205,14 @@ export default function CollectionPanel({
   };
 
   const onEquip = async (item: CollItem) => {
-    if (!owned.includes(item.id) || busy) return;
+    if (!owned.includes(item.id) || equipLock.current || equipped[item.category] === item.id) return;
+    equipLock.current = true;
     setBusy(true);
     setMsg("");
     let res: Awaited<ReturnType<typeof equip>>;
     try {
       res = await equip({ data: { itemId: item.id } });
+      if (!res) throw new Error("装備の保存結果を確認できませんでした");
     } catch {
       // 保存に失敗：成功したように見せず、サーバーの状態に合わせ直す
       setMsg("へんこうできませんでした。もういちど ためしてね");
@@ -217,12 +220,17 @@ export default function CollectionPanel({
       await refresh();
       return;
     } finally {
+      equipLock.current = false;
       setBusy(false);
     }
     if (!res) return;
     setView(res);
     if (res && "error" in res && res.error === "daily") {
       setMsg("きょうの へんこうは おしまい。また あした！");
+      return;
+    }
+    if ("error" in res || res.coll.equipped[item.category] !== item.id) {
+      setMsg("へんこうできませんでした。もういちど ためしてね");
       return;
     }
     if (item.category === "sound")
@@ -450,6 +458,7 @@ export default function CollectionPanel({
         ))}
       </div>
 
+      {msg && <p className="text-sm font-bold text-destructive" role="alert">{msg}</p>}
       <ul className="box-items grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {sortItems(collItemsOf(cat), sortBy, owned).map((item) => {
           const has = owned.includes(item.id);
@@ -457,14 +466,11 @@ export default function CollectionPanel({
           const dupe = view.coll.dupes[item.id] ?? 0;
           return (
             <li key={item.id}>
-              <Button
-                type="button"
-                variant="ghost"
-                disabled={!has}
-                aria-pressed={inUse}
+              <div
+                data-equipped={inUse}
                 data-owned={has}
-                onClick={() => void onEquip(item)}
-                className={`box-item h-auto min-h-40 w-full flex-col items-center gap-1.5 rounded-2xl p-3 text-center ring-2 transition-all ${
+                data-item-id={item.id}
+                className={`box-item flex h-auto min-h-40 w-full flex-col items-center gap-1.5 rounded-2xl p-3 text-center ring-2 transition-all ${
                   inUse
                     ? "bg-primary/10 ring-primary"
                     : has
@@ -490,13 +496,21 @@ export default function CollectionPanel({
                 >
                   {item.rarity}
                 </span>
-                {inUse && (
-                  <span className="box-equipped text-[10px] font-bold text-primary">✓ つかっています</span>
-                )}
                 {has && dupe > 0 && (
                   <span className="text-[10px] text-muted-foreground">かぶり ×{dupe}</span>
                 )}
-              </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={inUse ? "secondary" : "default"}
+                  className="box-equip mt-auto min-h-11 w-full text-xs font-bold"
+                  aria-label={`${has ? item.name : "未所持アイテム"}：${inUse ? "装備中" : "装備する"}`}
+                  disabled={!has || inUse || busy}
+                  onClick={() => void onEquip(item)}
+                >
+                  {inUse ? "✓ 装備中" : busy ? "保存中…" : "装備する"}
+                </Button>
+              </div>
               {cat === "sound" && has && (
                 <Button
                   type="button"
