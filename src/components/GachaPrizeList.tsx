@@ -3,7 +3,7 @@ import { useState } from "react";
 import { COLL_CATEGORIES, COLL_ITEMS, COLL_RARITY_META } from "@/lib/collection-catalog";
 
 const CAT_LABEL: Record<string, string> = {
-  background: "背景",
+  background: "ネームプレート",
   icon: "アイコン",
   frame: "フレーム",
   sound: "効果音",
