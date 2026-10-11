@@ -14,6 +14,7 @@ import { Route as BoardRouteImport } from './routes/board'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ManageRouteImport } from './routes/manage'
 import { Route as MeRouteImport } from './routes/me'
+import { Route as NameplateLabRouteImport } from './routes/nameplate-lab'
 import { Route as PointsRouteImport } from './routes/points'
 import { Route as ApiPublicPrizeAssetFileRouteImport } from './routes/api/public/prize-asset.$file'
 
@@ -42,6 +43,11 @@ const MeRoute = MeRouteImport.update({
   path: '/me',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NameplateLabRoute = NameplateLabRouteImport.update({
+  id: '/nameplate-lab',
+  path: '/nameplate-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PointsRoute = PointsRouteImport.update({
   id: '/points',
   path: '/points',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
+  '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
@@ -68,6 +75,7 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
+  '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
@@ -78,6 +86,7 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
+  '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
@@ -89,6 +98,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/manage'
     | '/me'
+    | '/nameplate-lab'
     | '/points'
     | '/api/public/prize-asset/$file'
   fileRoutesByTo: FileRoutesByTo
@@ -98,6 +108,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/manage'
     | '/me'
+    | '/nameplate-lab'
     | '/points'
     | '/api/public/prize-asset/$file'
   id:
@@ -107,6 +118,7 @@ export interface FileRouteTypes {
     | '/history'
     | '/manage'
     | '/me'
+    | '/nameplate-lab'
     | '/points'
     | '/api/public/prize-asset/$file'
   fileRoutesById: FileRoutesById
@@ -117,6 +129,7 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   ManageRoute: typeof ManageRoute
   MeRoute: typeof MeRoute
+  NameplateLabRoute: typeof NameplateLabRoute
   PointsRoute: typeof PointsRoute
   ApiPublicPrizeAssetFileRoute: typeof ApiPublicPrizeAssetFileRoute
 }
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/nameplate-lab': {
+      id: '/nameplate-lab'
+      path: '/nameplate-lab'
+      fullPath: '/nameplate-lab'
+      preLoaderRoute: typeof NameplateLabRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/points': {
       id: '/points'
       path: '/points'
@@ -181,6 +201,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   ManageRoute: ManageRoute,
   MeRoute: MeRoute,
+  NameplateLabRoute: NameplateLabRoute,
   PointsRoute: PointsRoute,
   ApiPublicPrizeAssetFileRoute: ApiPublicPrizeAssetFileRoute,
 }

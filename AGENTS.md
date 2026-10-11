@@ -23,3 +23,4 @@
 - Treat background-category items as name plates via one shared NamePlate component (teacher screens use its image-free lite mode); this keeps saved IDs/equip data unchanged and the 30-row teacher list light.
 - Keep generated plate art in an ID-keyed asset module, with teacher overrides taking priority and valid background-image values; this separates text, artwork and saved equipment and prevents CSS shorthand from invalidating plates.
 - Run BOX equipment changes only through an explicit button guarded by a synchronous ref lock; this prevents card taps and rapid repeated input from consuming multiple daily changes.
+- Keep nameplate prototypes in a static isolated lab route with scoped screen CSS and no catalog, equipment, or data calls; this lets visual experiments run without modifying production items or authorization of existing routes.

@@ -218,8 +218,10 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isStudent = pathname === "/me" || pathname.startsWith("/me/");
+  // This static lab has no student/teacher data or server calls.
+  const isPrototype = pathname === "/nameplate-lab";
 
-  if (isStudent) {
+  if (isStudent || isPrototype) {
     return (
       <QueryClientProvider client={queryClient}>
         <div className="min-h-screen">

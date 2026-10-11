@@ -1,0 +1,33 @@
+@media screen {
+  .nameplate-lab { padding: 32px 24px; min-height: 100vh; background: var(--background); color: var(--foreground); }
+  .nameplate-lab__content { max-width: 1200px; margin: 0 auto; }
+  .nameplate-lab__toolbar { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 24px 0 32px; }
+  .nameplate-lab__single { max-width: 640px; margin: 56px auto; }
+  .nameplate-lab__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .nameplate-lab__entry { min-width: 0; }
+  .nameplate-lab__entry > p { margin: 4px 0 0; color: var(--muted-foreground); font-size: 12px; }
+  .nameplate-lab .prototype-plate { position: relative; width: 100%; max-width: 640px; aspect-ratio: 8 / 1; overflow: hidden; isolation: isolate; border-radius: 4px; border: 1px solid var(--primary); background: var(--background); box-shadow: inset 0 0 0 3px var(--secondary), inset 0 0 0 4px var(--muted-foreground); }
+  .nameplate-lab .prototype-plate__rim { position: absolute; left: 0; right: 0; height: 5%; background: linear-gradient(90deg, var(--muted-foreground), var(--foreground), var(--primary), var(--foreground), var(--muted-foreground)); overflow: hidden; pointer-events: none; }
+  .nameplate-lab .prototype-plate__rim--top { top: 0; }
+  .nameplate-lab .prototype-plate__rim--bottom { bottom: 0; }
+  .nameplate-lab .prototype-plate__reflection { position: absolute; top: 0; bottom: 0; left: -10%; width: 8%; background: linear-gradient(90deg, transparent, var(--foreground), transparent); animation: prototype-reflection 7s linear infinite; }
+  .nameplate-lab .prototype-plate__glow { position: absolute; inset: 0; border: 2px solid var(--primary); border-radius: inherit; opacity: .4; pointer-events: none; animation: prototype-glow 5s ease-in-out infinite; }
+  .nameplate-lab .prototype-plate__crystal { position: absolute; top: 10%; bottom: 10%; width: 7.5%; display: grid; place-items: center; }
+  .nameplate-lab .prototype-plate__crystal--left { left: 0; }
+  .nameplate-lab .prototype-plate__crystal--right { right: 0; }
+  .nameplate-lab .prototype-plate__crystal svg { width: 100%; height: 100%; }
+  .nameplate-lab .prototype-crystal__shell { fill: var(--secondary); stroke: var(--foreground); stroke-width: 1; }
+  .nameplate-lab .prototype-crystal__facet { fill: var(--chart-5); opacity: .65; }
+  .nameplate-lab .prototype-crystal__core { fill: var(--primary); opacity: .8; }
+  .nameplate-lab .prototype-plate__spark { position: absolute; width: 22%; aspect-ratio: 1; top: 25%; left: 39%; background: var(--foreground); clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%); opacity: 0; animation: prototype-spark 6s ease-in-out infinite; }
+  .nameplate-lab .prototype-plate__crystal--right .prototype-plate__spark { animation-delay: -3s; }
+  .nameplate-lab .prototype-plate__name { position: absolute; left: 10%; right: 10%; top: 22.5%; bottom: 22.5%; display: grid; place-items: center; overflow: hidden; white-space: nowrap; color: var(--foreground); font-size: 24px; font-weight: 900; line-height: 1; letter-spacing: 0; }
+  .nameplate-lab__grid .prototype-plate__name { font-size: 14px; }
+  .nameplate-lab[data-paused="true"] .prototype-plate * { animation-play-state: paused; }
+  @keyframes prototype-reflection { from { transform: translateX(0); opacity: .3; } 50% { opacity: 1; } to { transform: translateX(1500%); opacity: .3; } }
+  @keyframes prototype-glow { 0%, 100% { opacity: .25; } 50% { opacity: .8; } }
+  @keyframes prototype-spark { 0%, 55%, 100% { opacity: 0; transform: scale(.65); } 70% { opacity: .85; transform: scale(1); } 85% { opacity: .1; transform: scale(.75); } }
+  @media (max-width: 850px) { .nameplate-lab__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 520px) { .nameplate-lab { padding: 24px 12px; } .nameplate-lab__grid { grid-template-columns: minmax(0, 1fr); } .nameplate-lab .prototype-plate__name { font-size: 16px; } }
+  @media (prefers-reduced-motion: reduce) { .nameplate-lab .prototype-plate * { animation: none; } .nameplate-lab .prototype-plate__reflection, .nameplate-lab .prototype-plate__spark { opacity: 0; } }
+}
