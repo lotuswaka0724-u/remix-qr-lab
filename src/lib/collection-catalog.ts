@@ -49,7 +49,7 @@ export type CollItem = {
 };
 
 export const COLL_CATEGORY_LABEL: Record<CollCategory, string> = {
-  background: "マイページ背景",
+  background: "ネームプレート",
   icon: "アイコン",
   frame: "アイコンフレーム",
   sound: "読み取り効果音",
@@ -57,7 +57,7 @@ export const COLL_CATEGORY_LABEL: Record<CollCategory, string> = {
 };
 
 export const COLL_CATEGORY_ICON: Record<CollCategory, string> = {
-  background: "🖼️",
+  background: "🏷️",
   icon: "😀",
   frame: "⭕",
   sound: "🔔",
@@ -120,6 +120,10 @@ export const COLL_RARITY_META: Record<
 
 export const COLL_RARITY_ORDER: CollRarity[] = ["N", "R", "SR", "SSR", "GOLD", "BLACK"];
 
+/** 背景アイテムはネームプレートとして使う（IDはそのまま、表示名だけ「〇〇プレート」） */
+const PLATE_NAME_OVERRIDE: Record<string, string> = { ゴールドルーム: "ゴールドプレート" };
+const plateName = (name: string) => PLATE_NAME_OVERRIDE[name] ?? `${name}プレート`;
+
 const bg = (
   id: string,
   name: string,
@@ -129,7 +133,7 @@ const bg = (
   initial = false,
 ): CollItem => ({
   id: `bg_${id}`,
-  name,
+  name: plateName(name),
   category: "background",
   rarity,
   description,
@@ -1066,3 +1070,41 @@ export function applyAssetOverrides(list: PrizeOverrideLike[]) {
 
 /** その景品が先生の素材に差し替え済みかどうか */
 export const isOverridden = (id: string) => overriddenIds.has(id);
+
+/* ---------- ネームプレート（背景アイテムの見た目を名前の飾りとして使う） ---------- */
+const PLATE_RARITY_ACCENT: Record<CollRarity, string> = {
+  N: "#94a3b8",
+  R: "#38bdf8",
+  SR: "#a78bfa",
+  SSR: "#e879f9",
+  GOLD: "#fbbf24",
+  BLACK: "#fcd34d",
+};
+
+export type NamePlateStyle = {
+  id: string;
+  rarity: CollRarity;
+  /** プレート本体の模様（lite のときは画像を読まない） */
+  art: string;
+  /** 枠線・発光の色 */
+  accent: string;
+  plain: boolean;
+};
+
+/** 装備中のネームプレートの見た目。lite=true は先生画面用（画像なし・色だけ） */
+export function namePlateStyle(id?: string, lite = false): NamePlateStyle {
+  const item =
+    (id && COLL_ITEM_BY_ID[id]?.category === "background" ? COLL_ITEM_BY_ID[id] : undefined) ??
+    COLL_ITEM_BY_ID["bg_simple"]!;
+  const css = item.art["css"] ?? "";
+  const colorOnly = css
+    .split(/,(?![^(]*\))/)
+    .filter((part) => !/url\(/.test(part))
+    .join(",")
+    .trim();
+  const hexes = colorOnly.match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) ?? [];
+  const accent = hexes[1] ?? hexes[0] ?? PLATE_RARITY_ACCENT[item.rarity];
+  const fallback = `linear-gradient(120deg, ${PLATE_RARITY_ACCENT[item.rarity]}, ${accent})`;
+  const art = lite ? colorOnly || fallback : css || fallback;
+  return { id: item.id, rarity: item.rarity, art, accent, plain: item.id === "bg_simple" };
+}
