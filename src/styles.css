@@ -1528,7 +1528,7 @@
 }
 @media print {
   .name-plate::before { display: none; }
-  .name-plate { box-shadow: none; padding: 0; }
+  .name-plate { background: none; border: none; clip-path: none; box-shadow: none; padding: 0; }
   .name-plate-text { color: inherit; text-shadow: none; }
   .plate-framed { outline: none; }
 }

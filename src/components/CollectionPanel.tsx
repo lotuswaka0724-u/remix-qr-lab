@@ -101,10 +101,10 @@ function ItemArt({ item, size = 56 }: { item: CollItem; size?: number }) {
   if (item.category === "background")
     return (
       <span
-        className="grid w-full place-content-center overflow-hidden rounded-xl bg-muted px-1"
+        className="grid w-full place-items-center overflow-hidden rounded-xl bg-muted px-1"
         style={{ minWidth: size, height: size, fontSize: Math.max(10, size * 0.2) }}
       >
-        <NamePlate plateId={item.id} className="font-bold">なまえ</NamePlate>
+        <NamePlate plateId={item.id} className="w-full font-bold">なまえ</NamePlate>
       </span>
     );
   if (item.category === "frame")
