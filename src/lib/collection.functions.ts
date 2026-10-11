@@ -387,6 +387,8 @@ export const markCollSeen = createServerFn({ method: "POST" })
 
 export type ClassBadge = {
   studentId: string;
+  /** 装備中のネームプレート（保存上は背景アイテムのID） */
+  background?: string | undefined;
   icon?: string | undefined;
   frame?: string | undefined;
   sound?: string | undefined;
@@ -406,6 +408,7 @@ export const getClassBadges = createServerFn({ method: "GET" }).handler(async ()
     if (!eq) continue;
     out.push({
       studentId: row.student_id,
+      background: eq.background,
       icon: eq.icon,
       frame: eq.frame,
       sound: eq.sound,

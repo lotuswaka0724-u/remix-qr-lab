@@ -40,7 +40,7 @@ export const PRIZE_FILE_RULES: Record<
     types: ["image/png", "image/jpeg"],
     ext: ["png", "jpg", "jpeg"],
     maxBytes: 3 * 1024 * 1024,
-    hint: "PNG または JPG（画面の背景に使うサイズ）",
+    hint: "PNG または JPG（ネームプレートの模様。横長がおすすめ）",
   },
   sound: {
     types: ["audio/mpeg", "audio/mp3", "audio/wav", "audio/x-wav", "audio/wave"],

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import CollectionFx from "@/components/CollectionFx";
 import CollectionIcon from "@/components/CollectionIcon";
+import NamePlate, { namePlateFrameStyle } from "@/components/NamePlate";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -473,7 +474,8 @@ function ScanPage() {
               key={r.student.id}
               className={`flex min-w-0 items-center gap-1 rounded-xl px-1.5 py-1 text-sm ${
                 i < 3 ? "bg-primary/15 font-bold text-primary" : "bg-muted/50"
-              }`}
+              } ${namePlateFrameStyle(badges[r.student.id]?.background) ? "plate-framed" : ""}`}
+              style={namePlateFrameStyle(badges[r.student.id]?.background)}
             >
               <span className="teacher-rank-number shrink-0 font-display font-bold tabular-nums">{i + 1}</span>
               <CollectionIcon
@@ -482,7 +484,11 @@ function ScanPage() {
                 size={22}
               />
               <span className="min-w-0 flex-1 leading-tight">
-                <span className="block truncate font-bold">{r.student.name}</span>
+                <span className="block truncate font-bold">
+                  <NamePlate plateId={badges[r.student.id]?.background} lite>
+                    {r.student.name}
+                  </NamePlate>
+                </span>
                 <span className="teacher-rank-points block truncate text-[11px] tabular-nums opacity-80">
                   {r.points}pt{" "}
                   <span
@@ -797,7 +803,10 @@ function ScanPage() {
                         key={s.id}
                         className={`border-t border-border/60 odd:bg-muted/30 ${
                           allDone ? "bg-primary/5 odd:bg-primary/10" : ""
-                        } ${flashRow === s.id ? "fx-row-hit" : ""}`}
+                        } ${flashRow === s.id ? "fx-row-hit" : ""} ${
+                          namePlateFrameStyle(badges[s.id]?.background) ? "plate-framed" : ""
+                        }`}
+                        style={namePlateFrameStyle(badges[s.id]?.background)}
                       >
                         <td className="px-1.5 py-0.5 text-center tabular-nums text-muted-foreground">
                           {s.number}
@@ -809,7 +818,9 @@ function ScanPage() {
                               frameId={badges[s.id]?.frame}
                               size={20}
                             />
-                            <span className="text-[15px]">{s.name}</span>
+                            <NamePlate plateId={badges[s.id]?.background} lite className="text-[15px]">
+                              {s.name}
+                            </NamePlate>
                             {allDone && (
                               <span className="shrink-0 text-xs font-bold text-primary">✓</span>
                             )}

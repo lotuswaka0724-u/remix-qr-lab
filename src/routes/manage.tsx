@@ -264,7 +264,7 @@ function ManagePage() {
               className="w-20 bg-card" />pt
           </label>
           {(
-            [["background", "背景"], ["icon", "アイコン"], ["frame", "フレーム"], ["sound", "効果音"], ["effect", "エフェクト"]] as const
+            [["background", "ネームプレート"], ["icon", "アイコン"], ["frame", "フレーム"], ["sound", "効果音"], ["effect", "エフェクト"]] as const
           ).map(([k, label]) => (
             <label key={k} className="flex items-center gap-2 text-sm">
               {label}の1日の変更回数

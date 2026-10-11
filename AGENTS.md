@@ -20,3 +20,4 @@
 - Keep teacher board visual overrides in a route-loaded screen-only stylesheet scoped to its page root; this preserves shared navigation, other pages and print appearance.
 - Keep teacher manage visual overrides in a route-loaded screen-only stylesheet scoped to its page root; this preserves child panels' logic, other pages and print appearance.
 - Write an unprefixed backdrop-filter in its own rule when it must work in Chrome; the CSS build can collapse a prefixed/unprefixed pair to only -webkit-.
+- Treat background-category items as name plates via one shared NamePlate component (teacher screens use its image-free lite mode); this keeps saved IDs/equip data unchanged and the 30-row teacher list light.

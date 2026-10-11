@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 
 import CollectionIcon from "@/components/CollectionIcon";
-import CollectionBackdrop from "@/components/CollectionBackdrop";
+import NamePlate, { namePlateFrameStyle } from "@/components/NamePlate";
 import CollectionPanel, { useCollection } from "@/components/CollectionPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -299,12 +299,16 @@ function MyPage() {
 
   return (
     <div className="student-page collection-page min-h-svh" style={{ "--student-world-image": `url("${studentWorld.url}")` } as React.CSSProperties}>
-      <CollectionBackdrop backgroundId={equipped.background} />
       <main className="relative z-10 mx-auto max-w-5xl space-y-4 px-3 py-5 pb-28">
-        <header className="kid-panel flex flex-wrap items-center gap-3 p-3">
+        <header
+          className={`kid-panel flex flex-wrap items-center gap-3 p-3 ${namePlateFrameStyle(equipped.background) ? "plate-framed" : ""}`}
+          style={namePlateFrameStyle(equipped.background)}
+        >
           <CollectionIcon iconId={equipped.icon} frameId={equipped.frame} size={48} />
-          <div className="mr-auto">
-            <p className="font-display text-lg font-bold">{view.name} さん</p>
+          <div className="mr-auto min-w-0">
+            <p className="font-display text-lg font-bold">
+              <NamePlate plateId={equipped.background}>{view.name} さん</NamePlate>
+            </p>
             <p className="text-xs text-muted-foreground">
               {view.className} ／ {view.date}
             </p>

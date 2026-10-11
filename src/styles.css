@@ -1466,3 +1466,66 @@
     .cyber-core *, .cyber-ripple, .cyber-flash, .cyber-card, .cyber-aura span { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
   }
 }
+
+/* ---------- ネームプレート（名前の飾り。高さを増やさない） ---------- */
+.name-plate {
+  position: relative;
+  display: inline-flex;
+  max-width: 100%;
+  min-width: 0;
+  align-items: center;
+  border-radius: 0.45em;
+  padding: 0 0.35em;
+  line-height: inherit;
+  isolation: isolate;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--plate-accent) 75%, transparent);
+}
+.name-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, oklch(0.16 0.04 265 / 0.72), oklch(0.16 0.04 265 / 0.5)),
+    var(--plate-art);
+  background-size: cover;
+  background-position: center;
+}
+.name-plate-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: oklch(0.98 0.01 250);
+  text-shadow: 0 1px 2px oklch(0.1 0.03 265 / 0.85);
+}
+.name-plate-plain {
+  box-shadow: none;
+  padding: 0;
+}
+.name-plate-plain::before {
+  display: none;
+}
+.name-plate-plain .name-plate-text {
+  color: inherit;
+  text-shadow: none;
+}
+.name-plate.rarity-ssr,
+.name-plate.rarity-gold,
+.name-plate.rarity-black {
+  box-shadow:
+    inset 0 0 0 1px var(--plate-accent),
+    0 0 6px color-mix(in oklab, var(--plate-accent) 45%, transparent);
+}
+/* 児童カード全体の細い枠線（大きさは変えない） */
+.plate-framed {
+  outline: 1px solid color-mix(in oklab, var(--plate-accent) 70%, transparent);
+  outline-offset: -1px;
+}
+@media print {
+  .name-plate::before { display: none; }
+  .name-plate { box-shadow: none; padding: 0; }
+  .name-plate-text { color: inherit; text-shadow: none; }
+  .plate-framed { outline: none; }
+}
