@@ -3,6 +3,7 @@ import backgroundAstral from "@/assets/collection/background-astral.jpg";
 import frameLegend from "@/assets/collection/frame-legend.png";
 import frameAstral from "@/assets/collection/frame-astral.png";
 import { NAME_PLATE_ASSETS } from "@/lib/name-plate-assets";
+import { ANIMATED_PLATES } from "@/lib/animated-plates";
 
 /**
  * ガチャで集めるコレクションアイテムのマスター。
@@ -603,6 +604,7 @@ export const COLL_ITEMS: CollItem[] = [
     "ひかりをわけるふち",
   ),
   frame("neon", "ネオンリング", "SSR", "linear-gradient(135deg,#22d3ee,#f0abfc)", "光るネオン"),
+  ...ANIMATED_PLATES,
 ];
 
 /* ============================================================

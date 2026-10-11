@@ -1,0 +1,37 @@
+@media screen {
+  .name-plate[data-motion] { --motion-color: var(--plate-cyan); --motion-other: var(--plate-pearl); --motion-period: 6s; overflow: hidden; }
+  .name-plate[data-motion="violet"] { --motion-color: var(--plate-violet); --motion-other: var(--plate-rose); --motion-period: 8s; border-radius: .5em; }
+  .name-plate[data-motion="crystal"] { --motion-color: var(--plate-pearl); --motion-other: var(--plate-cyan); --motion-period: 7s; }
+  .name-plate[data-motion="neon"] { --motion-color: var(--plate-cyan); --motion-other: var(--plate-rose); --motion-period: 4s; }
+  .name-plate[data-motion="gold"] { --motion-color: var(--plate-gold); --motion-other: var(--plate-pearl); --motion-period: 9s; }
+  .name-plate[data-motion="black"] { --motion-color: var(--plate-cyan); --motion-other: var(--plate-violet); --motion-period: 5s; }
+  .name-plate[data-motion] .motion-plate-effects { position: absolute; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; border-radius: inherit; }
+  .name-plate[data-motion] .motion-plate-rim { position: absolute; inset: 0; border: 1px solid var(--motion-color); border-radius: inherit; opacity: .3; animation: motion-plate-breathe 5s ease-in-out infinite; }
+  .name-plate[data-motion] .motion-plate-ray { position: absolute; left: -15%; width: 12%; height: 2px; background: linear-gradient(90deg,transparent,var(--motion-color),var(--plate-ink),transparent); animation: motion-plate-sweep var(--motion-period) linear infinite; }
+  .name-plate[data-motion] .motion-plate-ray-top { top: 2px; }
+  .name-plate[data-motion] .motion-plate-ray-bottom { bottom: 2px; animation-delay: -2s; background: linear-gradient(90deg,transparent,var(--motion-other),transparent); }
+  .name-plate[data-motion] .motion-plate-end { position: absolute; top: 18%; bottom: 18%; width: 7%; max-width: 42px; background: linear-gradient(135deg,var(--motion-other),var(--plate-base),var(--motion-color)); border: 1px solid var(--motion-color); }
+  .name-plate[data-motion] .motion-plate-end-left { left: 1%; }
+  .name-plate[data-motion] .motion-plate-end-right { right: 1%; }
+  .name-plate[data-motion] .motion-plate-spark { position: absolute; top: 30%; width: 4px; height: 4px; background: var(--plate-ink); opacity: 0; animation: motion-plate-twinkle 6s ease-in-out infinite; }
+  .name-plate[data-motion] .motion-plate-spark-left { left: 4%; }
+  .name-plate[data-motion] .motion-plate-spark-right { right: 4%; animation-delay: -3s; }
+  .name-plate[data-motion="cyan"] .motion-plate-end { clip-path: polygon(0 0,100% 0,100% 25%,45% 25%,45% 75%,100% 75%,100% 100%,0 100%); }
+  .name-plate[data-motion="violet"] .motion-plate-end { border-radius: 50%; animation: motion-plate-aura 8s ease-in-out infinite; }
+  .name-plate[data-motion="crystal"] .motion-plate-end { clip-path: polygon(50% 0,100% 30%,85% 80%,50% 100%,0 65%,15% 20%); background: conic-gradient(from 45deg,var(--plate-pearl),var(--plate-violet),var(--plate-cyan),var(--plate-pearl)); }
+  .name-plate[data-motion="neon"] .motion-plate-end { background: repeating-linear-gradient(0deg,var(--motion-color) 0 1px,var(--plate-base) 1px 5px); border: none; }
+  .name-plate[data-motion="neon"] .motion-plate-ray { height: 4px; background: repeating-linear-gradient(0deg,var(--motion-color) 0 1px,transparent 1px 2px); }
+  .name-plate[data-motion="gold"] .motion-plate-end { border: 3px double var(--plate-gold); background: linear-gradient(90deg,var(--plate-gold),var(--plate-base),var(--plate-gold)); }
+  .name-plate[data-motion="gold"] .motion-plate-spark { background: var(--plate-gold); border-radius: 50%; }
+  .name-plate[data-motion="black"] .motion-plate-end { clip-path: polygon(0 0,70% 0,100% 30%,100% 100%,30% 100%,0 70%); background: linear-gradient(135deg,var(--plate-base) 40%,var(--plate-violet) 42%,var(--plate-base) 50%,var(--plate-cyan) 52%,var(--plate-base) 65%); }
+  .name-plate[data-motion="black"] .motion-plate-ray-bottom { animation-direction: reverse; }
+  .name-plate[data-motion="black"] .motion-plate-rim { border-inline-color: var(--plate-violet); animation-duration: 4s; }
+  .name-plate[data-motion] .name-plate-text { z-index: 1; }
+  [data-paused="true"] .name-plate[data-motion] .motion-plate-effects * { animation-play-state: paused; }
+  @keyframes motion-plate-sweep { from { transform: translateX(0); } to { transform: translateX(1100%); } }
+  @keyframes motion-plate-breathe { 0%,100% { opacity: .25; } 50% { opacity: .9; } }
+  @keyframes motion-plate-twinkle { 0%,45%,100% { opacity: 0; transform: scale(.5); } 65% { opacity: .9; transform: scale(1); } }
+  @keyframes motion-plate-aura { 0%,100% { opacity: .4; transform: scale(.9); } 50% { opacity: .85; transform: scale(1); } }
+  @media (prefers-reduced-motion: reduce) { .name-plate[data-motion] .motion-plate-effects * { animation: none; } .name-plate[data-motion] .motion-plate-ray, .name-plate[data-motion] .motion-plate-spark { opacity: 0; } }
+}
+@media print { .motion-plate-effects { display: none; } }
