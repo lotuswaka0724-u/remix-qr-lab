@@ -4,6 +4,8 @@ import { Pause, Play, UserRound, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NameplatePrototype } from "@/components/NameplatePrototype";
 import prototypeCss from "@/nameplate-prototype.css?url";
+import NamePlate from "@/components/NamePlate";
+import { ANIMATED_PLATES } from "@/lib/animated-plates";
 
 export const Route = createFileRoute("/nameplate-lab")({
   head: () => ({
@@ -24,6 +26,7 @@ export const Route = createFileRoute("/nameplate-lab")({
 function NameplateLab() {
   const [many, setMany] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [added, setAdded] = useState(true);
   return (
     <main className="nameplate-lab" data-paused={paused}>
       <div className="nameplate-lab__content">
@@ -35,8 +38,20 @@ function NameplateLab() {
             <Button variant={many ? "default" : "outline"} onClick={() => setMany(true)} aria-pressed={many}><Users />30人</Button>
           </div>
           <Button variant="outline" onClick={() => setPaused((value) => !value)} aria-label={paused ? "動きを再開" : "動きを停止"}>{paused ? <Play /> : <Pause />}{paused ? "再開" : "停止"}</Button>
+          <Button variant="outline" onClick={() => setAdded(value => !value)}>{added ? "以前の試作" : "追加6種類"}</Button>
         </div>
-        {many ? (
+        {added ? (
+          <div className="nameplate-lab__grid">
+            {Array.from({ length: many ? 30 : 6 }, (_, index) => {
+              const item = ANIMATED_PLATES[index % ANIMATED_PLATES.length];
+              if (!item) return null;
+              return <div className="nameplate-lab__entry" key={index}>
+                <NamePlate plateId={item.id} lite={many}>テスト児童 {index + 1}</NamePlate>
+                <p>{item.name} / {item.rarity}　✓ 提出済み</p>
+              </div>;
+            })}
+          </div>
+        ) : many ? (
           <div className="nameplate-lab__grid">
             {Array.from({ length: 30 }, (_, index) => (
               <div className="nameplate-lab__entry" key={index}>

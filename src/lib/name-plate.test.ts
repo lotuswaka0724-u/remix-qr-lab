@@ -3,13 +3,14 @@ import { describe, expect, it } from "vitest";
 import { COLL_ITEMS, COLL_ITEM_BY_ID, COLL_RARITY_META, namePlateStyle, applyAssetOverrides } from "@/lib/collection-catalog";
 import { NAME_PLATE_ASSETS } from "@/lib/name-plate-assets";
 import baseline from "../../scripts/catalog-baseline.json";
+import { ANIMATED_PLATES } from "./animated-plates";
 
 describe("ネームプレート", () => {
   it("背景アイテム37件のIDと種類はそのまま", () => {
-    const bgs = COLL_ITEMS.filter((i) => i.category === "background");
+    const bgs = COLL_ITEMS.filter((i) => i.category === "background" && !ANIMATED_PLATES.some(p => p.id === i.id));
     expect(bgs).toHaveLength(37);
     expect(bgs.every((i) => i.id.startsWith("bg_"))).toBe(true);
-    expect(COLL_ITEMS).toHaveLength(154);
+    expect(COLL_ITEMS).toHaveLength(160);
   });
 
   it("表示名は「〇〇プレート」", () => {
@@ -34,7 +35,7 @@ describe("ネームプレート", () => {
   });
   it("37件の素材を全IDに対応、装備なしもシンプル素材で表示", () => {
     expect(Object.keys(NAME_PLATE_ASSETS)).toHaveLength(37);
-    for (const i of COLL_ITEMS.filter(i=>i.category === "background")) {
+    for (const i of COLL_ITEMS.filter(i=>i.category === "background" && !ANIMATED_PLATES.some(p => p.id === i.id))) {
       expect(NAME_PLATE_ASSETS[i.id]).toBeTruthy();
       expect(namePlateStyle(i.id).art).toContain("url(");
       expect(namePlateStyle(i.id).plain).toBe(false);
