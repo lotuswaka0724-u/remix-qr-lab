@@ -1,0 +1,38 @@
+# Recraft V3：6種類の生成準備（未実行）
+
+## 実行条件
+- Recraft公式MCPのみ使用。モデル `recraftv3_raster`、各種類 `n=1`、計6回。デフォルトモデルに任せない。
+- 生成時点の契約に基づく学校アプリへの組込み許諾と、既存クレジットだけで支払われ追加料金が発生しないことを先に確認する。
+- 条件が不明なら生成しない。購入・プラン変更・アップスケール・背景除去・追加生成をしない。
+- 実行直前と各生成後にget_userで残高確認。想定を超える消費があれば残りを停止。
+- 後日の生成権限や自動再開を与える文書ではない。
+
+## 寸法の制約
+現在のMCPスキーマには8:1、640×80、透過背景の直接指定がない。`image_size: "2:1"` のキャンバス中央に横長8:1のプレートを1つ描く方式を準備する。これは構図の保証ではない。
+
+生成後に実際のプレート位置を確認し、四辺水平・垂直、名前領域に模様や文字なし、端の装飾が切れない場合だけ、ローカルの切出し・縮小で640×80を用意する。不合格なら自動再生成せず報告。引き伸ばしで8:1に変形しない。透過を仮定せず、暗い単色背景を指定。
+
+## 共通プロンプト
+以下と各種類の追記を結合して使用。過去の実呼び出しで1000文字制限があったため、合計1000文字以内に収める。
+
+```text
+One premium cinematic sci-fi game nameplate, centered on a solid dark navy background. Front-facing flat UI, zero rotation, exact bilateral symmetry, no perspective. One horizontal rectangle, width eight times height; all edges parallel to canvas edges. Leave space above and below for cropping. Thin top/bottom trim, ornaments only at the far left/right edges. Central 80% width and middle 55% height must be uniform dark navy, completely blank and clean for HTML text added later. Refined metal, crystal and precise edges; restrained, not toy-like. No text, letters, numbers, logos, watermark, signatures, people, characters, ribbons, stars in the center, or multiple plates.
+```
+
+|種類|追記（文字として画像に描かない）|予定ID／レア度|
+|---|---|---|
+|CYAN|Cyan neon circuitry and precision silver bevels at the perimeter; angular symmetric end caps, cool restrained light.|bg_motion_cyan／SR|
+|VIOLET|Violet and magenta cosmic filaments only along the rim, lavender iridescent alloy, curved symmetric end ornaments.|bg_motion_violet／SR|
+|CRYSTAL|Transparent pearl crystal facets at both ends, clean polished platinum rim with subtle cyan spectral reflections.|bg_motion_crystal／SSR|
+|NEON|Multiple parallel cyan and rose light channels around the perimeter, layered dark alloy rails and symmetric geometric end caps.|bg_motion_neon／SSR|
+|GOLD|Luxury brushed and polished gold perimeter, precise engraved end caps, tiny restrained gold flecks only at outer ends.|bg_motion_gold／GOLD|
+|BLACK|Obsidian and dark titanium perimeter, layered cyan and violet energy channels at edges, restrained rare iridescent crystal end caps.|bg_motion_black／BLACK|
+
+## 取得・確認手順（未実施）
+1. 返却された画像URLを取得し原本を一時領域に保存。HTTP成功だけでなく画像として読み出せることと実寸・形式を確認。
+2. URL、生成時点の契約・利用条件、前後残高、実消費、実寸、形式を記録。今回の生成URLはまだない。
+3. 原本と640×80候補を目視検査。水平構図、均一な名前領域、文字・ロゴなし、6種類の差別化を確認。
+4. 権利・品質が確認できた正式画像だけプロジェクトの素材保存手順で登録。保存候補は `src/assets/nameplates/animated/`、参照候補は既存のID別素材管理。まだ画像ファイル・参照の作成はしない。
+5. CSSの反射・発光・きらめきは画像制作と別工程。既存37件と6件のガチャ対象外設定を変えない。
+
+原本取得・品質確認・正式保存・組込みはいずれも未実施。本書は準備だけであり、完成報告ではない。
