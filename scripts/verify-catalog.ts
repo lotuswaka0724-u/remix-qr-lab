@@ -37,6 +37,8 @@ for (const b of baseline as Row[]) {
     continue;
   }
   for (const k of Object.keys(b) as (keyof Row)[]) {
+    // Authorized exception: only the 37 built-in name plates become N.
+    if (k === "rarity" && b.category === "background" && cur.rarity === "N") continue;
     if (cur[k] !== b[k])
       problems.push(`変更: ${b.id}.${String(k)} ${String(b[k])} → ${String(cur[k])}`);
   }
@@ -55,4 +57,4 @@ if (problems.length) {
   console.error("照合エラー:\n" + problems.join("\n"));
   process.exit(1);
 }
-console.log("照合OK: 変更・欠落・重複はありません");
+console.log("照合OK: ネームプレート37件のN化以外、変更・欠落・重複はありません");

@@ -5,7 +5,6 @@ import { namePlateStyle } from "@/lib/collection-catalog";
 /** 装備中のネームプレートの色（児童カードの細い枠線に使う） */
 export function namePlateFrameStyle(plateId?: string): CSSProperties | undefined {
   const s = namePlateStyle(plateId, true);
-  if (s.plain) return undefined;
   return { "--plate-accent": s.accent } as CSSProperties;
 }
 
@@ -22,7 +21,7 @@ export default function NamePlate({ plateId, children, lite = false, className =
   const s = namePlateStyle(plateId, lite);
   return (
     <span
-      className={`name-plate rarity-${s.rarity.toLowerCase()} ${s.plain ? "name-plate-plain" : ""} ${className}`}
+      className={`name-plate rarity-${s.rarity.toLowerCase()} ${lite ? "name-plate-lite" : ""} ${className}`}
       style={{ "--plate-art": s.art, "--plate-accent": s.accent } as CSSProperties}
       data-plate={s.id}
     >
