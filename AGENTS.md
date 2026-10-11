@@ -21,3 +21,5 @@
 - Keep teacher manage visual overrides in a route-loaded screen-only stylesheet scoped to its page root; this preserves child panels' logic, other pages and print appearance.
 - Write an unprefixed backdrop-filter in its own rule when it must work in Chrome; the CSS build can collapse a prefixed/unprefixed pair to only -webkit-.
 - Treat background-category items as name plates via one shared NamePlate component (teacher screens use its image-free lite mode); this keeps saved IDs/equip data unchanged and the 30-row teacher list light.
+- Keep generated plate art in an ID-keyed asset module, with teacher overrides taking priority and valid background-image values; this separates text, artwork and saved equipment and prevents CSS shorthand from invalidating plates.
+- Run BOX equipment changes only through an explicit button guarded by a synchronous ref lock; this prevents card taps and rapid repeated input from consuming multiple daily changes.

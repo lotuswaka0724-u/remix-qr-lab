@@ -399,13 +399,13 @@ export type ClassBadge = {
 export const getClassBadges = createServerFn({ method: "GET" }).handler(async () => {
   await syncCustom();
   const db = await admin();
-  const { data } = await db.from("student_game").select("student_id, data");
+  const { data, error } = await db.from("student_game").select("student_id, data");
+  if (error) throw new Error(`equipment read failed: ${error.message}`);
   const out: ClassBadge[] = [];
   for (const row of data ?? []) {
     const coll = (row.data as Record<string, unknown> | null)?.["coll"] as
       Partial<CollData> | undefined;
-    const eq = coll?.equipped;
-    if (!eq) continue;
+    const eq = normalizeColl(coll).equipped;
     out.push({
       studentId: row.student_id,
       background: eq.background,

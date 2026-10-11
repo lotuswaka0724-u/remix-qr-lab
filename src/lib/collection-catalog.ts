@@ -2,6 +2,7 @@ import backgroundLegend from "@/assets/collection/background-legend.jpg";
 import backgroundAstral from "@/assets/collection/background-astral.jpg";
 import frameLegend from "@/assets/collection/frame-legend.png";
 import frameAstral from "@/assets/collection/frame-astral.png";
+import { NAME_PLATE_ASSETS } from "@/lib/name-plate-assets";
 
 /**
  * ガチャで集めるコレクションアイテムのマスター。
@@ -135,7 +136,7 @@ const bg = (
   id: `bg_${id}`,
   name: plateName(name),
   category: "background",
-  rarity,
+  rarity: "N",
   description,
   initial,
   art: { css },
@@ -1095,7 +1096,8 @@ export type NamePlateStyle = {
 export function namePlateStyle(id?: string, lite = false): NamePlateStyle {
   const item =
     (id && COLL_ITEM_BY_ID[id]?.category === "background" ? COLL_ITEM_BY_ID[id] : undefined) ??
-    COLL_ITEM_BY_ID["bg_simple"]!;
+    COLL_ITEM_BY_ID["bg_simple"];
+  if (!item) return { id: "bg_simple", rarity: "N", art: "none", accent: "var(--primary)", plain: false };
   const css = item.art["css"] ?? "";
   const colorOnly = css
     .split(/,(?![^(]*\))/)
@@ -1105,6 +1107,13 @@ export function namePlateStyle(id?: string, lite = false): NamePlateStyle {
   const hexes = colorOnly.match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b/g) ?? [];
   const accent = hexes[1] ?? hexes[0] ?? PLATE_RARITY_ACCENT[item.rarity];
   const fallback = `linear-gradient(120deg, ${PLATE_RARITY_ACCENT[item.rarity]}, ${accent})`;
-  const art = lite ? colorOnly || fallback : css || fallback;
-  return { id: item.id, rarity: item.rarity, art, accent, plain: item.id === "bg_simple" };
+  // Stored teacher overrides remain authoritative; their shorthand must not be
+  // inserted into a background-image value ("center / cover" invalidates it).
+  const teacherImage = css.match(/url\([^)]+\)/)?.[0];
+  const generated = NAME_PLATE_ASSETS[item.id];
+  const decoratedArt = isOverridden(item.id) || item.provider === "teacher" || item.id.startsWith("cx_")
+    ? teacherImage ?? css
+    : generated ? `url("${generated}")` : teacherImage ?? css;
+  const art = lite ? colorOnly || fallback : decoratedArt || fallback;
+  return { id: item.id, rarity: item.rarity, art, accent, plain: false };
 }
