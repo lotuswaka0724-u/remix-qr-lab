@@ -161,3 +161,41 @@ export async function clearAttempts(key: string) {
   const db = await admin();
   await db.from("login_attempts").delete().eq("key", key);
 }
+
+/* ---------- 先生用ログイン：失敗だけを数える制限 ---------- */
+
+type Rule = import("@/lib/login-limit").LimitRule;
+
+/** いずれかの鍵が制限中なら残り待ち時間（ミリ秒）。読み取りに失敗したら安全側で制限扱い */
+export async function failureLockMs(entries: { key: string; rule: Rule }[]): Promise<number> {
+  const { lockRemainingMs } = await import("@/lib/login-limit");
+  const db = await admin();
+  const { data, error } = await db
+    .from("login_attempts")
+    .select("key, count, window_start")
+    .in("key", entries.map((e) => e.key));
+  if (error) return 60_000;
+  const now = Date.now();
+  let wait = 0;
+  for (const e of entries) {
+    const row = (data ?? []).find((r) => r.key === e.key);
+    wait = Math.max(wait, lockRemainingMs(row, e.rule, now));
+  }
+  return wait;
+}
+
+export async function recordFailure(entries: { key: string; rule: Rule }[]) {
+  const { afterFailure } = await import("@/lib/login-limit");
+  const db = await admin();
+  const { data } = await db
+    .from("login_attempts")
+    .select("key, count, window_start")
+    .in("key", entries.map((e) => e.key));
+  const now = Date.now();
+  for (const e of entries) {
+    const next = afterFailure((data ?? []).find((r) => r.key === e.key), e.rule, now);
+    await db
+      .from("login_attempts")
+      .upsert({ key: e.key, ...next, updated_at: new Date(now).toISOString() });
+  }
+}

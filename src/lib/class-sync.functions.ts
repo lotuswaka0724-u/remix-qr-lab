@@ -13,13 +13,38 @@ export const gateStatus = createServerFn({ method: "GET" }).handler(async () => 
 export const teacherLogin = createServerFn({ method: "POST" })
   .inputValidator((data: { password: string }) => ({ password: String(data.password ?? "") }))
   .handler(async ({ data }) => {
-    const { getGate, safeEqual } = await import("@/lib/gate.server");
+    const { getGate, safeEqual, failureLockMs, recordFailure, clearAttempts } = await import(
+      "@/lib/gate.server"
+    );
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { TEACHER_PER_SOURCE, TEACHER_GLOBAL } = await import("@/lib/login-limit");
     const expected = process.env["TEACHER_PASSWORD"];
     if (!expected) return { ok: false as const };
-    if (!safeEqual(data.password, expected)) return { ok: false as const };
+
+    const req = getRequest();
+    const ip =
+      req.headers.get("cf-connecting-ip") ??
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+      "unknown";
+    const sourceKey = `teacher:ip:${ip}`;
+    const keys = [
+      { key: sourceKey, rule: TEACHER_PER_SOURCE },
+      { key: "teacher:all", rule: TEACHER_GLOBAL },
+    ];
+
+    // 制限中は合言葉が正しくても照合しない（総当たり防止）
+    const wait = await failureLockMs(keys);
+    if (wait > 0)
+      return { ok: false as const, reason: "locked" as const, waitMin: Math.ceil(wait / 60_000) };
+
+    if (!safeEqual(data.password, expected)) {
+      await recordFailure(keys);
+      return { ok: false as const, reason: "invalid" as const };
+    }
     const gate = await getGate();
     await gate.clear();
     await gate.update({ role: "teacher" });
+    await clearAttempts(sourceKey);
     return { ok: true as const };
   });
 
