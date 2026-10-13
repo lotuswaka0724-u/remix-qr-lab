@@ -185,7 +185,9 @@ function TeacherGate({ children }: { children: ReactNode }) {
               setPw("");
               setRole("teacher");
               window.location.reload();
-            } else setErr("合言葉がちがいます");
+            } else if ("reason" in res && res.reason === "locked")
+              setErr(`失敗が続いたため、約${res.waitMin}分お待ちください`);
+            else setErr("合言葉がちがいます");
           }}
         >
           <h1 className="font-display text-xl font-bold">先生用の合言葉</h1>
