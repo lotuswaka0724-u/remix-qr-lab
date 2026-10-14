@@ -141,6 +141,13 @@ function ManagePage() {
                   className="min-w-[8rem] flex-1 bg-card"
                 />
                 <Input
+                  value={s.reading ?? ""}
+                  onChange={(e) => updateStudent(s.id, { reading: e.target.value })}
+                  placeholder="よみ（ひらがな）"
+                  aria-label={`${s.name} の読み（ひらがな）`}
+                  className="min-w-[8rem] flex-1 bg-card"
+                />
+                <Input
                   value={s.className}
                   onChange={(e) => updateStudent(s.id, { className: e.target.value })}
                   className="w-28 bg-card"
