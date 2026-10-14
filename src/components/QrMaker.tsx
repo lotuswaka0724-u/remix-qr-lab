@@ -13,7 +13,7 @@ import {
 } from "@/lib/homework-store";
 import { RANK_STYLE } from "@/lib/rank-style";
 import { qrCardPages } from "@/lib/qr-card-pages";
-import creditCardQr from "@/assets/qr/credit-card-qr.png.asset.json";
+import creditCardQr from "@/assets/qr/public-student-login-qr.png.asset.json";
 
 type CardData = {
   key: string;
@@ -119,7 +119,7 @@ export default function QrMaker() {
       const list: CardData[] = [];
       for (const s of students) {
         const points = earnedPoints(state, s.id);
-        // クレジット版カードのみ、指定された共通QR画像を使用する。
+        // クレジット版カードのみ、公開版の児童ログイン画面への共通QRを使用する。
         const url = creditCardQr.url;
         list.push({
           key: s.id,
