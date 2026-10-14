@@ -13,6 +13,7 @@ import {
 } from "@/lib/homework-store";
 import { RANK_STYLE } from "@/lib/rank-style";
 import { qrCardPages } from "@/lib/qr-card-pages";
+import creditCardQr from "@/assets/qr/credit-card-qr.png.asset.json";
 
 type CardData = {
   key: string;
@@ -115,12 +116,11 @@ export default function QrMaker() {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const QR = await import("qrcode");
       const list: CardData[] = [];
       for (const s of students) {
         const points = earnedPoints(state, s.id);
-        // 既存のQR形式（児童名）をそのまま使う
-        const url = await QR.toDataURL(s.name, { margin: 2, width: 320 });
+        // クレジット版カードのみ、指定された共通QR画像を使用する。
+        const url = creditCardQr.url;
         list.push({
           key: s.id,
           studentId: s.id,
