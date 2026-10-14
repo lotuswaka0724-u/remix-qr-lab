@@ -12,6 +12,7 @@ import {
   type Student,
 } from "@/lib/homework-store";
 import { RANK_STYLE } from "@/lib/rank-style";
+import { qrCardPages } from "@/lib/qr-card-pages";
 
 type CardData = {
   key: string;
@@ -151,6 +152,7 @@ export default function QrMaker() {
   // 印刷対象は「いま表示されている児童のうち、チェックが入っている児童」だけにする
   // （クラス切り替えや名前でさがすで画面から消えた児童は印刷対象に残さない）
   const chosen = visible.filter((c) => selected[c.key]);
+  const pages = qrCardPages(chosen);
 
   const print = () => {
     document.body.classList.add("printing-cards");
@@ -167,7 +169,7 @@ export default function QrMaker() {
       <section className="paper-card p-4">
         <div className="mb-3 flex flex-wrap items-center gap-2 print:hidden">
           <h2 className="mr-auto font-display text-base font-bold">
-            QRカード 印刷プレビュー（A4・{chosen.length}枚）
+            QRカード 印刷プレビュー（A4・{pages.length}ページ・{chosen.length}枚）
           </h2>
           <Button type="button" variant="ghost" onClick={() => setPreview(false)}>
             もどる
@@ -177,15 +179,19 @@ export default function QrMaker() {
           </Button>
         </div>
         <p className="mb-2 text-xs text-muted-foreground print:hidden">
-          カードは名刺サイズ（85.6×54mm）で印刷されます。線に沿って切り取ってください。
+          A4用紙1ページに最大8枚、カードは90×56mmで印刷されます。線に沿って切り取ってください。
         </p>
         <div className="overflow-auto print:overflow-visible">
           <div id="qr-card-sheet" className="card-sheet">
-            <div className="card-grid">
-              {chosen.map((c) => (
-                <PrintCard key={c.key} c={c} />
-              ))}
-            </div>
+            {pages.map((page, index) => (
+              <div className="card-page" key={page[0]?.key ?? index} aria-label={`${index + 1}ページ目`}>
+                <div className="card-grid">
+                  {page.map((c) => (
+                    <PrintCard key={c.key} c={c} />
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
