@@ -42,7 +42,12 @@ export function readHwToken(text: string): HwTokenPayload | null {
   if (dot <= 0) return null;
   const payload = body.slice(0, dot);
   const sig = body.slice(dot + 1);
-  const expected = sign(payload);
+  let expected: string;
+  try {
+    expected = sign(payload);
+  } catch {
+    return null;
+  }
   if (sig.length !== expected.length) return null;
   if (!timingSafeEqual(Buffer.from(sig, "utf8"), Buffer.from(expected, "utf8"))) return null;
   try {
