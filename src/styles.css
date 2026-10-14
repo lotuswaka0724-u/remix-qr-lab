@@ -1138,7 +1138,7 @@
 .material-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 55mm;
+  grid-auto-rows: 50mm;
   gap: 0;
 }
 .material-cell {
@@ -1154,8 +1154,8 @@
   break-inside: avoid;
 }
 .material-qr {
-  width: 32mm;
-  height: 32mm;
+  width: 30mm;
+  height: 30mm;
   object-fit: contain;
   flex: none;
   display: block;
