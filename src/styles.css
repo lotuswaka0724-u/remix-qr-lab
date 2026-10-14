@@ -5,6 +5,8 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
+  --print-paper: oklch(1 0 0);
+  --print-ink: oklch(0.178 0 0);
   --plate-cyan: oklch(.8 .14 195);
   --plate-violet: oklch(.7 .18 295);
   --plate-rose: oklch(.77 .17 345);
@@ -1128,8 +1130,8 @@
 .material-page {
   min-height: 297mm;
   padding: 10mm;
-  background: #fff;
-  color: #111;
+  background: var(--print-paper);
+  color: var(--print-ink);
   border: 1px solid var(--border);
   box-sizing: border-box;
 }
@@ -1193,8 +1195,8 @@
   min-height: 297mm;
   padding: 10mm;
   box-sizing: border-box;
-  background: #fff;
-  color: #111;
+  background: var(--print-paper);
+  color: var(--print-ink);
 }
 .hwstate-grid {
   display: grid;
