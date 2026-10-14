@@ -397,6 +397,10 @@ export type ClassBadge = {
 
 /** 先生の読み取り画面用：児童ごとの「アイコン・フレーム・音・エフェクト」だけを返す */
 export const getClassBadges = createServerFn({ method: "GET" }).handler(async () => {
+  // 児童の装備情報は先生だけが読める（ログインしていない呼び出しには空を返す）
+  const { getGate } = await import("@/lib/gate.server");
+  const gate = await getGate();
+  if (gate.data.role !== "teacher") return [] as ClassBadge[];
   await syncCustom();
   const db = await admin();
   const { data, error } = await db.from("student_game").select("student_id, data");
