@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HW_STATE_META, useAppState } from "@/lib/homework-store";
 import { makeForgotTokens } from "@/lib/hwqr.functions";
+import { homeworkCardPages } from "@/lib/qr-card-pages";
 
 type Card = {
   key: string;
@@ -51,13 +52,15 @@ export default function HwStateQrPrint() {
       const byKey = new Map(res.tokens.map((t) => [`${t.studentId}|${t.assignmentId}`, t.token]));
       setCards(
         pairs
-          .filter((p) => byKey.has(p.key))
-          .map((p) => ({
+            .flatMap((p) => {
+              const token = byKey.get(p.key);
+              return token ? [{
             key: p.key,
             studentName: p.studentName,
             assignmentName: p.assignmentName,
-            token: byKey.get(p.key)!,
-          })),
+              token,
+            }] : [];
+            }),
       );
     })();
     return () => {
@@ -66,6 +69,8 @@ export default function HwStateQrPrint() {
   }, [pairs, issue]);
 
   const chosen = cards.filter((c) => selected[c.key]);
+  const pages = homeworkCardPages(chosen);
+  const qrReady = chosen.length > 0 && chosen.every((c) => c.url);
 
   // 選んだカードのQR画像だけを作る
   useEffect(() => {
@@ -79,7 +84,10 @@ export default function HwStateQrPrint() {
         made.set(c.key, await QR.toDataURL(c.token, { margin: 1, width: 420 }));
       }
       if (cancelled) return;
-      setCards((prev) => prev.map((c) => (made.has(c.key) ? { ...c, url: made.get(c.key)! } : c)));
+      setCards((prev) => prev.map((c) => {
+        const url = made.get(c.key);
+        return url ? { ...c, url } : c;
+      }));
     })();
     return () => {
       cancelled = true;
@@ -123,7 +131,7 @@ export default function HwStateQrPrint() {
           選択を解除
         </Button>
         <span className="text-xs text-muted-foreground">選択中 {chosen.length} 枚</span>
-        <Button type="button" disabled={chosen.length === 0} onClick={print}>
+        <Button type="button" disabled={!qrReady} onClick={print}>
           印刷する
         </Button>
       </div>
@@ -150,8 +158,13 @@ export default function HwStateQrPrint() {
         )}
       </ul>
 
-      <div id="hwstate-qr-sheet" className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-        {chosen.map((c) => (
+      <p className="mb-2 text-xs font-bold print:hidden">印刷プレビュー（A4・1ページ最大25枚・{pages.length}ページ）</p>
+      <div className="overflow-auto print:overflow-visible">
+      <div id="hwstate-qr-sheet" className="hwstate-sheet">
+        {pages.map((page, index) => (
+          <div className="hwstate-page" key={page[0]?.key ?? index} aria-label={`${index + 1}ページ目`}>
+            <div className="hwstate-grid">
+        {page.map((c) => (
           <figure
             key={c.key}
             className={`flex break-inside-avoid flex-col items-center gap-0.5 rounded-xl border-2 p-1.5 ${META.card}`}
@@ -181,11 +194,15 @@ export default function HwStateQrPrint() {
             </span>
           </figure>
         ))}
+            </div>
+          </div>
+        ))}
         {chosen.length === 0 && (
           <p className="text-sm text-muted-foreground print:hidden">
             上のリストから選ぶと、ここに印刷するカードが出ます。
           </p>
         )}
+      </div>
       </div>
     </section>
   );

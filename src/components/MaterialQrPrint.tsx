@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/lib/homework-store";
+import { materialQrPages } from "@/lib/qr-card-pages";
 
 type QrItem = {
   key: string;
@@ -66,6 +67,7 @@ export default function MaterialQrPrint() {
     return `${i.label} ${i.sublabel}`.includes(q);
   });
   const chosen = items.filter((i) => selected[i.key]);
+  const pages = materialQrPages(chosen);
 
   const print = () => {
     document.body.classList.add("printing-material");
@@ -171,7 +173,7 @@ export default function MaterialQrPrint() {
         )}
       </div>
 
-      <p className="mb-2 text-xs font-bold print:hidden">印刷プレビュー（A4）</p>
+      <p className="mb-2 text-xs font-bold print:hidden">印刷プレビュー（A4・1ページ最大20枚・{pages.length}ページ）</p>
       <div className="overflow-auto print:overflow-visible">
         <div id="material-qr-sheet" className="material-sheet">
           {chosen.length === 0 ? (
@@ -179,8 +181,10 @@ export default function MaterialQrPrint() {
               上のリストからQRコードを選ぶと、ここに配置が表示されます。
             </p>
           ) : (
-            <div className="material-grid">
-              {chosen.map((i) => (
+            pages.map((page, index) => (
+              <div className="material-page" key={page[0]?.key ?? index} aria-label={`${index + 1}ページ目`}>
+                <div className="material-grid">
+              {page.map((i) => (
                 <figure key={i.key} className="material-cell">
                   <img src={i.url} alt={`${i.sublabel} ${i.label} のQRコード`} className="material-qr" />
                   <figcaption className="material-caption">
@@ -189,7 +193,9 @@ export default function MaterialQrPrint() {
                   </figcaption>
                 </figure>
               ))}
-            </div>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>
