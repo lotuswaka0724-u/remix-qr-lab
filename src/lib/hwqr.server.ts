@@ -18,8 +18,11 @@ export type HwTokenPayload = {
 
 export const HW_TOKEN_PREFIX = "HWT1:";
 
-const secret = () =>
-  process.env["SESSION_SECRET"] ?? process.env["STUDENT_CODE_SALT"] ?? "hw-token-fallback";
+const secret = () => {
+  const s = process.env["SESSION_SECRET"] ?? process.env["STUDENT_CODE_SALT"];
+  if (!s) throw new Error("HW token signing secret is not configured");
+  return s;
+};
 
 const b64url = (buf: Buffer) => buf.toString("base64url");
 
