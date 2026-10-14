@@ -173,7 +173,9 @@ export default function MaterialQrPrint() {
         )}
       </div>
 
-      <p className="mb-2 text-xs font-bold print:hidden">印刷プレビュー（A4・1ページ最大20枚・{pages.length}ページ）</p>
+      <p className="mb-2 text-xs font-bold print:hidden">
+        印刷プレビュー（A4・1ページ最大20枚・{pages.length}ページ）
+      </p>
       <div className="overflow-auto print:overflow-visible">
         <div id="material-qr-sheet" className="material-sheet">
           {chosen.length === 0 ? (
@@ -182,17 +184,25 @@ export default function MaterialQrPrint() {
             </p>
           ) : (
             pages.map((page, index) => (
-              <div className="material-page" key={page[0]?.key ?? index} aria-label={`${index + 1}ページ目`}>
+              <div
+                className="material-page"
+                key={page[0]?.key ?? index}
+                aria-label={`${index + 1}ページ目`}
+              >
                 <div className="material-grid">
-              {page.map((i) => (
-                <figure key={i.key} className="material-cell">
-                  <img src={i.url} alt={`${i.sublabel} ${i.label} のQRコード`} className="material-qr" />
-                  <figcaption className="material-caption">
-                    <span className="material-title">{i.label}</span>
-                    <span className="material-sub">{i.sublabel}</span>
-                  </figcaption>
-                </figure>
-              ))}
+                  {page.map((i) => (
+                    <figure key={i.key} className="material-cell">
+                      <img
+                        src={i.url}
+                        alt={`${i.sublabel} ${i.label} のQRコード`}
+                        className="material-qr"
+                      />
+                      <figcaption className="material-caption">
+                        <span className="material-title">{i.label}</span>
+                        <span className="material-sub">{i.sublabel}</span>
+                      </figcaption>
+                    </figure>
+                  ))}
                 </div>
               </div>
             ))
