@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { HW_STATE_META, useAppState } from "@/lib/homework-store";
 import { makeForgotTokens } from "@/lib/hwqr.functions";
+import { homeworkCardPages } from "@/lib/qr-card-pages";
 
 type Card = {
   key: string;
@@ -45,19 +46,26 @@ export default function HwStateQrPrint() {
         return;
       }
       const res = await issue({
-        data: { rows: pairs.map((p) => ({ studentId: p.studentId, assignmentId: p.assignmentId })) },
+        data: {
+          rows: pairs.map((p) => ({ studentId: p.studentId, assignmentId: p.assignmentId })),
+        },
       });
       if (cancelled || !res.ok) return;
       const byKey = new Map(res.tokens.map((t) => [`${t.studentId}|${t.assignmentId}`, t.token]));
       setCards(
-        pairs
-          .filter((p) => byKey.has(p.key))
-          .map((p) => ({
-            key: p.key,
-            studentName: p.studentName,
-            assignmentName: p.assignmentName,
-            token: byKey.get(p.key)!,
-          })),
+        pairs.flatMap((p) => {
+          const token = byKey.get(p.key);
+          return token
+            ? [
+                {
+                  key: p.key,
+                  studentName: p.studentName,
+                  assignmentName: p.assignmentName,
+                  token,
+                },
+              ]
+            : [];
+        }),
       );
     })();
     return () => {
@@ -66,6 +74,8 @@ export default function HwStateQrPrint() {
   }, [pairs, issue]);
 
   const chosen = cards.filter((c) => selected[c.key]);
+  const pages = homeworkCardPages(chosen);
+  const qrReady = chosen.length > 0 && chosen.every((c) => c.url);
 
   // 選んだカードのQR画像だけを作る
   useEffect(() => {
@@ -79,7 +89,12 @@ export default function HwStateQrPrint() {
         made.set(c.key, await QR.toDataURL(c.token, { margin: 1, width: 420 }));
       }
       if (cancelled) return;
-      setCards((prev) => prev.map((c) => (made.has(c.key) ? { ...c, url: made.get(c.key)! } : c)));
+      setCards((prev) =>
+        prev.map((c) => {
+          const url = made.get(c.key);
+          return url ? { ...c, url } : c;
+        }),
+      );
     })();
     return () => {
       cancelled = true;
@@ -100,7 +115,9 @@ export default function HwStateQrPrint() {
 
   return (
     <section className="paper-card p-4 print:p-0">
-      <h2 className="mb-1 font-display text-base font-bold print:hidden">わすれましたカード印刷（児童用）</h2>
+      <h2 className="mb-1 font-display text-base font-bold print:hidden">
+        わすれましたカード印刷（児童用）
+      </h2>
       <p className="mb-3 text-xs text-muted-foreground print:hidden">
         宿題を出すときは、教材のQRを読み取るだけで完了です。このカードは「わすれた」ときだけ使います。
         カードには児童と宿題の情報が安全なかたちで入っているので、このカードを1回読み取るだけで記録できます。
@@ -123,7 +140,7 @@ export default function HwStateQrPrint() {
           選択を解除
         </Button>
         <span className="text-xs text-muted-foreground">選択中 {chosen.length} 枚</span>
-        <Button type="button" disabled={chosen.length === 0} onClick={print}>
+        <Button type="button" disabled={!qrReady} onClick={print}>
           印刷する
         </Button>
       </div>
@@ -150,42 +167,59 @@ export default function HwStateQrPrint() {
         )}
       </ul>
 
-      <div id="hwstate-qr-sheet" className="grid grid-cols-3 gap-2 sm:grid-cols-5">
-        {chosen.map((c) => (
-          <figure
-            key={c.key}
-            className={`flex break-inside-avoid flex-col items-center gap-0.5 rounded-xl border-2 p-1.5 ${META.card}`}
-          >
-            <figcaption className="w-full text-center font-display text-[10px] font-bold leading-tight">
-              <span className="block truncate">{c.studentName}</span>
-              <span className="block truncate">{c.assignmentName}</span>
-              <span className="block">
-                {META.icon} {META.label}
-              </span>
-            </figcaption>
-            <div className="rounded-md bg-white p-0.5">
-              {c.url ? (
-                <img
-                  src={c.url}
-                  alt={`${c.studentName} ${c.assignmentName} ${META.label} のQRコード`}
-                  className="mx-auto w-[84px]"
-                />
-              ) : (
-                <div className="mx-auto grid h-[84px] w-[84px] place-content-center text-[9px] text-muted-foreground">
-                  作成中…
-                </div>
-              )}
+      <p className="mb-2 text-xs font-bold print:hidden">
+        印刷プレビュー（A4・1ページ最大25枚・{pages.length}ページ）
+      </p>
+      <div className="overflow-auto print:overflow-visible">
+        <div id="hwstate-qr-sheet" className="hwstate-sheet">
+          {pages.map((page, index) => (
+            <div
+              className="hwstate-page"
+              key={page[0]?.key ?? index}
+              aria-label={`${index + 1}ページ目`}
+            >
+              <div className="hwstate-grid">
+                {page.map((c) => (
+                  <figure
+                    key={c.key}
+                    className={`flex break-inside-avoid flex-col items-center gap-0.5 rounded-xl border-2 p-1.5 ${META.card}`}
+                  >
+                    <figcaption className="w-full text-center font-display text-[10px] font-bold leading-tight">
+                      <span className="block truncate">{c.studentName}</span>
+                      <span className="block truncate">{c.assignmentName}</span>
+                      <span className="block">
+                        {META.icon} {META.label}
+                      </span>
+                    </figcaption>
+                    <div className="rounded-md bg-white p-0.5">
+                      {c.url ? (
+                        <img
+                          src={c.url}
+                          alt={`${c.studentName} ${c.assignmentName} ${META.label} のQRコード`}
+                          className="mx-auto w-[84px]"
+                        />
+                      ) : (
+                        <div className="mx-auto grid h-[84px] w-[84px] place-content-center text-[9px] text-muted-foreground">
+                          作成中…
+                        </div>
+                      )}
+                    </div>
+                    <span
+                      className={`rounded-full px-1.5 font-display text-[10px] font-bold ${META.badge}`}
+                    >
+                      {pt >= 0 ? `＋${pt}` : pt}pt
+                    </span>
+                  </figure>
+                ))}
+              </div>
             </div>
-            <span className={`rounded-full px-1.5 font-display text-[10px] font-bold ${META.badge}`}>
-              {pt >= 0 ? `＋${pt}` : pt}pt
-            </span>
-          </figure>
-        ))}
-        {chosen.length === 0 && (
-          <p className="text-sm text-muted-foreground print:hidden">
-            上のリストから選ぶと、ここに印刷するカードが出ます。
-          </p>
-        )}
+          ))}
+          {chosen.length === 0 && (
+            <p className="text-sm text-muted-foreground print:hidden">
+              上のリストから選ぶと、ここに印刷するカードが出ます。
+            </p>
+          )}
+        </div>
       </div>
     </section>
   );
