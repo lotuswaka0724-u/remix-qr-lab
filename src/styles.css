@@ -1177,11 +1177,19 @@
 /* ---------- QRカード印刷（メンバーズカード風・A4） ---------- */
 .card-sheet {
   width: 210mm;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.card-page {
   min-height: 297mm;
   padding: 10mm 8mm;
-  margin: 0 auto;
   background: #fff;
   box-sizing: border-box;
+}
+@media screen {
+  .card-page + .card-page {
+    margin-top: 8mm;
+  }
 }
 .card-grid {
   display: grid;
@@ -1308,7 +1316,18 @@
     box-sizing: border-box;
   }
   body.printing-cards #qr-card-sheet {
+    padding: 0;
+  }
+  body.printing-cards #qr-card-sheet .card-page {
+    min-height: 0;
+    margin: 0;
     padding: 10mm 8mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  body.printing-cards #qr-card-sheet .card-page + .card-page {
+    break-before: page;
+    page-break-before: always;
   }
   body.printing-material #material-qr-sheet {
     padding: 10mm;
