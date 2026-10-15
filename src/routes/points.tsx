@@ -134,12 +134,11 @@ function PointsPage() {
             </span>
             <Input
               type="number"
-              min={1}
               step={1}
               value={grant}
               onChange={(e) => setGrant(e.target.value)}
               className="w-24 bg-card"
-              aria-label="わたすポイント"
+              aria-label="わたすポイント（マイナスも可）"
             />
             <Input
               value={grantNote}
