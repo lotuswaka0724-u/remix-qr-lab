@@ -116,8 +116,8 @@ function PointsPage() {
             onSubmit={(e) => {
               e.preventDefault();
               const amount = Number(grant);
-              if (!Number.isFinite(amount) || amount <= 0) {
-                toast.error("1以上の数字を入れてください");
+              if (!Number.isFinite(amount) || amount === 0) {
+                toast.error("0以外の数字を入れてください（マイナスも可）");
                 return;
               }
               const res = grantManualPoints(student.id, amount, grantNote.trim() || undefined);
@@ -134,12 +134,11 @@ function PointsPage() {
             </span>
             <Input
               type="number"
-              min={1}
               step={1}
               value={grant}
               onChange={(e) => setGrant(e.target.value)}
               className="w-24 bg-card"
-              aria-label="わたすポイント"
+              aria-label="わたすポイント（マイナスも可）"
             />
             <Input
               value={grantNote}
