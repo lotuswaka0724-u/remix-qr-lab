@@ -229,7 +229,8 @@ function ScanPage() {
     if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
     if (state.settings.vibe)
       vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
-    if (state.settings.speak) {
+    // 読み上げは通常提出のときだけ（直し・学校・忘れたなどは読み上げない）
+    if (state.settings.speak && hw === "SUBMIT") {
       // 宿題名（教材名）を入れて読み上げる。例:「山田さん、音読カードを提出しました。」
       const hwName = target.name?.trim();
       const phrase = hwName ? `${hwName}${HW_PHRASE[hw]}` : HW_STATE_META[hw].label;
@@ -395,7 +396,6 @@ function ScanPage() {
     setPendingStudent({ student, assignment });
     playBadgeFx(student.id);
     playSuccess(state.settings.sound);
-    if (state.settings.speak) speak(`${spokenName(state.students.find((s) => s.id === student.id), student.name)}さん、カードをかざしてください`);
     toast.success(`${student.name} さん`, {
       description: "「わすれました」のカードを読み取ってください",
     });
