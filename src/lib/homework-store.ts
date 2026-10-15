@@ -899,10 +899,10 @@ export function applyMaterialScan(
   return applyHwState(studentId, assignmentId, "SUBMIT", { date });
 }
 
-/** 先生が児童に手でポイントをわたす（マイナスは受け付けない） */
+/** 先生が児童に手でポイントをわたす（マイナスも可。0は受け付けない） */
 export function grantManualPoints(studentId: string, amount: number, note?: string) {
   const value = Math.floor(amount);
-  if (!Number.isFinite(value) || value <= 0) return null;
+  if (!Number.isFinite(value) || value === 0) return null;
   const grant: ManualGrant = {
     id: `mg_${uid()}`,
     studentId,
