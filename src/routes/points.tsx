@@ -12,6 +12,7 @@ import {
   grantManualPoints,
   ranking,
   spentPoints,
+  tieRank,
   useAppState,
 } from "@/lib/homework-store";
 
@@ -89,7 +90,7 @@ function PointsPage() {
                   : "bg-muted/60 hover:bg-secondary"
               }`}
             >
-              <span className="points-rank w-5 shrink-0 text-center tabular-nums opacity-70">{i + 1}</span>
+              <span className="points-rank w-5 shrink-0 text-center tabular-nums opacity-70">{tieRank(rank, i)}</span>
               <span className="points-name min-w-0 flex-1 truncate font-bold">{r.student.name}</span>
               <span className="points-row-total shrink-0 tabular-nums">
                 {availablePoints(state, r.student.id)}<span className="points-unit ml-0.5">pt</span>

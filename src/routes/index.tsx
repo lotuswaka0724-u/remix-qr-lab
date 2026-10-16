@@ -477,7 +477,7 @@ function ScanPage() {
             <li
               key={r.student.id}
               className={`flex min-w-0 items-center gap-1 rounded-xl px-1.5 py-1 text-sm ${
-                i < 3 ? "bg-primary/15 font-bold text-primary" : "bg-muted/50"
+                tieRank(rank, i) <= 3 ? "bg-primary/15 font-bold text-primary" : "bg-muted/50"
               } ${namePlateFrameStyle(badges[r.student.id]?.background) ? "plate-framed" : ""}`}
               style={namePlateFrameStyle(badges[r.student.id]?.background)}
             >
