@@ -15,7 +15,55 @@ function audio() {
 
 /** 画面タップのタイミングで音を使えるようにしておく（ブラウザの自動再生制限対策） */
 export function primeAudio() {
-  audio();
+  const c = audio();
+  if (!c) return;
+  // 1サンプルの無音を鳴らして iOS の音声を確実に解放する
+  const buf = c.createBuffer(1, 1, 22050);
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  src.connect(c.destination);
+  src.start(0);
+  // 音声ファイル（設定音）用の再生権限も先に確保する
+  try {
+    const el = new Audio(
+      "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YQAAAAA=",
+    );
+    el.volume = 0;
+    void el.play().catch(() => {});
+  } catch {
+    /* 無視 */
+  }
+}
+
+/* ---------- AirPlay / Apple TV 向け：音声の通り道を開けたままにする ---------- */
+let keepOsc: OscillatorNode | null = null;
+let keepTimer: number | null = null;
+
+/** スキャン中、聞こえないほど小さな音を流し続けて、ミラーリング先の音声が眠らないようにする */
+export function startAudioKeepAlive() {
+  const c = audio();
+  if (!c || keepOsc) return;
+  const osc = c.createOscillator();
+  const g = c.createGain();
+  osc.frequency.value = 30; // 低くて聞こえない
+  g.gain.value = 0.0008; // ほぼ無音（完全な0だと省略される機器がある）
+  osc.connect(g).connect(c.destination);
+  osc.start();
+  keepOsc = osc;
+  keepTimer = window.setInterval(() => {
+    if (ctx && ctx.state !== "running") void ctx.resume();
+  }, 2000);
+}
+
+export function stopAudioKeepAlive() {
+  try {
+    keepOsc?.stop();
+  } catch {
+    /* すでに停止 */
+  }
+  keepOsc = null;
+  if (keepTimer !== null) window.clearInterval(keepTimer);
+  keepTimer = null;
 }
 
 /** 今なっている音（試聴のとき、前の音を止めるために持っておく） */
