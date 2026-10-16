@@ -11,7 +11,7 @@ import studentWorld from "@/assets/collection/student-crystal-world.asset.json";
 import studentCss from "@/student-page.css?url";
 import { playError } from "@/lib/feedback";
 import { stopGachaAudio } from "@/lib/gacha-media";
-import { STATUS_META } from "@/lib/homework-store";
+import { STATUS_META, tieRank } from "@/lib/homework-store";
 import {
   getClassRanking,
   getStudentView,
@@ -268,11 +268,11 @@ function MyPage() {
             <li
               key={r.id}
               className={`ranking-row flex items-center gap-3 rounded-2xl px-3 py-2 ${
-                i < 3 ? `ranking-top ranking-top-${i + 1}` : ""
+                tieRank(ranking, i) <= 3 ? `ranking-top ranking-top-${tieRank(ranking, i)}` : ""
               } ${r.isMe ? "ranking-me" : ""}`}
             >
               <span className="ranking-pos shrink-0 font-display text-lg font-bold tabular-nums">
-                {i + 1}
+                {tieRank(ranking, i)}
               </span>
               <span className="min-w-0 flex-1 truncate font-bold">
                 {r.name}
