@@ -940,6 +940,14 @@ export function ranking(state: AppState, className = "all") {
     .sort((a, b) => b.points - a.points || a.student.number - b.student.number);
 }
 
+/** 同点は同じ順位にする（1位が2人いれば次は3位）。list は points 降順に並んでいること */
+export function tieRank<T extends { points: number }>(list: readonly T[], index: number): number {
+  const pts = list[index]!.points;
+  let r = 1;
+  for (let i = 0; i < index; i++) if (list[i]!.points > pts) r++;
+  return r;
+}
+
 /** ガチャを1回引く。ポイントが足りなければ null */
 export function drawGacha(studentId: string): GachaResult | null {
   const cost = state.gachaCost;

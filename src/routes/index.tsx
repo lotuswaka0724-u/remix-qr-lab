@@ -44,6 +44,7 @@ import {
   rankOfPoints,
   ranking,
   STATUS_META,
+  tieRank,
   toStatus,
   todayKey,
   updateSettings,
@@ -225,7 +226,10 @@ function ScanPage() {
       total: res.total,
     });
 
-    playRankSuccess(after, state.settings.sound);
+    // 児童が読み取り音を設定しているときは標準の「ピッ」を鳴らさない（設定音だけを再生）
+    const customSound = badges[student.id]?.sound;
+    const hasCustomSound = Boolean(customSound && (soundTune(customSound) || soundAsset(customSound)));
+    if (!hasCustomSound) playRankSuccess(after, state.settings.sound);
     if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
     if (state.settings.vibe)
       vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
@@ -477,7 +481,7 @@ function ScanPage() {
               } ${namePlateFrameStyle(badges[r.student.id]?.background) ? "plate-framed" : ""}`}
               style={namePlateFrameStyle(badges[r.student.id]?.background)}
             >
-              <span className="teacher-rank-number shrink-0 font-display font-bold tabular-nums">{i + 1}</span>
+              <span className="teacher-rank-number shrink-0 font-display font-bold tabular-nums">{tieRank(rank, i)}</span>
               <CollectionIcon
                 iconId={badges[r.student.id]?.icon}
                 frameId={badges[r.student.id]?.frame}
