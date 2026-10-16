@@ -27,6 +27,8 @@ import {
   playSuccess,
   SOUND_PRESETS,
   primeAudio,
+  startAudioKeepAlive,
+  stopAudioKeepAlive,
   speak,
   vibrate,
 } from "@/lib/feedback";
@@ -109,6 +111,12 @@ function ScanPage() {
   const state = useAppState();
   const verifyForgot = useServerFn(verifyForgotToken);
   const [scanning, setScanning] = useState(false);
+  // スキャン中は音声の通り道を開けたままにする（Apple TV ミラーリングで音が欠けないように）
+  useEffect(() => {
+    if (!scanning) return;
+    startAudioKeepAlive();
+    return () => stopAudioKeepAlive();
+  }, [scanning]);
   const [locked, setLocked] = useState(true);
   const [classFilter, setClassFilter] = useState("all");
   const [focusHw, setFocusHw] = useState("all");
