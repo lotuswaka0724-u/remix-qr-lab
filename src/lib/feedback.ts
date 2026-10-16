@@ -71,6 +71,14 @@ const live = new Set<OscillatorNode>();
 
 /** なっている音をすべて止める（試聴で音がかさならないようにする） */
 export function stopAllSounds() {
+  for (const s of liveSources) {
+    try {
+      s.stop();
+    } catch {
+      /* 無視 */
+    }
+  }
+  liveSources.clear();
   for (const osc of live) {
     try {
       osc.stop();
@@ -214,21 +222,61 @@ export function playRankUp(rank: RankKey) {
  * 将来、音声ファイル（mp3など）に差しかえるときは、この関数の中だけを変えればよい。
  * アイテムの `asset` に音声ファイルのパスが入っていれば、それを優先して鳴らす。
  */
+const assetBuffers = new Map<string, Promise<AudioBuffer | null>>();
+const liveSources = new Set<AudioBufferSourceNode>();
+
+/** 効果音ファイルを読み込んでおく（Apple TV へ送る音と同じ出口で鳴らすため） */
+export function preloadSoundAsset(asset: string): Promise<AudioBuffer | null> {
+  const c = audio();
+  if (!c) return Promise.resolve(null);
+  let p = assetBuffers.get(asset);
+  if (!p) {
+    p = fetch(asset)
+      .then((r) => (r.ok ? r.arrayBuffer() : Promise.reject(new Error("load"))))
+      .then(
+        (data) =>
+          new Promise<AudioBuffer>((res, rej) => {
+            c.decodeAudioData(data, res, rej);
+          }),
+      )
+      .catch(() => {
+        assetBuffers.delete(asset);
+        return null;
+      });
+    assetBuffers.set(asset, p);
+  }
+  return p;
+}
+
+function playBuffer(buf: AudioBuffer) {
+  const c = audio();
+  if (!c) return false;
+  const src = c.createBufferSource();
+  const g = c.createGain();
+  g.gain.value = 0.8;
+  src.buffer = buf;
+  src.connect(g).connect(c.destination);
+  src.start();
+  liveSources.add(src);
+  src.onended = () => liveSources.delete(src);
+  return true;
+}
+
 export function playCollectionSound(
   tune: string | null | undefined,
   rank: RankKey = "NORMAL",
   asset?: string | null,
 ) {
-  if (asset) {
-    try {
-      const el = new Audio(asset);
-      el.volume = 0.8;
-      void el.play();
-      return;
-    } catch {
-      /* 再生できなければ内蔵の音にもどる */
-    }
+  if (asset && audio()) {
+    void preloadSoundAsset(asset).then((buf) => {
+      if (!(buf && playBuffer(buf))) playBuiltinSound(tune, rank);
+    });
+    return;
   }
+  playBuiltinSound(tune, rank);
+}
+
+function playBuiltinSound(tune: string | null | undefined, rank: RankKey) {
   switch (tune) {
     case "pico":
       // みじかい電子音ひとつ
