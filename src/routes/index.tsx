@@ -28,6 +28,7 @@ import {
   SOUND_PRESETS,
   primeAudio,
   startAudioKeepAlive,
+  preloadSoundAsset,
   stopAudioKeepAlive,
   speak,
   vibrate,
@@ -115,6 +116,9 @@ function ScanPage() {
   useEffect(() => {
     if (!scanning) return;
     startAudioKeepAlive();
+    ["pico", "pon", "kira", "chime", "coin", "sparkle", "levelup", "fanfare", "gold", "black"].forEach(
+      (t) => void preloadSoundAsset(`/prizes/sounds/${t}.mp3`),
+    );
     return () => stopAudioKeepAlive();
   }, [scanning]);
   const [locked, setLocked] = useState(true);
