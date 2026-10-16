@@ -98,3 +98,9 @@
     opacity: 0.75;
   }
 }
+
+/* 提出一覧の氏名は「…」で省略せず、最後まで表示する */
+@media screen {
+  .teacher-scan-page .teacher-submissions .name-plate { max-width: none; }
+  .teacher-scan-page .teacher-submissions .name-plate-text { overflow: visible; text-overflow: clip; }
+}
