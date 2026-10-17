@@ -45,7 +45,7 @@ for (const b of baseline as Row[]) {
   }
 }
 for (const r of now)
-  if (!(baseline as Row[]).some((b) => b.id === r.id) && !ANIMATED_PLATES.some(p => p.id === r.id && p.obtainable === false && !p.initial)) problems.push(`未許可の追加: ${r.id}`);
+  if (!(baseline as Row[]).some((b) => b.id === r.id) && !ANIMATED_PLATES.some(p => p.id === r.id && p.obtainable === true && !p.initial && p.rarity === (p.id === "bg_motion_black" ? "BLACK" : "GOLD"))) problems.push(`未許可の追加: ${r.id}`);
 
 const counts = now.reduce<Record<string, number>>((a, r) => {
   a[r.category] = (a[r.category] ?? 0) + 1;
@@ -58,4 +58,4 @@ if (problems.length) {
   console.error("照合エラー:\n" + problems.join("\n"));
   process.exit(1);
 }
-console.log("照合OK: 既存154件を維持、許可されたガチャ対象外6件のみ追加");
+console.log("照合OK: 既存154件を維持、承認されたGOLD5件・BLACK1件のみ追加");
