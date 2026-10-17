@@ -46,3 +46,17 @@ describe("A6 duplex cards", () => {
     for (const s of sheets) expect(s.back).toEqual(s.front);
   });
 });
+
+import { qrGridFit } from "./qr-card-pages";
+describe("qrGridFit", () => {
+  it("shrinks QR as count grows and stays inside the card area", () => {
+    const sizes = [1, 2, 4, 8, 15].map((n) => {
+      const f = qrGridFit(n, 132, 62);
+      const rows = Math.ceil(n / f.cols);
+      expect(f.cols * (f.size + 3) + (f.cols - 1) * 2).toBeLessThanOrEqual(132);
+      expect(rows * (f.size + 7.5) + (rows - 1) * 2).toBeLessThanOrEqual(62);
+      return f.size;
+    });
+    for (let i = 1; i < sizes.length; i++) expect(sizes[i]).toBeLessThanOrEqual(sizes[i - 1]!);
+  });
+});
