@@ -4,23 +4,27 @@ import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useAppState } from "@/lib/homework-store";
 import { makeForgotTokens } from "@/lib/hwqr.functions";
-import { duplexCardSheets } from "@/lib/qr-card-pages";
+import { duplexCardSheets, qrGridFit } from "@/lib/qr-card-pages";
 
+type Qr = { name: string; url?: string };
 type Card = {
   key: string;
-  studentId: string;
-  assignmentId: string;
   studentName: string;
   reading: string;
   classLabel: string;
   number: number;
-  assignmentName: string;
-  submitText: string;
-  submitUrl?: string;
-  forgotUrl?: string;
+  submit: Qr[];
+  forgot: Qr[];
 };
 
-/** A6両面カード：表＝提出（教材QRと同じ内容）、裏＝わすれました（署名付きQR）。A4に2枚。 */
+// カード内でQRを並べられる範囲(mm)
+const GRID_W = 132;
+const GRID_H = 62;
+
+/**
+ * A6両面カード（児童1人＝1枚）。
+ * 表＝選んだ宿題の提出QRをすべて、裏＝その児童の全宿題のわすれましたQRをすべて。数に応じて縮小。
+ */
 export default function DuplexHwCardPrint() {
   const state = useAppState();
   const issue = useServerFn(makeForgotTokens);
@@ -29,72 +33,78 @@ export default function DuplexHwCardPrint() {
     [state.students],
   );
   const [cls, setCls] = useState("all");
-  const [assignmentId, setAssignmentId] = useState("all");
+  const [pickedHw, setPickedHw] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<Record<string, boolean>>({});
-  const [urls, setUrls] = useState<Record<string, { submit: string; forgot: string }>>({});
+  const [submitUrls, setSubmitUrls] = useState<Record<string, string>>({});
+  const [forgotUrls, setForgotUrls] = useState<Record<string, string>>({});
   const [error, setError] = useState("");
 
-  const cards: Card[] = useMemo(() => {
-    const students = state.students
-      .filter((s) => cls === "all" || s.className === cls)
-      .sort((a, b) => a.className.localeCompare(b.className) || a.number - b.number);
-    const assignments = state.assignments.filter(
-      (a) => assignmentId === "all" || a.id === assignmentId,
-    );
-    return students.flatMap((s) =>
-      assignments.map((a) => ({
-        key: `${s.id}|${a.id}`,
-        studentId: s.id,
-        assignmentId: a.id,
-        studentName: s.name,
-        reading: s.reading ?? "",
-        classLabel: s.grade && s.classNumber ? `${s.grade}年${s.classNumber}組` : s.className,
-        number: s.number,
-        assignmentName: a.name,
-        submitText: `${s.name},${a.name}`,
-        ...urls[`${s.id}|${a.id}`] && {
-          submitUrl: urls[`${s.id}|${a.id}`]!.submit,
-          forgotUrl: urls[`${s.id}|${a.id}`]!.forgot,
-        },
-      })),
-    );
-  }, [state.students, state.assignments, cls, assignmentId, urls]);
+  const students = useMemo(
+    () =>
+      state.students
+        .filter((s) => cls === "all" || s.className === cls)
+        .sort((a, b) => a.className.localeCompare(b.className) || a.number - b.number),
+    [state.students, cls],
+  );
+  const hwFront = state.assignments.filter((a) => pickedHw[a.id]);
 
-  const chosen = cards.filter((c) => selected[c.key]);
-  const sheets = duplexCardSheets(chosen);
-  const ready = chosen.length > 0 && chosen.every((c) => c.submitUrl && c.forgotUrl);
+  const cards: Card[] = students
+    .filter((s) => selected[s.id])
+    .map((s) => ({
+      key: s.id,
+      studentName: s.name,
+      reading: s.reading ?? "",
+      classLabel: s.grade && s.classNumber ? `${s.grade}年${s.classNumber}組` : s.className,
+      number: s.number,
+      submit: hwFront.map((a) => ({ name: a.name, url: submitUrls[`${s.name},${a.name}`] })),
+      forgot: state.assignments.map((a) => ({ name: a.name, url: forgotUrls[`${s.id}|${a.id}`] })),
+    }));
+  const sheets = duplexCardSheets(cards);
+  const ready =
+    cards.length > 0 &&
+    hwFront.length > 0 &&
+    cards.every((c) => c.submit.every((q) => q.url) && c.forgot.every((q) => q.url));
 
-  // 選んだカードだけ、提出QRとわすれましたQRを作る
+  const chosenIds = students.filter((s) => selected[s.id]).map((s) => s.id);
+  const depKey = chosenIds.join(",") + "/" + hwFront.map((a) => a.id).join(",");
+
   useEffect(() => {
-    const need = chosen.filter((c) => !urls[c.key]);
-    if (!need.length) return;
     let cancelled = false;
     (async () => {
-      const res = await issue({
-        data: { rows: need.map((c) => ({ studentId: c.studentId, assignmentId: c.assignmentId })) },
-      });
+      const QR = await import("qrcode");
+      const chosen = state.students.filter((s) => chosenIds.includes(s.id));
+      // 表：提出QR（教材QRと同じ内容）
+      const sub: Record<string, string> = {};
+      for (const s of chosen)
+        for (const a of hwFront) {
+          const text = `${s.name},${a.name}`;
+          if (!submitUrls[text]) sub[text] = await QR.toDataURL(text, { margin: 1, width: 360 });
+        }
+      if (cancelled) return;
+      if (Object.keys(sub).length) setSubmitUrls((p) => ({ ...p, ...sub }));
+      // 裏：全宿題のわすれましたQR
+      const need = chosen.flatMap((s) =>
+        state.assignments
+          .filter((a) => !forgotUrls[`${s.id}|${a.id}`])
+          .map((a) => ({ studentId: s.id, assignmentId: a.id })),
+      );
+      if (!need.length) return;
+      const res = await issue({ data: { rows: need } });
       if (cancelled) return;
       if (!res.ok) {
         setError("わすれましたQRを作れませんでした。時間をおいてもう一度お試しください。");
         return;
       }
-      const QR = await import("qrcode");
-      const made: Record<string, { submit: string; forgot: string }> = {};
-      for (const t of res.tokens) {
-        const c = need.find((n) => n.studentId === t.studentId && n.assignmentId === t.assignmentId);
-        if (!c) continue;
-        made[c.key] = {
-          submit: await QR.toDataURL(c.submitText, { margin: 1, width: 420 }),
-          forgot: await QR.toDataURL(t.token, { margin: 1, width: 420 }),
-        };
-      }
-      if (!cancelled) setUrls((prev) => ({ ...prev, ...made }));
+      const fg: Record<string, string> = {};
+      for (const t of res.tokens)
+        fg[`${t.studentId}|${t.assignmentId}`] = await QR.toDataURL(t.token, { margin: 1, width: 360 });
+      if (!cancelled) setForgotUrls((p) => ({ ...p, ...fg }));
     })();
     return () => {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [chosen.map((c) => c.key).join(","), issue]);
+  }, [depKey, state.assignments.length, issue]);
 
   const print = () => {
     document.body.classList.add("printing-duplex");
@@ -110,11 +120,27 @@ export default function DuplexHwCardPrint() {
     <section className="paper-card p-4">
       <h2 className="mb-1 font-display text-base font-bold">両面カード印刷（A6・提出／わすれました）</h2>
       <p className="mb-3 text-xs text-muted-foreground">
-        表が「ていしゅつ」、裏が「わすれました」のカードです。A4に2枚ずつ印刷されます。プリンターで
-        「両面印刷・長辺とじ」を選ぶと、裏に同じ児童の面が来ます。まん中の線で切って1人1枚わたせます。
+        児童1人につき1枚。表は選んだ宿題の「ていしゅつ」QR、裏はその児童の全宿題の「わすれました」QRです。
+        QRは数に合わせて小さくなります。A4に2枚、「両面印刷・長辺とじ」で印刷してください。
       </p>
 
+      <p className="mb-1 text-xs font-bold">表に入れる宿題</p>
       <div className="mb-3 flex flex-wrap gap-2">
+        {state.assignments.map((a) => (
+          <label key={a.id} className="flex cursor-pointer items-center gap-1 rounded-lg border border-border px-2 py-1 text-sm">
+            <input
+              type="checkbox"
+              checked={!!pickedHw[a.id]}
+              onChange={(e) => setPickedHw((p) => ({ ...p, [a.id]: e.target.checked }))}
+              className="h-4 w-4"
+            />
+            {a.name}
+          </label>
+        ))}
+        {state.assignments.length === 0 && <span className="text-sm text-muted-foreground">宿題がありません。</span>}
+      </div>
+
+      <div className="mb-2 flex flex-wrap items-center gap-2">
         <select
           value={cls}
           onChange={(e) => setCls(e.target.value)}
@@ -128,22 +154,6 @@ export default function DuplexHwCardPrint() {
             </option>
           ))}
         </select>
-        <select
-          value={assignmentId}
-          onChange={(e) => setAssignmentId(e.target.value)}
-          className="h-10 rounded-xl border border-border bg-card px-3 text-sm"
-          aria-label="宿題でしぼりこむ"
-        >
-          <option value="all">すべての宿題</option>
-          {state.assignments.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="mb-2 flex flex-wrap items-center gap-2">
         <Button
           type="button"
           variant="secondary"
@@ -151,41 +161,42 @@ export default function DuplexHwCardPrint() {
           onClick={() =>
             setSelected((prev) => {
               const next = { ...prev };
-              cards.forEach((c) => (next[c.key] = true));
+              students.forEach((s) => (next[s.id] = true));
               return next;
             })
           }
         >
-          表示中をすべて選ぶ
+          表示中の児童をすべて選ぶ
         </Button>
         <Button type="button" variant="ghost" size="sm" onClick={() => setSelected({})}>
           選択を解除
         </Button>
         <span className="text-xs text-muted-foreground">
-          {chosen.length}枚選択中（A4 {sheets.length}枚・{sheets.length * 2}ページ）
+          {cards.length}人（A4 {sheets.length}枚・{sheets.length * 2}ページ）
         </span>
         <Button type="button" disabled={!ready} onClick={print}>
-          {chosen.length && !ready ? "QRを作っています…" : "印刷する"}
+          {cards.length && hwFront.length && !ready ? "QRを作っています…" : "印刷する"}
         </Button>
       </div>
+      {!hwFront.length && <p className="mb-2 text-xs text-muted-foreground">表に入れる宿題を1つ以上えらんでください。</p>}
       {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
       <ul className="mb-4 grid max-h-72 gap-1 overflow-auto rounded-xl border border-border p-2 sm:grid-cols-2">
-        {cards.map((c) => (
-          <li key={c.key}>
+        {students.map((s) => (
+          <li key={s.id}>
             <label className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1 hover:bg-muted/60">
               <input
                 type="checkbox"
-                checked={!!selected[c.key]}
-                onChange={(e) => setSelected((prev) => ({ ...prev, [c.key]: e.target.checked }))}
+                checked={!!selected[s.id]}
+                onChange={(e) => setSelected((prev) => ({ ...prev, [s.id]: e.target.checked }))}
                 className="h-4 w-4"
               />
-              <span className="text-sm font-bold">{c.studentName}</span>
-              <span className="text-xs text-muted-foreground">{c.assignmentName}</span>
+              <span className="text-sm font-bold">{s.name}</span>
+              <span className="text-xs text-muted-foreground">{s.className} {s.number}ばん</span>
             </label>
           </li>
         ))}
-        {cards.length === 0 && <li className="p-2 text-sm text-muted-foreground">児童または宿題がありません。</li>}
+        {students.length === 0 && <li className="p-2 text-sm text-muted-foreground">児童がいません。</li>}
       </ul>
 
       <div className="overflow-auto">
@@ -211,19 +222,21 @@ export default function DuplexHwCardPrint() {
 
 function Face({ c, side }: { c: Card; side: "front" | "back" }) {
   const front = side === "front";
-  const url = front ? c.submitUrl : c.forgotUrl;
+  const qrs = front ? c.submit : c.forgot;
+  const fit = qrGridFit(qrs.length, GRID_W, GRID_H);
   return (
     <div className="duplex-slot">
       <div className={`duplex-card ${front ? "duplex-front" : "duplex-back"}`}>
         <div className="duplex-shine" aria-hidden />
-        {!front && <div className="duplex-stripe" aria-hidden />}
         <div className="duplex-body">
-          <div className="duplex-info">
-            <p className="duplex-brand">{front ? "HOMEWORK SUBMIT CARD" : "HOMEWORK FORGOT CARD"}</p>
-            <p className="duplex-title">
-              {front ? "🚀 しゅくだい ていしゅつカード" : "🌙 わすれましたカード"}
-            </p>
-            <p className="duplex-task">{c.assignmentName}</p>
+          <div className="duplex-head">
+            <div>
+              <p className="duplex-brand">{front ? "HOMEWORK SUBMIT CARD" : "HOMEWORK FORGOT CARD"}</p>
+              <p className="duplex-title">{front ? "🚀 しゅくだい ていしゅつカード" : "🌙 わすれましたカード"}</p>
+              <p className="duplex-msg">
+                {front ? "できたら ピッ！ ミッション クリア！" : "わすれた ときは こっちで ピッ。つぎは もってこよう！"}
+              </p>
+            </div>
             <div className="duplex-who">
               {front && <span className="duplex-chip" aria-hidden />}
               <div>
@@ -234,13 +247,17 @@ function Face({ c, side }: { c: Card; side: "front" | "back" }) {
                 </p>
               </div>
             </div>
-            <p className="duplex-msg">
-              {front ? "できたら ピッ！ ミッション クリア！" : "わすれた ときは こっちで ピッ。つぎは もってこよう！"}
-            </p>
           </div>
-          <div className="duplex-qr">
-            {url ? <img src={url} alt={`${c.studentName} ${front ? "提出" : "わすれました"}QR`} /> : <span>作成中…</span>}
-            <span className="duplex-qr-label">{front ? "ていしゅつ" : "わすれました"}</span>
+          <div
+            className="duplex-grid"
+            style={{ gridTemplateColumns: `repeat(${fit.cols}, auto)`, ["--qr" as string]: `${fit.size}mm` }}
+          >
+            {qrs.map((q) => (
+              <div key={q.name} className="duplex-qr">
+                <span className="duplex-qr-label">{q.name}</span>
+                {q.url ? <img src={q.url} alt={`${c.studentName} ${q.name} ${front ? "提出" : "わすれました"}QR`} /> : <span className="duplex-qr-wait">…</span>}
+              </div>
+            ))}
           </div>
         </div>
       </div>

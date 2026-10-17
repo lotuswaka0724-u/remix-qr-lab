@@ -19,6 +19,20 @@ export function duplexCardSheets<T>(cards: readonly T[]): { front: T[]; back: T[
   return printPages(cards, 2).map((page) => ({ front: page, back: page }));
 }
 
+/**
+ * カード内のQR格子：n個を幅w×高さh(mm)に収め、QRが最大になる列数とQR一辺(mm)を返す。
+ * 1マスにはQRのほか宿題名ラベル(labelH)と余白(gap)が入る。
+ */
+export function qrGridFit(n: number, w: number, h: number, labelH = 4.5, gap = 2) {
+  let best = { cols: 1, size: 0 };
+  for (let cols = 1; cols <= Math.max(1, n); cols++) {
+    const rows = Math.ceil(Math.max(1, n) / cols);
+    const size = Math.min((w - gap * (cols - 1)) / cols - 3, (h - gap * (rows - 1)) / rows - labelH - 3);
+    if (size > best.size) best = { cols, size };
+  }
+  return { cols: best.cols, size: Math.max(0, Math.floor(best.size * 10) / 10) };
+}
+
 function printPages<T>(cards: readonly T[], capacity: number): T[][] {
   const pages: T[][] = [];
   for (let start = 0; start < cards.length; start += capacity) {
