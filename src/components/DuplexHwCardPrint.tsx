@@ -190,20 +190,19 @@ export default function DuplexHwCardPrint() {
 
       <div className="overflow-auto">
         <div id="duplex-qr-sheet" className="duplex-sheet">
-          {sheets.map((sheet, i) => (
-            <div key={sheet.front[0]!.key} className="contents">
-              <div className="duplex-page" aria-label={`${i * 2 + 1}ページ目（表）`}>
-                {sheet.front.map((c) => (
-                  <Face key={c.key} c={c} side="front" />
+          {sheets.flatMap((sheet, i) =>
+            (["front", "back"] as const).map((side) => (
+              <div
+                key={`${sheet.front[0]!.key}-${side}`}
+                className="duplex-page"
+                aria-label={`${i * 2 + (side === "front" ? 1 : 2)}ページ目（${side === "front" ? "表" : "裏"}）`}
+              >
+                {sheet[side].map((c) => (
+                  <Face key={c.key} c={c} side={side} />
                 ))}
               </div>
-              <div className="duplex-page" aria-label={`${i * 2 + 2}ページ目（裏）`}>
-                {sheet.back.map((c) => (
-                  <Face key={c.key} c={c} side="back" />
-                ))}
-              </div>
-            </div>
-          ))}
+            )),
+          )}
         </div>
       </div>
     </section>

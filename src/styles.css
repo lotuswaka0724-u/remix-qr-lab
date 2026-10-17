@@ -1707,7 +1707,6 @@
     border: 0 !important; box-shadow: none !important; background: transparent !important;
     backdrop-filter: none !important; filter: none !important; transform: none !important;
   }
-  body.printing-duplex #duplex-qr-sheet .contents { display: contents !important; }
-  body.printing-duplex .duplex-page { margin: 0; break-after: page; page-break-after: always; }
-  body.printing-duplex .duplex-page:last-child { break-after: auto; }
+  body.printing-duplex .duplex-page { margin: 0 !important; }
+  body.printing-duplex .duplex-page + .duplex-page { break-before: page; page-break-before: always; }
 }
