@@ -6,6 +6,7 @@ import teacherWorld from "@/assets/collection/student-crystal-world.asset.json";
 import CsvPanel from "@/components/CsvPanel";
 import HwStateQrPrint from "@/components/HwStateQrPrint";
 import MaterialQrPrint from "@/components/MaterialQrPrint";
+import DuplexHwCardPrint from "@/components/DuplexHwCardPrint";
 import MyPageLinks from "@/components/MyPageLinks";
 import GachaPrizeList from "@/components/GachaPrizeList";
 import PrizeAdminPanel from "@/components/PrizeAdminPanel";
@@ -60,7 +61,7 @@ function ManagePage() {
   const [hwName, setHwName] = useState("");
   const [stName, setStName] = useState("");
   const [stClass, setStClass] = useState(state.students[0]?.className ?? "1年1組");
-  const [qrMode, setQrMode] = useState<"card" | "material" | "hwstate">("card");
+  const [qrMode, setQrMode] = useState<"card" | "material" | "hwstate" | "duplex">("card");
 
   return (
     <main
@@ -314,6 +315,13 @@ function ManagePage() {
           >
             しゅくだいカード印刷（児童用）
           </Button>
+          <Button
+            type="button"
+            variant={qrMode === "duplex" ? "default" : "secondary"}
+            onClick={() => setQrMode("duplex")}
+          >
+            両面カード印刷（A6）
+          </Button>
         </div>
       </section>
 
@@ -321,6 +329,8 @@ function ManagePage() {
         <QrMaker />
       ) : qrMode === "material" ? (
         <MaterialQrPrint />
+      ) : qrMode === "duplex" ? (
+        <DuplexHwCardPrint />
       ) : (
         <HwStateQrPrint />
       )}

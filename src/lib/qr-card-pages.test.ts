@@ -36,3 +36,13 @@ describe("A4 homework cards", () => {
     expect(pages.flat()).toEqual(cards);
   });
 });
+
+describe("A6 duplex cards", () => {
+  it("puts 2 students per A4 sheet and the same students in the same order on the back", async () => {
+    const { duplexCardSheets } = await import("./qr-card-pages");
+    const cards = ["a", "b", "c", "d", "e"];
+    const sheets = duplexCardSheets(cards);
+    expect(sheets.map((s) => s.front)).toEqual([["a", "b"], ["c", "d"], ["e"]]);
+    for (const s of sheets) expect(s.back).toEqual(s.front);
+  });
+});
