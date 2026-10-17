@@ -239,10 +239,11 @@ function ScanPage() {
       total: res.total,
     });
 
-    // 児童が読み取り音を設定しているときは標準の「ピッ」を鳴らさない（設定音だけを再生）
+    // 児童の設定音がすでに鳴っているときだけ標準の「ピッ」を省略する。
+    // わすれました・一覧からの記録など設定音を鳴らさない経路では、必ずピッを鳴らす。
     const customSound = badges[student.id]?.sound;
     const hasCustomSound = Boolean(customSound && (soundTune(customSound) || soundAsset(customSound)));
-    if (!hasCustomSound) playRankSuccess(after, state.settings.sound);
+    if (!(hasCustomSound && badgeSoundPlayed)) playRankSuccess(after, state.settings.sound);
     if (rankUp) window.setTimeout(() => playRankUp(rankUp), 320);
     if (state.settings.vibe)
       vibrate(rankUp ? [70, 60, 70, 60, 120] : after === "BLACK" ? [60, 40, 90] : 60);
