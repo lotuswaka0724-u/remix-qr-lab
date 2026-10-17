@@ -222,6 +222,7 @@ function ScanPage() {
     target: { id: string; name: string },
     res: { delta: number; total: number; state: HwState },
     before: ReturnType<typeof rankOf>,
+    badgeSoundPlayed = false,
   ) => {
     setPendingConfirm(null);
     setPendingStudent(null);
