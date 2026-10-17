@@ -6,7 +6,7 @@ import { useAppState } from "@/lib/homework-store";
 import { makeForgotTokens } from "@/lib/hwqr.functions";
 import { duplexCardSheets, qrGridFit } from "@/lib/qr-card-pages";
 
-type Qr = { name: string; url?: string };
+type Qr = { name: string; url: string | undefined };
 type Card = {
   key: string;
   studentName: string;
