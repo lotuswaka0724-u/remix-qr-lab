@@ -326,7 +326,8 @@ function ScanPage() {
     const before = rankOf(state, student.id);
     const res = applyMaterialScan(student.id, target.id);
     if (!res.ok) return fail(student, target, res);
-    afterRecord(student, target, res, before);
+    // 教材QRの経路では直前に playBadgeFx で設定音を鳴らしている
+    afterRecord(student, target, res, before, true);
   };
 
   const playBadgeFx = (studentId: string, withSound = true) => {
