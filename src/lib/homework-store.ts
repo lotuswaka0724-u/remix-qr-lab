@@ -315,10 +315,8 @@ export const freezeCompleteBonuses = (s: Partial<AppState>, amount: number): Com
 
 const KEY = "shukudai-checker-v1";
 
-export const todayKey = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
+/** 教師・児童・サーバーで同じ日本時間の日付を使う。 */
+export const todayKey = () => jstDay();
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
