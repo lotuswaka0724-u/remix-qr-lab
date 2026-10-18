@@ -27,3 +27,5 @@
 - Define animated prize eligibility and rarity in the shared animated-plates catalog, never as initial equipment; render motion only for explicit IDs so static plates and saved equipment stay unchanged.
 - Enforce teacher login failure limits server-side via login_attempts (per-source + global keys, failures only); UI messages are cosmetic and must never be the only guard.
 - Split each print type into explicit capacity-specific page groups before rendering, with independently scoped physical grids; shared preview/print boundaries prevent overflow and split cards without changing QR payloads or authentication.
+- Use the shared jstDay helper for teacher record dates and student homework reads; a fixed timezone prevents morning submissions from appearing on different days across browser and server.
+- Run unit tests with the separate Vitest configuration; keeping TanStack RPC transforms out allows handler tests to mock authorization and storage without touching production data.

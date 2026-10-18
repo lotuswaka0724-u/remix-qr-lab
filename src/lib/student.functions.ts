@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { jstDay } from "@/lib/daily-play";
 
 import type { AppState, PointRules, Status } from "@/lib/homework-store";
 
@@ -16,11 +17,6 @@ export type StudentView = {
   log: { id: string; prize: string; at: number }[];
 };
 
-const todayKey = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-};
-
 const toStatus = (v: Status | boolean | undefined): Status =>
   v === true ? "submitted" : !v ? "none" : (v as Status);
 
@@ -36,7 +32,7 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
     declared: 1,
     none: 0,
   };
-  const date = todayKey();
+  const date = jstDay();
   const day = state.records?.[date]?.[studentId] ?? {};
   const items = (state.assignments ?? [])
     .filter((a) => a.inToday)
