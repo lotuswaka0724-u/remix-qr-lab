@@ -894,74 +894,19 @@ function ScanPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {col.map((s) => {
-                    const allDone =
-                      todayAssignments.length > 0 &&
-                      todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id]));
-                    return (
-                      <tr
-                        key={s.id}
-                        className={`border-t border-border/60 odd:bg-muted/30 ${
-                          allDone ? "bg-primary/5 odd:bg-primary/10" : ""
-                        } ${flashRow === s.id ? "fx-row-hit" : ""} ${
-                          namePlateFrameStyle(badges[s.id]?.background) ? "plate-framed" : ""
-                        }`}
-                        style={namePlateFrameStyle(badges[s.id]?.background)}
-                      >
-                        <td className="px-1.5 py-0.5 text-center tabular-nums text-muted-foreground">
-                          {s.number}
-                        </td>
-                        <td className={`whitespace-nowrap px-1.5 py-0.5 font-bold ${allDone ? "text-primary" : ""}`}>
-                          <span className="flex min-w-0 items-center gap-1">
-                            <CollectionIcon
-                              iconId={badges[s.id]?.icon}
-                              frameId={badges[s.id]?.frame}
-                              size={20}
-                            />
-                            <NamePlate plateId={badges[s.id]?.background} lite className="text-[15px]">
-                              {s.name}
-                            </NamePlate>
-                            {allDone && (
-                              <span className="shrink-0 text-xs font-bold text-primary">✓</span>
-                            )}
-                          </span>
-                        </td>
-
-                        {todayAssignments.map((a) => {
-                          const st = toStatus(day[s.id]?.[a.id]);
-                          const meta = STATUS_META[st];
-                          return (
-                            <td key={a.id} className="px-1 py-0.5 text-center">
-                              <div className="flex items-center justify-center">
-                                <button
-                                  type="button"
-                                  disabled={markMode === "normal" && locked}
-                                  onClick={() => {
-                                    const before = snapshotCell(getAppState(), s.id, a.id);
-                                    if (markMode === "redo") teacherMark(s, a, "REDO");
-                                    else if (markMode === "school") teacherMark(s, a, "SCHOOL_DONE");
-                                    else cycleRecord(s.id, a.id);
-                                    const after = snapshotCell(getAppState(), s.id, a.id, before.date);
-                                    if (cellChanged(before, after))
-                                      setLastOp({ before, after, label: `${s.name}／${a.name}` });
-                                  }}
-                                  title={meta.label}
-                                  className={`h-9 w-9 shrink-0 rounded-lg text-base font-bold transition-all ${meta.tone} ${
-                                    st === "none"
-                                      ? "hover:bg-secondary"
-                                      : "shadow-[var(--shadow-lift)]"
-                                  } ${markMode === "normal" && locked ? "cursor-not-allowed opacity-70" : ""}`}
-                                  aria-label={`${s.name} ${a.name} ${meta.label}（${MARK_MODES.find((m) => m.id === markMode)?.label}）`}
-                                >
-                                  {meta.short}
-                                </button>
-                              </div>
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    );
-                  })}
+                  {col.map((s) => (
+                    <StudentRow
+                      key={s.id}
+                      s={s}
+                      assignments={todayAssignments}
+                      dayStates={day[s.id]}
+                      badge={badges[s.id]}
+                      flash={flashRow === s.id}
+                      locked={locked}
+                      markMode={markMode}
+                      onCell={handleCell}
+                    />
+                  ))}
                 </tbody>
               </table>
             ))}
