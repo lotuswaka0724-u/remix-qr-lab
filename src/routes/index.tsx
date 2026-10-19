@@ -87,6 +87,74 @@ const MARK_MODES: { id: MarkMode; label: string; hint: string }[] = [
   { id: "school", label: "学校モード", hint: "チェックを押すと「学校でやった」で記録します" },
 ];
 
+/** 提出一覧の1行。変わった児童の行だけ再描画するため memo 化する */
+const StudentRow = memo(function StudentRow({
+  s,
+  assignments,
+  dayStates,
+  badge,
+  flash,
+  locked,
+  markMode,
+  onCell,
+}: {
+  s: Student;
+  assignments: Assignment[];
+  dayStates: Record<string, Status | boolean | undefined> | undefined;
+  badge: ClassBadge | undefined;
+  flash: boolean;
+  locked: boolean;
+  markMode: MarkMode;
+  onCell: (s: Student, a: Assignment) => void;
+}) {
+  const allDone =
+    assignments.length > 0 && assignments.every((a) => isSubmitted(dayStates?.[a.id]));
+  const frame = namePlateFrameStyle(badge?.background);
+  return (
+    <tr
+      className={`border-t border-border/60 odd:bg-muted/30 ${
+        allDone ? "bg-primary/5 odd:bg-primary/10" : ""
+      } ${flash ? "fx-row-hit" : ""} ${frame ? "plate-framed" : ""}`}
+      style={frame}
+    >
+      <td className="px-1.5 py-0.5 text-center tabular-nums text-muted-foreground">
+        {s.number}
+      </td>
+      <td className={`whitespace-nowrap px-1.5 py-0.5 font-bold ${allDone ? "text-primary" : ""}`}>
+        <span className="flex min-w-0 items-center gap-1">
+          <CollectionIcon iconId={badge?.icon} frameId={badge?.frame} size={20} />
+          <NamePlate plateId={badge?.background} lite className="text-[15px]">
+            {s.name}
+          </NamePlate>
+          {allDone && <span className="shrink-0 text-xs font-bold text-primary">✓</span>}
+        </span>
+      </td>
+      {assignments.map((a) => {
+        const st = toStatus(dayStates?.[a.id]);
+        const meta = STATUS_META[st];
+        return (
+          <td key={a.id} className="px-1 py-0.5 text-center">
+            <div className="flex items-center justify-center">
+              <button
+                type="button"
+                disabled={markMode === "normal" && locked}
+                onClick={() => onCell(s, a)}
+                title={meta.label}
+                className={`h-9 w-9 shrink-0 rounded-lg text-base font-bold transition-all ${meta.tone} ${
+                  st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
+                } ${markMode === "normal" && locked ? "cursor-not-allowed opacity-70" : ""}`}
+                aria-label={`${s.name} ${a.name} ${meta.label}（${MARK_MODES.find((m) => m.id === markMode)?.label}）`}
+              >
+                {meta.short}
+              </button>
+            </div>
+          </td>
+        );
+      })}
+    </tr>
+  );
+});
+
 export const Route = createFileRoute("/")({
   head: () => ({
     links: [{ rel: "stylesheet", href: teacherCss }],
