@@ -115,7 +115,7 @@ export default function CrystalPullRefresh({
           <motion.svg
             viewBox="0 0 40 40"
             className="ptr-crystal"
-            style={{ rotate: phase === "loading" || phase === "done" ? undefined : rotate }}
+            style={phase === "loading" || phase === "done" ? {} : { rotate }}
           >
             <defs>
               <linearGradient id="ptr-g" x1="0" y1="0" x2="1" y2="1">
