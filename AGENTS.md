@@ -29,3 +29,4 @@
 - Split each print type into explicit capacity-specific page groups before rendering, with independently scoped physical grids; shared preview/print boundaries prevent overflow and split cards without changing QR payloads or authentication.
 - Use the shared jstDay helper for teacher record dates and student homework reads; a fixed timezone prevents morning submissions from appearing on different days across browser and server.
 - Run unit tests with the separate Vitest configuration; keeping TanStack RPC transforms out allows handler tests to mock authorization and storage without touching production data.
+- Cache earnedPoints per student keyed by state-object identity, skip cloud-pull re-renders when the remote JSON is unchanged, and keep the scan-page submission rows memoized; these keep the teacher page fast without altering visuals or point logic.
