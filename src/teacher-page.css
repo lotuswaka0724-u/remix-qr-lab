@@ -74,6 +74,14 @@
   .teacher-scan-page .teacher-scanner .aspect-\[4\/3\] {
     background: var(--teacher-camera);
     box-shadow: inset 0 0 0 1px var(--teacher-edge), 0 0 14px -6px var(--teacher-camera-glow);
+    /* カメラ映像の更新を独立した合成レイヤーに逃がし、ガラスパネルのブラー再計算を防ぐ（見た目は不変） */
+    transform: translateZ(0);
+    contain: strict;
+  }
+
+  /* ガラスパネル内の描画をパネル内に閉じ込め、カメラ更新時の画面全体の再描画を防ぐ（見た目は不変） */
+  .teacher-scan-page .glass-panel {
+    contain: paint;
   }
 
   .teacher-scan-page .teacher-scanner .text-background\/80 { color: var(--muted-foreground); }

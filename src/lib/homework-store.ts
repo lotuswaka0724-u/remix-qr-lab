@@ -394,6 +394,9 @@ const cache = () => {
   }
 };
 
+/** 前回受け取ったクラウドデータ（内容が同じなら画面を再描画しない） */
+let lastRemoteJson: string | null = null;
+
 async function pullFromCloud() {
   const startedAt = localEditAt;
   const remote = await getClassState();
@@ -404,6 +407,10 @@ async function pullFromCloud() {
     void pushToCloud();
     return true;
   }
+  // 内容が前回とまったく同じなら、状態も画面もそのまま（再描画スキップ）
+  const remoteJson = JSON.stringify(remote);
+  if (remoteJson === lastRemoteJson) return true;
+  lastRemoteJson = remoteJson;
   applyingRemote = true;
   state = merge(remote);
   applyingRemote = false;
@@ -625,8 +632,26 @@ const hwHandledKeys = (state: AppState) =>
  * これまでに貯めた合計ポイント（使った分は含まない）。
  * 旧方式（先生が状態を選んだ記録）はそのまま点数に残し、
  * 宿題じょうたいQRで処理した分は、そのときの増減で数える。
+ *
+ * 状態オブジェクトが変わらないかぎり児童ごとの結果をキャッシュする。
+ * （QR読み取りや同期のたびに全履歴を総当たりで再計算しないため）
  */
+const pointsCache = new Map<string, number>();
+let pointsCacheState: AppState | null = null;
+
 export function earnedPoints(state: AppState, studentId: string) {
+  if (state !== pointsCacheState) {
+    pointsCache.clear();
+    pointsCacheState = state;
+  }
+  const cached = pointsCache.get(studentId);
+  if (cached !== undefined) return cached;
+  const total = computeEarnedPoints(state, studentId);
+  pointsCache.set(studentId, total);
+  return total;
+}
+
+function computeEarnedPoints(state: AppState, studentId: string) {
   const handled = hwHandledKeys(state);
   let total = 0;
   for (const [date, day] of Object.entries(state.records)) {
