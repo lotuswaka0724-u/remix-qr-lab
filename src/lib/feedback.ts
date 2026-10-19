@@ -387,3 +387,23 @@ export function playGachaOpen() {
   tone(900, 0, 0.09, "square", 0.08, 1500);
   [0, 0.05, 0.1].forEach((t, i) => tone(1400 + i * 300, 0.08 + t, 0.14, "sine", 0.06));
 }
+
+/** 児童画面のひっぱって更新：透明感のあるクリスタルの「シャリン♪」 */
+export function playCrystalChime() {
+  const c = audio();
+  if (!c) return;
+  const t = c.currentTime;
+  [1318.5, 1760, 2349.3, 3136].forEach((f, i) => {
+    const o = c.createOscillator();
+    const g = c.createGain();
+    o.type = "sine";
+    o.frequency.value = f;
+    const s = t + i * 0.055;
+    g.gain.setValueAtTime(0, s);
+    g.gain.linearRampToValueAtTime(0.09 / (i + 1) + 0.02, s + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, s + 0.9);
+    o.connect(g).connect(c.destination);
+    o.start(s);
+    o.stop(s + 0.95);
+  });
+}
