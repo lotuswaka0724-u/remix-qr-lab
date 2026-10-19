@@ -24,18 +24,18 @@ const baseState = (): AppState =>
 describe("earnedPoints のキャッシュ", () => {
   it("同じ状態オブジェクトでは同じ結果を返す", () => {
     const s = baseState();
-    s.records = { "2026-10-19": { s1: { a1: "SUBMIT" } } };
+    s.records = { "2026-10-19": { s1: { a1: "submitted" } } };
     expect(earnedPoints(s, "s1")).toBe(2);
     expect(earnedPoints(s, "s1")).toBe(2);
   });
 
   it("状態が新しいオブジェクトに変わると古いキャッシュを使わず再計算する", () => {
     const before = baseState();
-    before.records = { "2026-10-19": { s1: { a1: "SUBMIT" } } };
+    before.records = { "2026-10-19": { s1: { a1: "submitted" } } };
     expect(earnedPoints(before, "s1")).toBe(2);
 
     // 記録が増えた新しい状態（setState は常に新しいオブジェクトを作る）
-    const after = { ...before, records: { "2026-10-19": { s1: { a1: "SUBMIT" } }, "2026-10-20": { s1: { a1: "SUBMIT" } } } };
+    const after = { ...before, records: { "2026-10-19": { s1: { a1: "submitted" } }, "2026-10-20": { s1: { a1: "submitted" } } } };
     expect(earnedPoints(after, "s1")).toBe(4);
   });
 
@@ -45,7 +45,7 @@ describe("earnedPoints のキャッシュ", () => {
       { id: "s1", name: "児童1", className: "1組", number: 1 },
       { id: "s2", name: "児童2", className: "1組", number: 2 },
     ];
-    s.records = { "2026-10-19": { s1: { a1: "SUBMIT" } } };
+    s.records = { "2026-10-19": { s1: { a1: "submitted" } } };
     expect(earnedPoints(s, "s1")).toBe(2);
     expect(earnedPoints(s, "s2")).toBe(0);
   });
