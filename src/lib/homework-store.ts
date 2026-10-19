@@ -394,6 +394,9 @@ const cache = () => {
   }
 };
 
+/** 前回受け取ったクラウドデータ（内容が同じなら画面を再描画しない） */
+let lastRemoteJson: string | null = null;
+
 async function pullFromCloud() {
   const startedAt = localEditAt;
   const remote = await getClassState();
@@ -404,6 +407,10 @@ async function pullFromCloud() {
     void pushToCloud();
     return true;
   }
+  // 内容が前回とまったく同じなら、状態も画面もそのまま（再描画スキップ）
+  const remoteJson = JSON.stringify(remote);
+  if (remoteJson === lastRemoteJson) return true;
+  lastRemoteJson = remoteJson;
   applyingRemote = true;
   state = merge(remote);
   applyingRemote = false;
