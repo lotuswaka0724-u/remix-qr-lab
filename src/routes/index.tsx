@@ -494,6 +494,18 @@ function ScanPage() {
       todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id])),
   ).length;
 
+  // 一覧のチェック操作。行コンポーネント（memo）には安定した参照だけ渡す
+  const cellActionRef = useRef<(s: Student, a: Assignment) => void>(() => {});
+  cellActionRef.current = (s, a) => {
+    const before = snapshotCell(getAppState(), s.id, a.id);
+    if (markMode === "redo") teacherMark(s, a, "REDO");
+    else if (markMode === "school") teacherMark(s, a, "SCHOOL_DONE");
+    else cycleRecord(s.id, a.id);
+    const after = snapshotCell(getAppState(), s.id, a.id, before.date);
+    if (cellChanged(before, after)) setLastOp({ before, after, label: `${s.name}／${a.name}` });
+  };
+  const handleCell = useCallback((s: Student, a: Assignment) => cellActionRef.current(s, a), []);
+
   return (
     <main className="teacher-scan-page mx-auto w-full max-w-[1920px] px-3 pb-2 pt-2 lg:flex lg:h-[calc(100svh-62px)] lg:flex-col lg:overflow-hidden" style={{ "--teacher-world-image": `url("${teacherWorld.url}")` } as React.CSSProperties}>
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
