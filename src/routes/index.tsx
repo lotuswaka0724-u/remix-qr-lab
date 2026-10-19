@@ -54,6 +54,7 @@ import {
   useAppState,
   type Assignment,
   type HwState,
+  type Status,
   type Student,
   spokenName,
   getAppState,
