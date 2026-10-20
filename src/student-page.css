@@ -467,7 +467,7 @@
 @media screen {
   .student-page { overscroll-behavior-y: contain; }
   .student-page .ptr-pill {
-    position: fixed; top: 0; left: 50%; z-index: 60; translate: -50% 0;
+    position: fixed; top: calc(env(safe-area-inset-top, 0px) + 10px); left: 50%; z-index: 60; translate: -50% 0;
     display: flex; align-items: center; gap: .6rem; padding: .5rem 1.1rem .5rem .6rem;
     border-radius: 999px; overflow: hidden; pointer-events: none;
     background: oklch(0.22 0.06 265 / 0.62);

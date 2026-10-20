@@ -30,3 +30,4 @@
 - Use the shared jstDay helper for teacher record dates and student homework reads; a fixed timezone prevents morning submissions from appearing on different days across browser and server.
 - Run unit tests with the separate Vitest configuration; keeping TanStack RPC transforms out allows handler tests to mock authorization and storage without touching production data.
 - Cache earnedPoints per student keyed by state-object identity, skip cloud-pull re-renders when the remote JSON is unchanged, and keep the scan-page submission rows memoized; these keep the teacher page fast without altering visuals or point logic.
+- Keep student pull-to-refresh data-only (view, collection, ranking re-reads) and disabled on the gacha tab or while a draw is in progress; keep fixed bottom navigation outside its transformed content so the tab bar stays pinned.
