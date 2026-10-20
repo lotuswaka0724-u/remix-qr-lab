@@ -390,6 +390,47 @@ export function playGachaOpen() {
 
 /** 児童画面のひっぱって更新：透明感のあるクリスタルの「シャリン♪」 */
 export function playCrystalChime() {
+  crystalChime();
+}
+
+/** 児童画面の宿題コンプリート：のぼっていくファンファーレ＋クリスタルのきらめき */
+export function playCompleteFanfare() {
+  const c = audio();
+  if (!c) return;
+  const t = c.currentTime;
+  // C5 E5 G5 C6 → 和音
+  [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => {
+    const s = t + i * 0.11;
+    [f, f * 2].forEach((ff, k) => {
+      const o = c.createOscillator();
+      const g = c.createGain();
+      o.type = k ? "sine" : "triangle";
+      o.frequency.value = ff;
+      g.gain.setValueAtTime(0, s);
+      g.gain.linearRampToValueAtTime(k ? 0.03 : 0.11, s + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, s + (i === 3 ? 1.4 : 0.35));
+      o.connect(g).connect(c.destination);
+      o.start(s);
+      o.stop(s + 1.5);
+    });
+  });
+  [1046.5, 1318.5, 1567.98].forEach((f) => {
+    const o = c.createOscillator();
+    const g = c.createGain();
+    const s = t + 0.46;
+    o.type = "sine";
+    o.frequency.value = f;
+    g.gain.setValueAtTime(0, s);
+    g.gain.linearRampToValueAtTime(0.05, s + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, s + 1.6);
+    o.connect(g).connect(c.destination);
+    o.start(s);
+    o.stop(s + 1.7);
+  });
+  setTimeout(crystalChime, 620);
+}
+
+function crystalChime() {
   const c = audio();
   if (!c) return;
   const t = c.currentTime;
