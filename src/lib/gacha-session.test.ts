@@ -3,7 +3,7 @@ import { createGachaSession } from "./gacha-session";
 import type { CollPrize, CollView } from "./collection.functions";
 
 const prize: CollPrize = { id: "ic_cat", name: "ねこ", category: "icon", rarity: "N", description: "test", duplicate: true, dupeCount: 1 };
-const view: CollView = { points: 90, cost: 10, rank: "NORMAL", gachaOn: true, totalItems: 154, coll: { owned: ["ic_cat"], dupes: { ic_cat: 1 }, equipped: { icon: "ic_cat" } }, play: { gachaLimit: 3, gachaLeft: 2, customLimit: { background: 1, icon: 1, frame: 1, sound: 1, effect: 1 }, customLeft: { background: 1, icon: 1, frame: 1, sound: 1, effect: 1 }, newIds: [], recent: [] }, stats: { completeTotal: 0, streak: 0, completeToday: false, draws: 1 } };
+const view: CollView = { points: 90, cost: 10, rank: "NORMAL", earned: 90, rankRules: { NORMAL: 0, GOLD: 100, BLACK: 300 }, gachaOn: true, totalItems: 154, coll: { owned: ["ic_cat"], dupes: { ic_cat: 1 }, equipped: { icon: "ic_cat" } }, play: { gachaLimit: 3, gachaLeft: 2, customLimit: { background: 1, icon: 1, frame: 1, sound: 1, effect: 1 }, customLeft: { background: 1, icon: 1, frame: 1, sound: 1, effect: 1 }, newIds: [], recent: [] }, stats: { completeTotal: 0, streak: 0, completeToday: false, draws: 1 } };
 
 describe("gacha presentation safety", () => {
   it("one synchronous lock accepts only one draw, and video waits for confirmed response", async () => {
