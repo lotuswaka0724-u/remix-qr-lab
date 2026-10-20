@@ -34,7 +34,7 @@ export default function CrystalPullRefresh({
   const scale = useTransform(progress, [0, 1], [0.55, 1]);
   const rotate = useTransform(y, [0, MAX], [0, 300]);
   const glow = useTransform(progress, (p) => `drop-shadow(0 0 ${4 + p * 18}px oklch(0.85 0.16 ${210 + p * 90}))`);
-  const contentY = useTransform(y, (v) => v * 0.35);
+  const contentY = useTransform(y, (v) => v * 0.7);
   const squish = useTransform(y, [0, MAX], [1, 1.06]);
   const pillOpacity = useTransform(y, [0, 24], [0, 1]);
 
