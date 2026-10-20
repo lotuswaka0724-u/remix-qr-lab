@@ -432,6 +432,9 @@ function MyPage() {
         <div hidden={screen !== "gacha" && screen !== "collection"}>
           <CollectionPanel api={coll} screen={screen === "collection" ? "collection" : "gacha"} active={screen === "gacha" || screen === "collection"} onShowBox={() => setScreen("collection")} />
         </div>
+        </CrystalPullRefresh>
+
+
 
         <nav className="student-bottom-nav fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur">
           <ul className="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-2 py-2">
