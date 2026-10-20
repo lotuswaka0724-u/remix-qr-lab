@@ -11,7 +11,7 @@ const baseState = (): AppState =>
     hwEvents: [],
     manualGrants: [],
     completeBonusLog: [],
-    pointRules: { SUBMIT: 2 },
+    pointRules: { submitted: 2 },
     rankRules: {},
     hwPointRules: {},
     settings: {},
