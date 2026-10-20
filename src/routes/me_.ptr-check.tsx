@@ -3,7 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import CrystalPullRefresh from "@/components/CrystalPullRefresh";
 import studentCss from "@/student-page.css?url";
 
-export const Route = createFileRoute("/ptr-check")({
+export const Route = createFileRoute("/me_/ptr-check")({
   head: () => ({ links: [{ rel: "stylesheet", href: studentCss }], meta: [{ title: "ptr check" }] }),
   component: () => (
     <div className="student-page min-h-svh">
