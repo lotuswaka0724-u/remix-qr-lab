@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 
 import CollectionIcon from "@/components/CollectionIcon";
+import CrystalPullRefresh from "@/components/CrystalPullRefresh";
 import NamePlate, { namePlateFrameStyle } from "@/components/NamePlate";
 import CollectionPanel, { useCollection } from "@/components/CollectionPanel";
 import { Button } from "@/components/ui/button";
@@ -297,9 +298,27 @@ function MyPage() {
     { id: "collection", label: "アイテムBOX", icon: "🗂️" },
   ];
 
+  const pullDisabled = screen === "gacha" || coll.gachaState.phase !== "idle";
+  const onPullRefresh = async () => {
+    await Promise.all([
+      fetchView({})
+        .then((v) => {
+          if (v) setView(v);
+        })
+        .catch(() => {}),
+      coll.refresh(),
+      screen === "points"
+        ? fetchRanking({})
+            .then((r) => setRanking(r))
+            .catch(() => {})
+        : Promise.resolve(),
+    ]);
+  };
+
   return (
     <div className="student-page collection-page min-h-svh" style={{ "--student-world-image": `url("${studentWorld.url}")` } as React.CSSProperties}>
-      <main className="relative z-10 mx-auto max-w-5xl space-y-4 px-3 py-5 pb-28">
+      <main className="relative z-10 mx-auto max-w-5xl px-3 py-5 pb-28">
+        <CrystalPullRefresh disabled={pullDisabled} onRefresh={onPullRefresh} className="space-y-4">
         <header
           className={`kid-panel flex flex-wrap items-center gap-3 p-3 ${namePlateFrameStyle(equipped.background) ? "plate-framed" : ""}`}
           style={namePlateFrameStyle(equipped.background)}
