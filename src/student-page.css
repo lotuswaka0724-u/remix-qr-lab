@@ -501,3 +501,112 @@
     .student-page .ptr-pill *, .student-page .ptr-content-pop { animation: none !important; }
   }
 }
+/* ---------- れんぞくコンプリート・つぎのランク・コンプリート演出（児童画面のみ・画面表示のみ） ---------- */
+@media screen {
+  .student-page .stu-streak-aura {
+    position: absolute; inset: -40%; pointer-events: none; opacity: .5;
+    background: radial-gradient(closest-side, oklch(0.78 0.16 50 / 0.28), transparent 70%);
+    translate: -30% -20%;
+  }
+  .student-page .stu-streak-hot .stu-streak-aura { opacity: .9; animation: stu-aura 3.2s ease-in-out infinite; }
+  .student-page .stu-flame {
+    background: linear-gradient(160deg, oklch(0.42 0.12 40 / .55), oklch(0.26 0.07 300 / .55));
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / .25), 0 0 22px oklch(0.75 0.17 50 / .35);
+  }
+  .student-page .stu-streak-num {
+    background: linear-gradient(180deg, oklch(0.98 0.05 90), oklch(0.85 0.16 65) 60%, oklch(0.72 0.18 40));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 10px oklch(0.8 0.16 60 / .45));
+  }
+  .student-page .stu-today-chip { background: oklch(0.3 0.05 265 / .7); color: var(--muted-foreground); border: 1px solid var(--student-edge); }
+  .student-page .stu-today-done {
+    background: linear-gradient(135deg, var(--primary), var(--accent)); color: var(--primary-foreground); border-color: transparent;
+    box-shadow: 0 0 14px var(--student-point-glow); animation: stu-chip 2.4s ease-in-out infinite;
+  }
+  .student-page .stu-mini { background: oklch(0.2 0.045 268 / .45); box-shadow: inset 0 1px 0 var(--student-reflection); }
+
+  .student-page .stu-rank-badge { background: oklch(0.28 0.06 260 / .8); border: 1px solid var(--student-edge); }
+  .student-page .stu-rank-gold .stu-rank-badge:first-child,
+  .student-page .stu-rank-next:where(:last-of-type) { }
+  .student-page .stu-rank-next { background: linear-gradient(135deg, oklch(0.4 0.09 80 / .7), oklch(0.3 0.08 300 / .7)); }
+  .student-page .stu-rank-gold > div > .stu-rank-badge:first-child { background: linear-gradient(135deg, oklch(0.85 0.14 88), oklch(0.68 0.14 70)); color: oklch(0.25 0.05 70); border-color: transparent; }
+  .student-page .stu-rank-black > div > .stu-rank-badge:first-child { background: linear-gradient(135deg, oklch(0.18 0.02 270), oklch(0.32 0.03 270)); color: oklch(0.92 0.12 92); border-color: oklch(0.9 0.12 92 / .6); }
+  .student-page .stu-rank-need {
+    background: var(--student-point-ink); -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 10px var(--student-point-glow));
+  }
+  .student-page .stu-rank-track { background: oklch(0.18 0.04 268 / .7); box-shadow: inset 0 1px 3px oklch(0.05 0.02 268 / .6), inset 0 0 0 1px var(--student-reflection-soft); }
+  .student-page .stu-rank-fill {
+    background: linear-gradient(90deg, var(--primary), var(--accent), oklch(0.86 0.13 88));
+    background-size: 200% 100%; animation: stu-flow 4s linear infinite;
+    box-shadow: 0 0 14px var(--student-point-glow);
+  }
+  .student-page .stu-rank-shine {
+    position: absolute; inset: 0; border-radius: inherit; overflow: hidden;
+    background: linear-gradient(105deg, transparent 35%, oklch(1 0 0 / .55) 50%, transparent 65%);
+    background-size: 220% 100%; animation: stu-shine 2.6s ease-in-out infinite;
+  }
+
+  /* 宿題が ○ になった瞬間 */
+  .student-page .hw-just-checked { position: relative; animation: hw-check-row 1.2s cubic-bezier(.3,1.5,.5,1); }
+  .student-page .hw-just-checked > span:first-child { animation: hw-check-mark .9s cubic-bezier(.3,1.8,.5,1); box-shadow: 0 0 0 0 var(--primary); }
+  .student-page .hw-just-checked::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+    box-shadow: 0 0 0 2px var(--primary), 0 0 24px var(--student-point-glow);
+    animation: hw-check-glow 1.4s ease-out forwards;
+  }
+  .student-page .complete-replay { background: var(--student-inset); border: 1px solid var(--student-edge); }
+
+  /* コンプリート演出 */
+  .student-page .complete-fx { color: oklch(0.98 0.02 220); cursor: pointer; }
+  .student-page .complete-fx-wash {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 45% at 50% 42%, oklch(0.75 0.14 210 / .45), transparent 70%),
+      radial-gradient(50% 40% at 20% 20%, oklch(0.7 0.16 300 / .4), transparent 70%),
+      radial-gradient(50% 40% at 80% 80%, oklch(0.78 0.13 170 / .35), transparent 70%),
+      oklch(0.12 0.045 268 / .82);
+    animation: complete-aurora 6s ease-in-out infinite alternate;
+  }
+  .student-page .complete-fx-wash { backdrop-filter: blur(8px); }
+  .student-page .complete-fx-rays {
+    position: absolute; left: 50%; top: 42%; width: 160vmax; height: 160vmax; margin: -80vmax 0 0 -80vmax; pointer-events: none;
+    background: repeating-conic-gradient(from 0deg, oklch(0.95 0.08 210 / .14) 0deg 6deg, transparent 6deg 18deg);
+    mask-image: radial-gradient(closest-side, black, transparent 70%);
+    -webkit-mask-image: radial-gradient(closest-side, black, transparent 70%);
+    animation: complete-rays 18s linear infinite;
+  }
+  .student-page .complete-fx-ring {
+    position: absolute; top: 64px; left: 50%; width: 128px; height: 128px; margin: -64px 0 0 -64px; border-radius: 50%;
+    border: 3px solid oklch(0.9 0.12 220); box-shadow: 0 0 24px oklch(0.8 0.15 290 / .6), inset 0 0 18px oklch(0.85 0.12 210 / .5);
+    pointer-events: none;
+  }
+  .student-page .complete-fx-gem { filter: drop-shadow(0 0 22px oklch(0.85 0.14 215 / .9)) drop-shadow(0 0 48px oklch(0.7 0.17 295 / .6)); }
+  .student-page .complete-fx-title { perspective: 600px; }
+  .student-page .complete-fx-title span {
+    display: inline-block;
+    background: linear-gradient(180deg, oklch(1 0 0) 10%, oklch(0.9 0.1 210) 55%, oklch(0.78 0.15 295));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 14px oklch(0.85 0.14 215 / .75));
+  }
+  .student-page .complete-fx-stat {
+    background: linear-gradient(170deg, oklch(1 0 0 / .16), oklch(1 0 0 / .03) 50%), oklch(0.22 0.06 268 / .6);
+    border: 1px solid oklch(0.9 0.08 215 / .45);
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / .3), 0 12px 30px -10px oklch(0.05 0.03 268 / .7);
+  }
+  .student-page .complete-fx-bonus { background: oklch(0.32 0.08 80 / .55); border: 1px solid oklch(0.88 0.13 88 / .55); color: oklch(0.95 0.09 90); }
+
+  @keyframes stu-aura { 50% { translate: -10% -5%; opacity: .6; } }
+  @keyframes stu-chip { 50% { box-shadow: 0 0 22px var(--student-point-glow), 0 0 4px var(--student-point-halo); } }
+  @keyframes stu-flow { to { background-position: -200% 0; } }
+  @keyframes stu-shine { 0% { background-position: 160% 0; } 60%, 100% { background-position: -60% 0; } }
+  @keyframes hw-check-row { 0% { scale: .96; } 35% { scale: 1.04; } 100% { scale: 1; } }
+  @keyframes hw-check-mark { 0% { scale: .3; rotate: -30deg; } 60% { scale: 1.35; rotate: 8deg; } 100% { scale: 1; rotate: 0deg; } }
+  @keyframes hw-check-glow { 0% { opacity: 1; } 100% { opacity: 0; } }
+  @keyframes complete-aurora { to { filter: hue-rotate(40deg); } }
+  @keyframes complete-rays { to { rotate: 360deg; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .student-page :is(.stu-streak-aura, .stu-today-done, .stu-rank-fill, .stu-rank-shine, .hw-just-checked, .hw-just-checked > span, .complete-fx-wash, .complete-fx-rays) { animation: none !important; }
+  }
+}
