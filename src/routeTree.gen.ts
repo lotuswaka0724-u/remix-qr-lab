@@ -16,7 +16,7 @@ import { Route as ManageRouteImport } from './routes/manage'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as NameplateLabRouteImport } from './routes/nameplate-lab'
 import { Route as PointsRouteImport } from './routes/points'
-import { Route as PtrCheckRouteImport } from './routes/ptr-check'
+import { Route as MePtrCheckRouteImport } from './routes/me_.ptr-check'
 import { Route as ApiPublicPrizeAssetFileRouteImport } from './routes/api/public/prize-asset.$file'
 
 const IndexRoute = IndexRouteImport.update({
@@ -54,9 +54,9 @@ const PointsRoute = PointsRouteImport.update({
   path: '/points',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PtrCheckRoute = PtrCheckRouteImport.update({
-  id: '/ptr-check',
-  path: '/ptr-check',
+const MePtrCheckRoute = MePtrCheckRouteImport.update({
+  id: '/me_/ptr-check',
+  path: '/me/ptr-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicPrizeAssetFileRoute = ApiPublicPrizeAssetFileRouteImport.update({
@@ -73,7 +73,7 @@ export interface FileRoutesByFullPath {
   '/me': typeof MeRoute
   '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
-  '/ptr-check': typeof PtrCheckRoute
+  '/me/ptr-check': typeof MePtrCheckRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
 export interface FileRoutesByTo {
@@ -84,7 +84,7 @@ export interface FileRoutesByTo {
   '/me': typeof MeRoute
   '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
-  '/ptr-check': typeof PtrCheckRoute
+  '/me/ptr-check': typeof MePtrCheckRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
 export interface FileRoutesById {
@@ -96,7 +96,7 @@ export interface FileRoutesById {
   '/me': typeof MeRoute
   '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
-  '/ptr-check': typeof PtrCheckRoute
+  '/me_/ptr-check': typeof MePtrCheckRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
 export interface FileRouteTypes {
@@ -109,7 +109,7 @@ export interface FileRouteTypes {
     | '/me'
     | '/nameplate-lab'
     | '/points'
-    | '/ptr-check'
+    | '/me/ptr-check'
     | '/api/public/prize-asset/$file'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -120,7 +120,7 @@ export interface FileRouteTypes {
     | '/me'
     | '/nameplate-lab'
     | '/points'
-    | '/ptr-check'
+    | '/me/ptr-check'
     | '/api/public/prize-asset/$file'
   id:
     | '__root__'
@@ -131,7 +131,7 @@ export interface FileRouteTypes {
     | '/me'
     | '/nameplate-lab'
     | '/points'
-    | '/ptr-check'
+    | '/me_/ptr-check'
     | '/api/public/prize-asset/$file'
   fileRoutesById: FileRoutesById
 }
@@ -143,7 +143,7 @@ export interface RootRouteChildren {
   MeRoute: typeof MeRoute
   NameplateLabRoute: typeof NameplateLabRoute
   PointsRoute: typeof PointsRoute
-  PtrCheckRoute: typeof PtrCheckRoute
+  MePtrCheckRoute: typeof MePtrCheckRoute
   ApiPublicPrizeAssetFileRoute: typeof ApiPublicPrizeAssetFileRoute
 }
 
@@ -198,11 +198,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PointsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ptr-check': {
-      id: '/ptr-check'
-      path: '/ptr-check'
-      fullPath: '/ptr-check'
-      preLoaderRoute: typeof PtrCheckRouteImport
+    '/me_/ptr-check': {
+      id: '/me_/ptr-check'
+      path: '/me/ptr-check'
+      fullPath: '/me/ptr-check'
+      preLoaderRoute: typeof MePtrCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/prize-asset/$file': {
@@ -223,7 +223,7 @@ const rootRouteChildren: RootRouteChildren = {
   MeRoute: MeRoute,
   NameplateLabRoute: NameplateLabRoute,
   PointsRoute: PointsRoute,
-  PtrCheckRoute: PtrCheckRoute,
+  MePtrCheckRoute: MePtrCheckRoute,
   ApiPublicPrizeAssetFileRoute: ApiPublicPrizeAssetFileRoute,
 }
 export const routeTree = rootRouteImport
