@@ -23,6 +23,7 @@ import {
   rankOf,
   type AppState,
   type Rank,
+  type RankRules,
 } from "@/lib/homework-store";
 
 /** 児童ごとのコレクション（ガチャで集めるアイテム）の保存データ */
@@ -74,6 +75,10 @@ export type CollView = {
   coll: CollData;
   points: number;
   rank: Rank;
+  /** 通算ポイント（ランク判定と同じ値。表示専用） */
+  earned: number;
+  /** ランクに必要な通算ポイント（表示専用） */
+  rankRules: RankRules;
   cost: number;
   gachaOn: boolean;
   totalItems: number;
@@ -215,6 +220,7 @@ function pointsOf(state: Partial<AppState>, studentId: string) {
     earned,
     available: availablePoints(merged, studentId),
     rank: rankOf(merged, studentId),
+    rankRules: merged.rankRules,
   };
 }
 
@@ -242,6 +248,8 @@ async function buildView(
     coll: data,
     points: p.available,
     rank: p.rank,
+    earned: p.earned,
+    rankRules: p.rankRules,
     cost: state.gachaCost ?? 10,
     gachaOn: true,
     totalItems: COLL_ITEMS.length,
