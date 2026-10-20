@@ -35,7 +35,10 @@ describe("earnedPoints のキャッシュ", () => {
     expect(earnedPoints(before, "s1")).toBe(2);
 
     // 記録が増えた新しい状態（setState は常に新しいオブジェクトを作る）
-    const after = { ...before, records: { "2026-10-19": { s1: { a1: "submitted" } }, "2026-10-20": { s1: { a1: "submitted" } } } };
+    const after = {
+      ...before,
+      records: { "2026-10-19": { s1: { a1: "submitted" } }, "2026-10-20": { s1: { a1: "submitted" } } },
+    } as AppState;
     expect(earnedPoints(after, "s1")).toBe(4);
   });
 

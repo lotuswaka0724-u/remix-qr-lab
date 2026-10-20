@@ -12,10 +12,12 @@ type Phase = "idle" | "pull" | "ready" | "loading" | "done";
 export default function CrystalPullRefresh({
   disabled,
   onRefresh,
+  className = "",
   children,
 }: {
   disabled?: boolean;
   onRefresh: () => Promise<unknown>;
+  className?: string;
   children: ReactNode;
 }) {
   const y = useMotionValue(0);
@@ -34,6 +36,7 @@ export default function CrystalPullRefresh({
   const glow = useTransform(progress, (p) => `drop-shadow(0 0 ${4 + p * 18}px oklch(0.85 0.16 ${210 + p * 90}))`);
   const contentY = useTransform(y, (v) => v * 0.35);
   const squish = useTransform(y, [0, MAX], [1, 1.06]);
+  const pillOpacity = useTransform(y, [0, 24], [0, 1]);
 
   const dRef = useRef(disabled);
   dRef.current = disabled;
@@ -106,7 +109,7 @@ export default function CrystalPullRefresh({
     <>
       <motion.div
         className={`ptr-pill ptr-${phase}`}
-        style={{ y: pillY, scaleY: squish, opacity: useTransform(y, [0, 24], [0, 1]) }}
+        style={{ y: pillY, scaleY: squish, opacity: pillOpacity }}
         aria-live="polite"
         role="status"
       >
@@ -141,7 +144,10 @@ export default function CrystalPullRefresh({
           {label}
         </motion.span>
       </motion.div>
-      <motion.div style={{ y: contentY }} className={phase === "done" ? "ptr-content ptr-content-pop" : "ptr-content"}>
+      <motion.div
+        style={{ y: contentY }}
+        className={`${phase === "done" ? "ptr-content ptr-content-pop" : "ptr-content"} ${className}`}
+      >
         {children}
       </motion.div>
     </>
