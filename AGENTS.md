@@ -31,3 +31,4 @@
 - Run unit tests with the separate Vitest configuration; keeping TanStack RPC transforms out allows handler tests to mock authorization and storage without touching production data.
 - Cache earnedPoints per student keyed by state-object identity, skip cloud-pull re-renders when the remote JSON is unchanged, and keep the scan-page submission rows memoized; these keep the teacher page fast without altering visuals or point logic.
 - Keep student pull-to-refresh data-only (view, collection, ranking re-reads) and disabled on the gacha tab or while a draw is in progress; keep fixed bottom navigation outside its transformed content so the tab bar stays pinned.
+- Keep student streak/next-rank cards and the completion celebration display-only, reading completeStats and rank rules through the collection view; celebration shows once per JST day per device (localStorage) and is suppressed during gacha, so point, bonus and rank logic stay untouched.
