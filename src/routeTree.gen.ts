@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoardRouteImport } from './routes/board'
+import { Route as FxCheckRouteImport } from './routes/fx-check'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ManageRouteImport } from './routes/manage'
 import { Route as MeRouteImport } from './routes/me'
@@ -26,6 +27,11 @@ const IndexRoute = IndexRouteImport.update({
 const BoardRoute = BoardRouteImport.update({
   id: '/board',
   path: '/board',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FxCheckRoute = FxCheckRouteImport.update({
+  id: '/fx-check',
+  path: '/fx-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -62,6 +68,7 @@ const ApiPublicPrizeAssetFileRoute = ApiPublicPrizeAssetFileRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
+  '/fx-check': typeof FxCheckRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
+  '/fx-check': typeof FxCheckRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
@@ -83,6 +91,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
+  '/fx-check': typeof FxCheckRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/board'
+    | '/fx-check'
     | '/history'
     | '/manage'
     | '/me'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/board'
+    | '/fx-check'
     | '/history'
     | '/manage'
     | '/me'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/board'
+    | '/fx-check'
     | '/history'
     | '/manage'
     | '/me'
@@ -126,6 +138,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoardRoute: typeof BoardRoute
+  FxCheckRoute: typeof FxCheckRoute
   HistoryRoute: typeof HistoryRoute
   ManageRoute: typeof ManageRoute
   MeRoute: typeof MeRoute
@@ -148,6 +161,13 @@ declare module '@tanstack/react-router' {
       path: '/board'
       fullPath: '/board'
       preLoaderRoute: typeof BoardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fx-check': {
+      id: '/fx-check'
+      path: '/fx-check'
+      fullPath: '/fx-check'
+      preLoaderRoute: typeof FxCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -198,6 +218,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoardRoute: BoardRoute,
+  FxCheckRoute: FxCheckRoute,
   HistoryRoute: HistoryRoute,
   ManageRoute: ManageRoute,
   MeRoute: MeRoute,
