@@ -3,6 +3,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useRef, useState } from "react";
 
 import CollectionIcon from "@/components/CollectionIcon";
+import CompleteCelebration from "@/components/CompleteCelebration";
+import StudentProgress from "@/components/StudentProgress";
 import CrystalPullRefresh from "@/components/CrystalPullRefresh";
 import NamePlate, { namePlateFrameStyle } from "@/components/NamePlate";
 import CollectionPanel, { useCollection } from "@/components/CollectionPanel";
@@ -10,9 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import studentWorld from "@/assets/collection/student-crystal-world.asset.json";
 import studentCss from "@/student-page.css?url";
-import { playError } from "@/lib/feedback";
+import { playCrystalChime, playError } from "@/lib/feedback";
 import { stopGachaAudio } from "@/lib/gacha-media";
-import { STATUS_META, tieRank } from "@/lib/homework-store";
+import { STATUS_META, tieRank, type Status } from "@/lib/homework-store";
 import {
   getClassRanking,
   getStudentView,
@@ -47,6 +49,8 @@ export const Route = createFileRoute("/me")({
 
 type Screen = "home" | "homework" | "points" | "gacha" | "collection";
 
+const isOk = (s: Status) => s === "fixed" || s === "submitted" || s === "school";
+
 function MyPage() {
   const login = useServerFn(studentLogin);
   const fetchView = useServerFn(getStudentView);
@@ -63,6 +67,43 @@ function MyPage() {
 
   const coll = useCollection();
   useEffect(() => () => stopGachaAudio(), []);
+
+  // 宿題が ○ になった瞬間の演出と、今日はじめてコンプリートしたときの演出（表示だけ）
+  const [celebrate, setCelebrate] = useState(false);
+  const [justChecked, setJustChecked] = useState<Set<string>>(() => new Set());
+  const prevOk = useRef<Map<string, boolean> | null>(null);
+  const itemsKey = view ? `${view.date}|${view.items.map((i) => `${i.id}:${i.status}`).join(",")}` : "";
+  useEffect(() => {
+    if (!view) {
+      prevOk.current = null;
+      return;
+    }
+    const now = new Map(view.items.map((i) => [i.id, isOk(i.status)] as const));
+    const before = prevOk.current;
+    prevOk.current = now;
+    if (!before) return;
+    const flipped = [...now].filter(([id, ok]) => ok && before.get(id) === false).map(([id]) => id);
+    if (!flipped.length) return;
+    setJustChecked(new Set(flipped));
+    if (![...now.values()].every(Boolean)) playCrystalChime();
+    const t = window.setTimeout(() => setJustChecked(new Set()), 1600);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsKey]);
+
+  const completeToday = coll.view?.stats.completeToday ?? false;
+  const celebrateBlocked = screen === "gacha" || coll.gachaState.phase !== "idle";
+  const celebrateKey = view ? `remix-complete-fx:${view.date}:${view.name}` : "";
+  useEffect(() => {
+    if (!celebrateKey || !completeToday || celebrateBlocked) return;
+    try {
+      if (window.localStorage.getItem(celebrateKey)) return;
+      window.localStorage.setItem(celebrateKey, "1");
+    } catch {
+      /* 保存できない端末でも演出は出す */
+    }
+    setCelebrate(true);
+  }, [celebrateKey, completeToday, celebrateBlocked]);
 
   // ガチャでポイントを使ったら、ヘッダーのポイント表示もサーバーの最新値に合わせる
   const collPoints = coll.view?.points;
@@ -203,7 +244,9 @@ function MyPage() {
             return (
               <li
                 key={a.id}
-                className="flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-3 text-base"
+                className={`flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-3 text-base ${
+                  justChecked.has(a.id) ? "hw-just-checked" : ""
+                }`}
               >
                 <span
                   className={`grid h-10 w-10 shrink-0 place-content-center rounded-lg font-display text-xl font-bold ${meta.tone}`}
@@ -218,9 +261,18 @@ function MyPage() {
         </ul>
       )}
       {allDone && (
-        <p className="mt-3 rounded-2xl bg-primary/10 px-4 py-2 text-center font-display font-bold text-primary">
-          今日の宿題は ぜんぶ出せました！
-        </p>
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-2 rounded-2xl bg-primary/10 px-4 py-2 text-center">
+          <p className="font-display font-bold text-primary">今日の宿題は ぜんぶ出せました！</p>
+          {completeToday && (
+            <button
+              type="button"
+              onClick={() => setCelebrate(true)}
+              className="complete-replay rounded-full px-3 py-1 text-xs font-bold transition-transform hover:-translate-y-0.5 active:scale-95"
+            >
+              ✨ もういちど見る
+            </button>
+          )}
+        </div>
       )}
     </section>
   );
@@ -290,6 +342,19 @@ function MyPage() {
     </section>
   );
 
+  const progress = (variant: "full" | "rank" | "streak") =>
+    coll.view ? (
+      <StudentProgress
+        variant={variant}
+        streak={coll.view.stats.streak}
+        total={coll.view.stats.completeTotal}
+        completeToday={coll.view.stats.completeToday}
+        earned={coll.view.earned}
+        rankRules={coll.view.rankRules}
+        left={view.items.length - done}
+      />
+    ) : null;
+
   const navItems: { id: Screen; label: string; icon: string }[] = [
     { id: "home", label: "ホーム", icon: "🏠" },
     { id: "homework", label: "宿題", icon: "📚" },
@@ -349,6 +414,7 @@ function MyPage() {
             onClick={async () => {
               await logout({});
               setView(null);
+              setCelebrate(false);
               setScreen("home");
             }}
           >
@@ -415,6 +481,8 @@ function MyPage() {
               </div>
             </section>
 
+            {progress("full")}
+
             <div className="grid gap-3 lg:grid-cols-2">
               {homeworkCard}
               {pointsCard}
@@ -422,10 +490,16 @@ function MyPage() {
           </>
         )}
 
-        {screen === "homework" && homeworkCard}
+        {screen === "homework" && (
+          <>
+            {progress("streak")}
+            {homeworkCard}
+          </>
+        )}
         {screen === "points" && (
           <>
             {pointsCard}
+            {progress("rank")}
             {rankingCard}
           </>
         )}
@@ -433,6 +507,14 @@ function MyPage() {
           <CollectionPanel api={coll} screen={screen === "collection" ? "collection" : "gacha"} active={screen === "gacha" || screen === "collection"} onShowBox={() => setScreen("collection")} />
         </div>
         </CrystalPullRefresh>
+
+        <CompleteCelebration
+          open={celebrate}
+          onClose={() => setCelebrate(false)}
+          name={view.name}
+          streak={coll.view?.stats.streak ?? 0}
+          total={coll.view?.stats.completeTotal ?? 0}
+        />
 
 
 
