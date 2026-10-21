@@ -11,12 +11,12 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BoardRouteImport } from './routes/board'
-import { Route as FxCheckRouteImport } from './routes/fx-check'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as ManageRouteImport } from './routes/manage'
 import { Route as MeRouteImport } from './routes/me'
 import { Route as NameplateLabRouteImport } from './routes/nameplate-lab'
 import { Route as PointsRouteImport } from './routes/points'
+import { Route as MeFxCheckRouteImport } from './routes/me_.fx-check'
 import { Route as ApiPublicPrizeAssetFileRouteImport } from './routes/api/public/prize-asset.$file'
 
 const IndexRoute = IndexRouteImport.update({
@@ -27,11 +27,6 @@ const IndexRoute = IndexRouteImport.update({
 const BoardRoute = BoardRouteImport.update({
   id: '/board',
   path: '/board',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FxCheckRoute = FxCheckRouteImport.update({
-  id: '/fx-check',
-  path: '/fx-check',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HistoryRoute = HistoryRouteImport.update({
@@ -59,6 +54,11 @@ const PointsRoute = PointsRouteImport.update({
   path: '/points',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MeFxCheckRoute = MeFxCheckRouteImport.update({
+  id: '/me_/fx-check',
+  path: '/me/fx-check',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicPrizeAssetFileRoute = ApiPublicPrizeAssetFileRouteImport.update({
   id: '/api/public/prize-asset/$file',
   path: '/api/public/prize-asset/$file',
@@ -68,35 +68,35 @@ const ApiPublicPrizeAssetFileRoute = ApiPublicPrizeAssetFileRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
-  '/fx-check': typeof FxCheckRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
   '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
+  '/me/fx-check': typeof MeFxCheckRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
-  '/fx-check': typeof FxCheckRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
   '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
+  '/me/fx-check': typeof MeFxCheckRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/board': typeof BoardRoute
-  '/fx-check': typeof FxCheckRoute
   '/history': typeof HistoryRoute
   '/manage': typeof ManageRoute
   '/me': typeof MeRoute
   '/nameplate-lab': typeof NameplateLabRoute
   '/points': typeof PointsRoute
+  '/me_/fx-check': typeof MeFxCheckRoute
   '/api/public/prize-asset/$file': typeof ApiPublicPrizeAssetFileRoute
 }
 export interface FileRouteTypes {
@@ -104,46 +104,46 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/board'
-    | '/fx-check'
     | '/history'
     | '/manage'
     | '/me'
     | '/nameplate-lab'
     | '/points'
+    | '/me/fx-check'
     | '/api/public/prize-asset/$file'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/board'
-    | '/fx-check'
     | '/history'
     | '/manage'
     | '/me'
     | '/nameplate-lab'
     | '/points'
+    | '/me/fx-check'
     | '/api/public/prize-asset/$file'
   id:
     | '__root__'
     | '/'
     | '/board'
-    | '/fx-check'
     | '/history'
     | '/manage'
     | '/me'
     | '/nameplate-lab'
     | '/points'
+    | '/me_/fx-check'
     | '/api/public/prize-asset/$file'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BoardRoute: typeof BoardRoute
-  FxCheckRoute: typeof FxCheckRoute
   HistoryRoute: typeof HistoryRoute
   ManageRoute: typeof ManageRoute
   MeRoute: typeof MeRoute
   NameplateLabRoute: typeof NameplateLabRoute
   PointsRoute: typeof PointsRoute
+  MeFxCheckRoute: typeof MeFxCheckRoute
   ApiPublicPrizeAssetFileRoute: typeof ApiPublicPrizeAssetFileRoute
 }
 
@@ -161,13 +161,6 @@ declare module '@tanstack/react-router' {
       path: '/board'
       fullPath: '/board'
       preLoaderRoute: typeof BoardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/fx-check': {
-      id: '/fx-check'
-      path: '/fx-check'
-      fullPath: '/fx-check'
-      preLoaderRoute: typeof FxCheckRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/history': {
@@ -205,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PointsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/me_/fx-check': {
+      id: '/me_/fx-check'
+      path: '/me/fx-check'
+      fullPath: '/me/fx-check'
+      preLoaderRoute: typeof MeFxCheckRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/prize-asset/$file': {
       id: '/api/public/prize-asset/$file'
       path: '/api/public/prize-asset/$file'
@@ -218,12 +218,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BoardRoute: BoardRoute,
-  FxCheckRoute: FxCheckRoute,
   HistoryRoute: HistoryRoute,
   ManageRoute: ManageRoute,
   MeRoute: MeRoute,
   NameplateLabRoute: NameplateLabRoute,
   PointsRoute: PointsRoute,
+  MeFxCheckRoute: MeFxCheckRoute,
   ApiPublicPrizeAssetFileRoute: ApiPublicPrizeAssetFileRoute,
 }
 export const routeTree = rootRouteImport

@@ -5,7 +5,7 @@ import StudentProgress from "@/components/StudentProgress";
 import studentWorld from "@/assets/collection/student-crystal-world.asset.json";
 import studentCss from "@/student-page.css?url";
 
-export const Route = createFileRoute("/fx-check")({
+export const Route = createFileRoute("/me_/fx-check")({
   head: () => ({ links: [{ rel: "stylesheet", href: studentCss }], meta: [{ title: "fx check" }] }),
   component: () => {
     const [open, setOpen] = useState(false);
