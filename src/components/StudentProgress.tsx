@@ -56,7 +56,7 @@ export default function StudentProgress({
         <motion.span
           className="stu-flame grid h-16 w-16 shrink-0 place-content-center rounded-2xl text-4xl"
           aria-hidden
-          animate={streak > 0 ? { scale: [1, 1.08, 1], rotate: [0, -3, 3, 0] } : undefined}
+          animate={streak > 0 ? { scale: [1, 1.08, 1], rotate: [0, -3, 3, 0] } : { scale: 1, rotate: 0 }}
           transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
         >
           {streak > 0 ? "🔥" : "🌱"}
