@@ -125,7 +125,7 @@ export default function CompleteCelebration({ open, onClose, name, streak, total
               </defs>
               <polygon points="60,6 100,34 100,86 60,114 20,86 20,34" fill="url(#cfx-g1)" stroke="#f0fbff" strokeWidth="2.5" />
               <polygon points="60,6 100,34 60,48 20,34" fill="url(#cfx-g2)" opacity="0.7" />
-              <polyline points="20,34 60,48 100,34 M60,48 60,114" fill="none" stroke="#f0fbff" strokeOpacity="0.55" strokeWidth="1.5" />
+              <path d="M20 34L60 48L100 34M60 48L60 114" fill="none" stroke="#f0fbff" strokeOpacity="0.55" strokeWidth="1.5" />
               <motion.path
                 d="M40 62l14 14 27-30"
                 fill="none"
