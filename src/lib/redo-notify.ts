@@ -20,3 +20,13 @@ export function newRedos(prev: Partial<AppState>, next: Partial<AppState>, date:
   }
   return out;
 }
+
+/** すべての日付をくらべる（変化のない日は飛ばす）。先生が過去の日を直しにした場合も通知する */
+export function newRedosAllDates(prev: Partial<AppState>, next: Partial<AppState>) {
+  const out: ReturnType<typeof newRedos> = [];
+  for (const date of Object.keys(next.records ?? {})) {
+    if (JSON.stringify(prev.records?.[date] ?? {}) === JSON.stringify(next.records?.[date] ?? {})) continue;
+    out.push(...newRedos(prev, next, date));
+  }
+  return out;
+}

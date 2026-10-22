@@ -393,6 +393,12 @@ export function playCrystalChime() {
   crystalChime();
 }
 
+/** 児童画面のなおしバナー：やさしく気づかせる「ピロリン♪」 */
+export function playRedoAlert() {
+  [987.77, 1318.5, 1760].forEach((f, i) => tone(f, i * 0.09, 0.32, "triangle", 0.09));
+  tone(2637, 0.3, 0.5, "sine", 0.035);
+}
+
 /** 児童画面の宿題コンプリート：のぼっていくファンファーレ＋クリスタルのきらめき */
 export function playCompleteFanfare() {
   const c = audio();

@@ -68,7 +68,14 @@ export const saveClassState = createServerFn({ method: "POST" })
     const { getGate, writeClassState } = await import("@/lib/gate.server");
     const gate = await getGate();
     if (gate.data.role !== "teacher") return { ok: false as const };
-    await writeClassState(data.state);
+    const prev = await writeClassState(data.state);
+    // 新しく「直し」になった児童へ通知（失敗しても保存結果は変えない）
+    try {
+      const { notifyNewRedos } = await import("@/lib/push.server");
+      await notifyNewRedos(prev, data.state);
+    } catch {
+      /* 通知は届かなくても保存は成功のまま */
+    }
     return { ok: true as const };
   });
 

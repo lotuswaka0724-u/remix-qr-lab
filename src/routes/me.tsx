@@ -1,20 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import CollectionIcon from "@/components/CollectionIcon";
 import CompleteCelebration from "@/components/CompleteCelebration";
 import StudentProgress from "@/components/StudentProgress";
 import CrystalPullRefresh from "@/components/CrystalPullRefresh";
+import { PushOptIn, RedoBanner, usePushSubscription, type RedoBannerItem } from "@/components/RedoNotify";
 import NamePlate, { namePlateFrameStyle } from "@/components/NamePlate";
 import CollectionPanel, { useCollection } from "@/components/CollectionPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import studentWorld from "@/assets/collection/student-crystal-world.asset.json";
 import studentCss from "@/student-page.css?url";
-import { playCrystalChime, playError } from "@/lib/feedback";
+import { playCrystalChime, playError, playRedoAlert } from "@/lib/feedback";
 import { stopGachaAudio } from "@/lib/gacha-media";
 import { STATUS_META, tieRank, type Status } from "@/lib/homework-store";
+import { redoMessage } from "@/lib/redo-notify";
 import {
   getClassRanking,
   getStudentView,
@@ -93,6 +95,78 @@ function MyPage() {
 
   const completeToday = coll.view?.stats.completeToday ?? false;
   const celebrateBlocked = screen === "gacha" || coll.gachaState.phase !== "idle";
+
+  // なおし通知：この端末でまだ見ていない「直し」をバナーで知らせる（表示だけ）
+  const push = usePushSubscription();
+  const [redoBanner, setRedoBanner] = useState<RedoBannerItem[]>([]);
+  const [redoPing, setRedoPing] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    if (!view || celebrateBlocked) return;
+    const fresh: RedoBannerItem[] = [];
+    for (const i of view.items) {
+      if (i.status !== "redo") continue;
+      const k = `remix-redo-seen:${view.date}:${view.name}:${i.id}`;
+      try {
+        if (window.localStorage.getItem(k)) continue;
+        window.localStorage.setItem(k, "1");
+      } catch {
+        /* 保存できない端末でもバナーは出す */
+      }
+      fresh.push({ id: i.id, message: redoMessage(i.name) });
+    }
+    if (!fresh.length) return;
+    setRedoBanner((cur) => [...cur.filter((c) => !fresh.some((f) => f.id === c.id)), ...fresh]);
+    playRedoAlert();
+    try {
+      navigator.vibrate?.([14, 60, 14]);
+    } catch {
+      /* 振動できない端末 */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemsKey, celebrateBlocked]);
+  const closeRedoBanner = useCallback(() => setRedoBanner([]), []);
+  const openRedo = useCallback(() => {
+    setRedoPing(new Set(redoBanner.map((c) => c.id)));
+    setRedoBanner([]);
+    setScreen("homework");
+  }, [redoBanner]);
+  useEffect(() => {
+    if (!redoPing.size) return;
+    const t = window.setTimeout(() => setRedoPing(new Set()), 2600);
+    return () => window.clearTimeout(t);
+  }, [redoPing]);
+
+  // 通知が来たとき・画面にもどったとき・1分ごとに、宿題の状態だけ読みなおす
+  const hasView = !!view;
+  useEffect(() => {
+    if (!hasView) return;
+    const reload = () => {
+      if (document.visibilityState !== "visible") return;
+      void fetchView({})
+        .then((v) => v && setView(v))
+        .catch(() => {});
+    };
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === "redo-push") reload();
+      if (e.data?.type === "redo-open") {
+        reload();
+        setScreen("homework");
+      }
+    };
+    navigator.serviceWorker?.addEventListener("message", onMsg);
+    document.addEventListener("visibilitychange", reload);
+    const t = window.setInterval(reload, 60_000);
+    return () => {
+      navigator.serviceWorker?.removeEventListener("message", onMsg);
+      document.removeEventListener("visibilitychange", reload);
+      window.clearInterval(t);
+    };
+  }, [hasView, fetchView]);
+
+  // 通知をタップして開いたときは宿題タブへ
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("tab") === "homework") setScreen("homework");
+  }, []);
   const celebrateKey = view ? `remix-complete-fx:${view.date}:${view.name}` : "";
   useEffect(() => {
     if (!celebrateKey || !completeToday || celebrateBlocked) return;
@@ -246,6 +320,7 @@ function MyPage() {
                 key={a.id}
                 className={`flex items-center gap-2 rounded-2xl bg-muted/60 px-3 py-3 text-base ${
                   justChecked.has(a.id) ? "hw-just-checked" : ""
+                } ${redoPing.has(a.id) ? "hw-redo-ping" : ""
                 }`}
               >
                 <span
@@ -412,7 +487,9 @@ function MyPage() {
             variant="ghost"
             size="sm"
             onClick={async () => {
+              await push.detach();
               await logout({});
+              setRedoBanner([]);
               setView(null);
               setCelebrate(false);
               setScreen("home");
@@ -482,6 +559,7 @@ function MyPage() {
             </section>
 
             {progress("full")}
+            <PushOptIn api={push} />
 
             <div className="grid gap-3 lg:grid-cols-2">
               {homeworkCard}
@@ -492,6 +570,7 @@ function MyPage() {
 
         {screen === "homework" && (
           <>
+            <PushOptIn api={push} />
             {progress("streak")}
             {homeworkCard}
           </>
@@ -507,6 +586,8 @@ function MyPage() {
           <CollectionPanel api={coll} screen={screen === "collection" ? "collection" : "gacha"} active={screen === "gacha" || screen === "collection"} onShowBox={() => setScreen("collection")} />
         </div>
         </CrystalPullRefresh>
+
+        <RedoBanner items={redoBanner} onOpen={openRedo} onClose={closeRedoBanner} />
 
         <CompleteCelebration
           open={celebrate}

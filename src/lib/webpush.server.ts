@@ -5,9 +5,9 @@ import { sha256 } from "@noble/hashes/sha256";
 /** Web Push（RFC 8291 aes128gcm + VAPID）。workerd でも動くよう WebCrypto と noble のみ使用 */
 
 const enc = new TextEncoder();
-const b64u = (b: Uint8Array) =>
+export const b64u = (b: Uint8Array) =>
   btoa(String.fromCharCode(...b)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-const fromB64u = (s: string) => {
+export const fromB64u = (s: string) => {
   const t = s.replace(/-/g, "+").replace(/_/g, "/");
   const bin = atob(t + "=".repeat((4 - (t.length % 4)) % 4));
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
@@ -33,15 +33,20 @@ export const vapidPublicKey = () => b64u(vapidKeys().pub);
 
 export type PushSub = { endpoint: string; p256dh: string; auth: string };
 
-async function encrypt(sub: PushSub, payload: Uint8Array) {
+/** RFC 8291 の暗号化。fixed はテスト（RFC の例と一致するか）専用 */
+export async function encrypt(
+  sub: PushSub,
+  payload: Uint8Array,
+  fixed?: { asPriv: Uint8Array; salt: Uint8Array },
+) {
   const uaPub = fromB64u(sub.p256dh);
   const authSecret = fromB64u(sub.auth);
-  const asPriv = p256.utils.randomPrivateKey();
+  const asPriv = fixed?.asPriv ?? p256.utils.randomPrivateKey();
   const asPub = p256.getPublicKey(asPriv, false);
   const shared = p256.getSharedSecret(asPriv, uaPub).slice(1, 33);
   const prkKey = hmac(sha256, authSecret, shared);
   const ikm = hmac(sha256, prkKey, cat(enc.encode("WebPush: info\0"), uaPub, asPub, new Uint8Array([1])));
-  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const salt = fixed?.salt ?? crypto.getRandomValues(new Uint8Array(16));
   const prk = hmac(sha256, salt, ikm);
   const cek = hmac(sha256, prk, cat(enc.encode("Content-Encoding: aes128gcm\0"), new Uint8Array([1]))).slice(0, 16);
   const nonce = hmac(sha256, prk, cat(enc.encode("Content-Encoding: nonce\0"), new Uint8Array([1]))).slice(0, 12);

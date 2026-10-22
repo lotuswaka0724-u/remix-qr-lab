@@ -45,7 +45,8 @@ export async function readClassState(): Promise<Partial<AppState>> {
   return (data?.data ?? {}) as Partial<AppState>;
 }
 
-export async function writeClassState(incoming: Partial<AppState>) {
+/** 保存して、保存前の状態を返す（なおし通知の比較用） */
+export async function writeClassState(incoming: Partial<AppState>): Promise<Partial<AppState>> {
   const db = await admin();
   // ボーナス確定記録は消さない：保存済みと受け取った分を合わせ、未確定の到達分は「変更前の設定値」で確定する
   const prev = await readClassState();
@@ -60,6 +61,7 @@ export async function writeClassState(incoming: Partial<AppState>) {
     .from("class_state")
     .upsert({ id: ROW_ID, data: state as never, updated_at: new Date().toISOString() });
   if (error) throw new Error(`class_state write failed: ${error.message}`);
+  return prev;
 }
 
 export async function getCodeHash(studentId: string): Promise<string | null> {
