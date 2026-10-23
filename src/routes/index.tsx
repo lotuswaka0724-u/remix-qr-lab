@@ -7,6 +7,7 @@ import CollectionFx from "@/components/CollectionFx";
 import CollectionIcon from "@/components/CollectionIcon";
 import NamePlate, { namePlateFrameStyle } from "@/components/NamePlate";
 import SuccessFx, { type Hit } from "@/components/SuccessFx";
+import TeacherCompleteFx from "@/components/TeacherCompleteFx";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
@@ -522,9 +523,11 @@ function ScanPage() {
       />
 
       {/* ---- 今日の提出状況（横長バー） ---- */}
-      <section className="glass-panel mb-2 px-4 py-2">
+      <section className={`glass-panel mb-2 px-4 py-2 ${pct === 100 && total > 0 ? "tcfx-complete" : ""}`}>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
           <p className="font-display text-sm font-bold">今日の提出状況</p>
+          {pct === 100 && total > 0 && <span className="tcfx-badge rounded-full px-2.5 py-0.5 text-xs font-bold">👑 全員提出コンプリート！</span>}
+          <TeacherCompleteFx pct={pct} total={total} />
           <p className="teacher-metric font-display text-xl font-bold leading-none">
             {done}
             <span className="text-xs font-bold text-muted-foreground"> / {total} 件</span>
@@ -549,7 +552,7 @@ function ScanPage() {
         <div className="mt-2 flex items-center gap-3">
           <div className="h-3.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted">
             <div
-              className="h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))] transition-[width] duration-500"
+              className="tcfx-bar h-full rounded-full bg-[linear-gradient(90deg,var(--primary),var(--accent))] transition-[width] duration-500"
               style={{ width: `${pct}%` }}
             />
           </div>

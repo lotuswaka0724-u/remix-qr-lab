@@ -963,12 +963,12 @@ export function ranking(state: AppState, className = "all") {
     .sort((a, b) => b.points - a.points || a.student.number - b.student.number);
 }
 
-/** 同点は同じ順位にする（1位が2人いれば次は3位）。list は points 降順に並んでいること */
+/** 同点は同じ順位、次は飛ばさない（1位が何人いても次は2位）。list は points 降順に並んでいること */
 export function tieRank<T extends { points: number }>(list: readonly T[], index: number): number {
   const pts = list[index]!.points;
-  let r = 1;
-  for (let i = 0; i < index; i++) if (list[i]!.points > pts) r++;
-  return r;
+  const higher = new Set<number>();
+  for (let i = 0; i < index; i++) if (list[i]!.points > pts) higher.add(list[i]!.points);
+  return higher.size + 1;
 }
 
 /** ガチャを1回引く。ポイントが足りなければ null */

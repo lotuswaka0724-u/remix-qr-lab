@@ -111,4 +111,41 @@
 @media screen {
   .teacher-scan-page .teacher-submissions .name-plate { max-width: none; }
   .teacher-scan-page .teacher-submissions .name-plate-text { overflow: visible; text-overflow: clip; }
+
+  /* ---- 提出100%達成演出 ---- */
+  .teacher-scan-page .tcfx-complete { box-shadow: var(--shadow-card), 0 0 0 1px oklch(0.88 0.13 85 / 0.55), 0 0 26px -6px oklch(0.85 0.14 85 / 0.55); }
+  .teacher-scan-page .tcfx-complete .tcfx-bar {
+    background: linear-gradient(90deg, oklch(0.86 0.14 85), oklch(0.85 0.1 209), oklch(0.78 0.12 300), oklch(0.86 0.14 85));
+    background-size: 300% 100%; animation: tcfx-flow 3.2s linear infinite; box-shadow: 0 0 12px oklch(0.86 0.14 85 / 0.7);
+  }
+  .teacher-scan-page .tcfx-badge {
+    color: oklch(0.2 0.05 80); background: linear-gradient(110deg, oklch(0.9 0.13 88), oklch(0.97 0.06 95) 45%, oklch(0.88 0.14 80));
+    background-size: 220% 100%; animation: tcfx-flow 2.6s linear infinite, tcfx-pop 0.6s cubic-bezier(.2,1.6,.4,1) both;
+  }
+  .teacher-scan-page .tcfx-replay { color: var(--primary); background: oklch(0.85 0.1 209 / 0.12); box-shadow: inset 0 0 0 1px oklch(0.85 0.1 209 / 0.4); }
+  .teacher-scan-page .tcfx-replay:active { transform: scale(0.95); }
+  .teacher-scan-page .tcfx-overlay {
+    position: fixed; inset: 0; z-index: 80; display: grid; place-items: center; cursor: pointer;
+    background: radial-gradient(circle at 50% 42%, oklch(0.4 0.12 280 / 0.55), oklch(0.1 0.04 265 / 0.82) 70%);
+  }
+  .teacher-scan-page .tcfx-ring { position: absolute; width: 16rem; height: 16rem; border-radius: 50%; border: 3px solid oklch(0.88 0.13 85 / 0.8); box-shadow: 0 0 40px oklch(0.85 0.1 209 / 0.6), inset 0 0 30px oklch(0.78 0.12 300 / 0.5); }
+  .teacher-scan-page .tcfx-ring-2 { border-color: oklch(0.85 0.1 209 / 0.8); }
+  .teacher-scan-page .tcfx-card {
+    position: relative; text-align: center; padding: 2rem 3rem; border-radius: 1.75rem; perspective: 800px;
+    background: var(--teacher-surface); box-shadow: var(--shadow-card), 0 0 60px -10px oklch(0.86 0.14 85 / 0.6);
+  }
+  .teacher-scan-page .tcfx-crown { font-size: 3.2rem; filter: drop-shadow(0 0 14px oklch(0.86 0.14 85)); }
+  .teacher-scan-page .tcfx-pct {
+    font-size: 4.5rem; font-weight: 800; line-height: 1;
+    background: linear-gradient(110deg, oklch(0.9 0.13 88), oklch(0.98 0.03 95), oklch(0.85 0.1 209), oklch(0.9 0.13 88));
+    background-size: 240% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: tcfx-flow 2.4s linear infinite;
+  }
+  .teacher-scan-page .tcfx-title { margin-top: 0.5rem; font-size: 1.6rem; font-weight: 800; }
+  .teacher-scan-page .tcfx-title span { display: inline-block; }
+  .teacher-scan-page .tcfx-sub { margin-top: 0.5rem; font-size: 0.9rem; color: var(--muted-foreground); }
+  @keyframes tcfx-flow { from { background-position: 0% 0; } to { background-position: 300% 0; } }
+  @keyframes tcfx-pop { from { transform: scale(0.4); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .teacher-scan-page .tcfx-bar, .teacher-scan-page .tcfx-badge, .teacher-scan-page .tcfx-pct { animation: none; }
+  }
 }

@@ -66,6 +66,11 @@ function MyPage() {
   const [busy, setBusy] = useState(false);
   const [screen, setScreen] = useState<Screen>("home");
   const [ranking, setRanking] = useState<RankingEntry[] | null>(null);
+  const [myRank, setMyRank] = useState<{ rank: number | null; total: number } | null>(null);
+  const applyRanking = (r: { top: RankingEntry[]; myRank: number | null; total: number } | null) => {
+    setRanking(r ? r.top : null);
+    setMyRank(r ? { rank: r.myRank, total: r.total } : null);
+  };
 
   const coll = useCollection();
   useEffect(() => () => stopGachaAudio(), []);
@@ -219,7 +224,7 @@ function MyPage() {
     let off = false;
     void fetchRanking({})
       .then((r) => {
-        if (!off) setRanking(r);
+        if (!off) applyRanking(r);
       })
       .catch(() => {
         if (!off) setRanking(null);
@@ -385,7 +390,16 @@ function MyPage() {
 
   const rankingCard = (
     <section className="kid-panel ranking-panel p-4">
-      <h2 className="mb-3 font-display text-base font-bold">🏆 クラスの ランキング TOP10</h2>
+      <h2 className="mb-3 font-display text-base font-bold">🏆 クラスの ランキング TOP15</h2>
+      {myRank?.rank != null && (
+        <div className="ranking-myrank mb-3 flex items-center justify-between rounded-2xl px-4 py-3">
+          <span className="text-sm font-bold">あなたの 今の じゅんい</span>
+          <span className="font-display text-3xl font-bold tabular-nums text-primary">
+            {myRank.rank}
+            <span className="ml-0.5 text-sm">位</span>
+          </span>
+        </div>
+      )}
       {ranking === null ? (
         <p className="text-sm text-muted-foreground">よみこみ中…</p>
       ) : ranking.length === 0 ? (
@@ -449,7 +463,7 @@ function MyPage() {
       coll.refresh(),
       screen === "points"
         ? fetchRanking({})
-            .then((r) => setRanking(r))
+            .then((r) => applyRanking(r))
             .catch(() => {})
         : Promise.resolve(),
     ]);
