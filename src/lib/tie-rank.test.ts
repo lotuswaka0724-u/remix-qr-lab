@@ -7,8 +7,10 @@ describe("tieRank（同点は同じ順位）", () => {
     expect(tieRank(list, 1)).toBe(2);
     expect(tieRank(list, 2)).toBe(2);
   });
-  it("同位の次は飛び番になる（1位が2人なら次は3位）", () => {
-    expect(tieRank([{ points: 5 }, { points: 5 }, { points: 4 }], 2)).toBe(3);
+  it("1位が何人いても次は2位（飛び番なし）", () => {
+    const six = [5, 5, 5, 5, 5, 5, 4, 3].map((points) => ({ points }));
+    expect(tieRank(six, 6)).toBe(2);
+    expect(tieRank(six, 7)).toBe(3);
   });
   it("先頭は常に1位", () => {
     expect(tieRank(list, 0)).toBe(1);

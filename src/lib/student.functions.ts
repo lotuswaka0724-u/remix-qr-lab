@@ -169,15 +169,19 @@ export const getClassRanking = createServerFn({ method: "GET" }).handler(async (
   const state = await readClassState();
   const me = (state.students ?? []).find((s) => s.id === studentId);
   if (!me) return null;
-  const { ranking } = await import("@/lib/homework-store");
-  return ranking(state as AppState, me.className)
-    .slice(0, 10)
-    .map((r) => ({
+  const { ranking, tieRank } = await import("@/lib/homework-store");
+  const all = ranking(state as AppState, me.className);
+  const myIndex = all.findIndex((r) => r.student.id === studentId);
+  return {
+    myRank: myIndex >= 0 ? tieRank(all, myIndex) : null,
+    total: all.length,
+    top: all.slice(0, 15).map((r) => ({
       id: r.student.id,
       name: r.student.name,
       points: r.points,
       isMe: r.student.id === studentId,
-    }));
+    })),
+  };
 });
 
 export const studentLogout = createServerFn({ method: "POST" }).handler(async () => {
