@@ -40,6 +40,7 @@ import {
   clearToday,
   correctHwState,
   cycleRecord,
+  cancelCellRecord,
   HW_STATE_META,
   isSubmitted,
   parseHwStateQr,
@@ -82,11 +83,12 @@ const HW_PHRASE: Record<HwState, string> = {
 };
 
 /** 一覧のチェックを押したときの操作モード（既存の処理を呼び分けるだけ） */
-type MarkMode = "normal" | "redo" | "school";
+type MarkMode = "normal" | "redo" | "school" | "cancel";
 const MARK_MODES: { id: MarkMode; label: string; hint: string }[] = [
   { id: "normal", label: "通常モード", hint: "チェックを押すと提出状態を切り替えます" },
   { id: "redo", label: "直しモード", hint: "チェックを押すと「直しあり」で記録します" },
   { id: "school", label: "学校モード", hint: "チェックを押すと「学校でやった」で記録します" },
+  { id: "cancel", label: "取り消しモード", hint: "チェックを押すと、その記録を取り消して未提出に戻します" },
 ];
 
 /** 提出一覧の1行。変わった児童の行だけ再描画するため memo 化する */
@@ -501,7 +503,11 @@ function ScanPage() {
     const before = snapshotCell(getAppState(), s.id, a.id);
     if (markMode === "redo") teacherMark(s, a, "REDO");
     else if (markMode === "school") teacherMark(s, a, "SCHOOL_DONE");
-    else cycleRecord(s.id, a.id);
+    else if (markMode === "cancel") {
+      const res = cancelCellRecord(s.id, a.id);
+      if (res.ok) toast.success(res.message, { description: `${s.name}／${a.name}` });
+      else toast.info(res.message, { description: `${s.name}／${a.name}` });
+    } else cycleRecord(s.id, a.id);
     const after = snapshotCell(getAppState(), s.id, a.id, before.date);
     if (cellChanged(before, after)) setLastOp({ before, after, label: `${s.name}／${a.name}` });
   };
