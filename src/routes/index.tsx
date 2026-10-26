@@ -40,6 +40,7 @@ import {
   clearToday,
   correctHwState,
   cycleRecord,
+  cancelCellRecord,
   HW_STATE_META,
   isSubmitted,
   parseHwStateQr,
@@ -82,11 +83,12 @@ const HW_PHRASE: Record<HwState, string> = {
 };
 
 /** 一覧のチェックを押したときの操作モード（既存の処理を呼び分けるだけ） */
-type MarkMode = "normal" | "redo" | "school";
+type MarkMode = "normal" | "redo" | "school" | "cancel";
 const MARK_MODES: { id: MarkMode; label: string; hint: string }[] = [
   { id: "normal", label: "通常モード", hint: "チェックを押すと提出状態を切り替えます" },
   { id: "redo", label: "直しモード", hint: "チェックを押すと「直しあり」で記録します" },
   { id: "school", label: "学校モード", hint: "チェックを押すと「学校でやった」で記録します" },
+  { id: "cancel", label: "取り消しモード", hint: "チェックを押すと、その記録を取り消して未提出に戻します" },
 ];
 
 /** 提出一覧の1行。変わった児童の行だけ再描画するため memo 化する */
@@ -144,7 +146,9 @@ const StudentRow = memo(function StudentRow({
                 title={meta.label}
                 className={`h-9 w-9 shrink-0 rounded-lg text-base font-bold transition-all ${meta.tone} ${
                   st === "none" ? "hover:bg-secondary" : "shadow-[var(--shadow-lift)]"
-                } ${markMode === "normal" && locked ? "cursor-not-allowed opacity-70" : ""}`}
+                } ${markMode === "normal" && locked ? "cursor-not-allowed opacity-70" : ""} ${
+                  markMode === "cancel" && st !== "none" ? "teacher-cancel-cell" : ""
+                }`}
                 aria-label={`${s.name} ${a.name} ${meta.label}（${MARK_MODES.find((m) => m.id === markMode)?.label}）`}
               >
                 {meta.short}
@@ -501,7 +505,11 @@ function ScanPage() {
     const before = snapshotCell(getAppState(), s.id, a.id);
     if (markMode === "redo") teacherMark(s, a, "REDO");
     else if (markMode === "school") teacherMark(s, a, "SCHOOL_DONE");
-    else cycleRecord(s.id, a.id);
+    else if (markMode === "cancel") {
+      const res = cancelCellRecord(s.id, a.id);
+      if (res.ok) toast.success(res.message, { description: `${s.name}／${a.name}` });
+      else toast.info(res.message, { description: `${s.name}／${a.name}` });
+    } else cycleRecord(s.id, a.id);
     const after = snapshotCell(getAppState(), s.id, a.id, before.date);
     if (cellChanged(before, after)) setLastOp({ before, after, label: `${s.name}／${a.name}` });
   };
@@ -631,7 +639,7 @@ function ScanPage() {
             </div>
 
             {/* ---- チェックを押したときの操作モード ---- */}
-            <div role="radiogroup" aria-label="チェックの操作モード" className="mb-2 grid grid-cols-3 gap-1.5">
+            <div role="radiogroup" aria-label="チェックの操作モード" className="mb-2 grid grid-cols-2 gap-1.5 sm:grid-cols-4">
               {MARK_MODES.map((m) => {
                 const on = markMode === m.id;
                 return (
@@ -639,6 +647,7 @@ function ScanPage() {
                     key={m.id}
                     type="button"
                     role="radio"
+                    data-mode={m.id}
                     aria-checked={on}
                     onClick={() => setMarkMode(m.id)}
                     className={`teacher-mode-btn min-h-12 rounded-xl border-2 px-2 text-sm font-bold transition-all ${
@@ -653,7 +662,7 @@ function ScanPage() {
                 );
               })}
             </div>
-            <p className="-mt-1 mb-2 text-xs font-bold text-primary">
+            <p data-mode={markMode} className="teacher-mode-hint -mt-1 mb-2 text-xs font-bold text-primary">
               いまは「{MARK_MODES.find((m) => m.id === markMode)?.label}」：{MARK_MODES.find((m) => m.id === markMode)?.hint}
             </p>
             <div className="mb-2 flex items-center gap-2 border-t border-border/60 pt-2">

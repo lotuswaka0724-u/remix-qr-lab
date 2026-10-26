@@ -71,3 +71,20 @@ describe("取り消し", () => {
     expect(tap(() => correctHwState(S, A, "REDO"))).toBeNull();
   });
 });
+
+describe("取り消しモード", () => {
+  it("前の操作でも、記録を未提出に戻しポイントも元に戻る", () => {
+    const base = earnedPoints(store.getAppState(), S);
+    store.applyMaterialScan(S, A);
+    store.applyMaterialScan(S, B);
+    const afterB = earnedPoints(store.getAppState(), S);
+    expect(store.cancelCellRecord(S, A).ok).toBe(true);
+    expect(store.getAppState().records[store.todayKey()]?.[S]?.[A]).toBeUndefined();
+    expect(store.getAppState().records[store.todayKey()]?.[S]?.[B]).toBe("submitted");
+    expect(earnedPoints(store.getAppState(), S)).toBeLessThan(afterB);
+    expect(earnedPoints(store.getAppState(), S)).toBeGreaterThan(base);
+  });
+  it("記録がなければ何もしない", () => {
+    expect(store.cancelCellRecord(S, A).ok).toBe(false);
+  });
+});

@@ -747,6 +747,39 @@ export function undoCellChange(before: CellSnapshot, after: CellSnapshot): { ok:
   return { ok: true, message: "取り消しました" };
 }
 
+/**
+ * 先生の「取り消しモード」：その日・その児童・その宿題の記録を未提出に戻す。
+ * 記録は消さずに無効（voided, undone）にするので、ポイントも元どおりになる。
+ */
+export function cancelCellRecord(
+  studentId: string,
+  assignmentId: string,
+  opts: { date?: string } = {},
+): { ok: boolean; message: string } {
+  const date = opts.date ?? todayKey();
+  const hasValue = state.records[date]?.[studentId]?.[assignmentId] !== undefined;
+  const hasLive = (state.hwEvents ?? []).some(
+    (e) => !e.voided && e.date === date && e.studentId === studentId && e.assignmentId === assignmentId,
+  );
+  if (!hasValue && !hasLive) return { ok: false, message: "取り消す記録がありません" };
+  setState((s) => {
+    const day = { ...(s.records[date] ?? {}) };
+    const forStudent = { ...(day[studentId] ?? {}) };
+    delete forStudent[assignmentId];
+    day[studentId] = forStudent;
+    return {
+      ...s,
+      records: { ...s.records, [date]: day },
+      hwEvents: (s.hwEvents ?? []).map((e) =>
+        !e.voided && e.date === date && e.studentId === studentId && e.assignmentId === assignmentId
+          ? { ...e, voided: true, undone: true }
+          : e,
+      ),
+    };
+  });
+  return { ok: true, message: "記録を取り消しました" };
+}
+
 /* ---------- 宿題じょうたいQRの処理 ---------- */
 
 export type HwApplyResult =
