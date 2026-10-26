@@ -105,6 +105,42 @@
   .teacher-scan-page .teacher-mode-btn[aria-checked="false"] {
     opacity: 0.75;
   }
+  /* モードごとの色：直し=琥珀、学校=エメラルド、取り消し=ローズ */
+  .teacher-scan-page .teacher-mode-btn[data-mode="redo"][aria-checked="true"] {
+    background: linear-gradient(180deg, oklch(0.74 0.16 70), oklch(0.56 0.16 50));
+    border-color: oklch(0.88 0.13 80);
+    box-shadow: 0 0 0 2px oklch(0.82 0.14 75 / 0.45), 0 0 18px oklch(0.75 0.16 65 / 0.5);
+  }
+  .teacher-scan-page .teacher-mode-btn[data-mode="school"][aria-checked="true"] {
+    background: linear-gradient(180deg, oklch(0.68 0.15 160), oklch(0.5 0.13 170));
+    border-color: oklch(0.86 0.12 160);
+    box-shadow: 0 0 0 2px oklch(0.8 0.13 160 / 0.45), 0 0 18px oklch(0.72 0.14 160 / 0.5);
+  }
+  .teacher-scan-page .teacher-mode-btn[data-mode="cancel"][aria-checked="true"] {
+    background: linear-gradient(180deg, oklch(0.64 0.21 18), oklch(0.48 0.19 10));
+    border-color: oklch(0.82 0.14 15);
+    box-shadow: 0 0 0 2px oklch(0.75 0.18 15 / 0.5), 0 0 20px oklch(0.65 0.21 18 / 0.6);
+  }
+  .teacher-scan-page .teacher-mode-hint[data-mode="redo"] { color: oklch(0.82 0.15 70); }
+  .teacher-scan-page .teacher-mode-hint[data-mode="school"] { color: oklch(0.8 0.14 160); }
+  .teacher-scan-page .teacher-mode-hint[data-mode="cancel"] {
+    color: oklch(0.8 0.16 15);
+    padding: 4px 8px;
+    border-radius: 8px;
+    background: oklch(0.55 0.2 15 / 0.18);
+    border: 1px solid oklch(0.7 0.18 15 / 0.5);
+  }
+  .teacher-scan-page .teacher-cancel-cell {
+    outline: 2px dashed oklch(0.7 0.2 18);
+    outline-offset: 1px;
+    animation: teacher-cancel-pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes teacher-cancel-pulse {
+    50% { box-shadow: 0 0 12px oklch(0.65 0.21 18 / 0.7); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .teacher-scan-page .teacher-cancel-cell { animation: none; }
+  }
 }
 
 /* 提出一覧の氏名は「…」で省略せず、最後まで表示する */
