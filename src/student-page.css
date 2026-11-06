@@ -662,3 +662,35 @@
     .student-page :is(.stu-streak-aura, .stu-today-done, .stu-rank-fill, .stu-rank-shine, .hw-just-checked, .hw-just-checked > span, .complete-fx-wash, .complete-fx-rays, .redo-banner, .redo-banner-shine, .hw-redo-ping) { animation: none !important; }
   }
 }
+
+@media screen {
+  .student-page .stu-past-card {
+    position: relative; overflow: hidden;
+    border-color: color-mix(in oklab, var(--accent) 45%, var(--border));
+    background: linear-gradient(150deg, color-mix(in oklab, var(--card) 88%, var(--accent)), color-mix(in oklab, var(--card) 92%, var(--primary)));
+    box-shadow: 0 10px 30px -14px color-mix(in oklab, var(--accent) 60%, transparent);
+    animation: stu-past-in .5s cubic-bezier(.2,.9,.3,1.2) both;
+  }
+  .student-page .stu-past-card::before {
+    content: ""; position: absolute; inset: -40% -10% auto; height: 60%;
+    background: radial-gradient(closest-side, color-mix(in oklab, var(--accent) 30%, transparent), transparent);
+    animation: stu-past-glow 4s ease-in-out infinite alternate; pointer-events: none;
+  }
+  .student-page .stu-past-count { background: var(--accent); color: var(--accent-foreground); }
+  .student-page .stu-past-item {
+    position: relative; background: color-mix(in oklab, var(--muted) 70%, transparent);
+    border: 1px solid var(--border);
+    animation: stu-past-item .45s ease-out both;
+  }
+  .student-page .stu-past-date { background: color-mix(in oklab, var(--background) 70%, transparent); }
+  .student-page .stu-past-item.is-redo { border-color: color-mix(in oklab, #f59e0b 55%, var(--border)); }
+  .student-page .stu-past-item.is-redo .stu-past-tag { background: #f59e0b; color: #1f1300; }
+  .student-page .stu-past-item.is-forgot { border-color: color-mix(in oklab, #60a5fa 55%, var(--border)); }
+  .student-page .stu-past-item.is-forgot .stu-past-tag { background: #93c5fd; color: #0c1f45; }
+  @keyframes stu-past-in { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+  @keyframes stu-past-item { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+  @keyframes stu-past-glow { from { transform: translateX(-10%); opacity: .6; } to { transform: translateX(10%); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) {
+    .student-page .stu-past-card, .student-page .stu-past-card::before, .student-page .stu-past-item { animation: none; }
+  }
+}
