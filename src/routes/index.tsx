@@ -37,6 +37,7 @@ import {
 import {
   applyHwState,
   applyMaterialScan,
+  toggleAbsent,
   clearToday,
   correctHwState,
   cycleRecord,
@@ -101,6 +102,8 @@ const StudentRow = memo(function StudentRow({
   locked,
   markMode,
   onCell,
+  absent,
+  onAbsent,
 }: {
   s: Student;
   assignments: Assignment[];
@@ -110,6 +113,8 @@ const StudentRow = memo(function StudentRow({
   locked: boolean;
   markMode: MarkMode;
   onCell: (s: Student, a: Assignment) => void;
+  absent: boolean;
+  onAbsent: (s: Student) => void;
 }) {
   const allDone =
     assignments.length > 0 && assignments.every((a) => isSubmitted(dayStates?.[a.id]));
@@ -118,7 +123,7 @@ const StudentRow = memo(function StudentRow({
     <tr
       className={`border-t border-border/60 odd:bg-muted/30 ${
         allDone ? "bg-primary/5 odd:bg-primary/10" : ""
-      } ${flash ? "fx-row-hit" : ""} ${frame ? "plate-framed" : ""}`}
+      } ${flash ? "fx-row-hit" : ""} ${frame ? "plate-framed" : ""} ${absent ? "teacher-absent-row" : ""}`}
       style={frame}
     >
       <td className="px-1.5 py-0.5 text-center tabular-nums text-muted-foreground">
@@ -130,12 +135,32 @@ const StudentRow = memo(function StudentRow({
           <NamePlate plateId={badge?.background} lite className="text-[15px]">
             {s.name}
           </NamePlate>
-          {allDone && <span className="shrink-0 text-xs font-bold text-primary">✓</span>}
+          {allDone && !absent && <span className="shrink-0 text-xs font-bold text-primary">✓</span>}
+          <button
+            type="button"
+            onClick={() => onAbsent(s)}
+            className={`teacher-absent-btn ml-auto shrink-0 ${absent ? "is-on" : ""}`}
+            aria-pressed={absent}
+            aria-label={`${s.name} ${absent ? "欠席を取り消す" : "欠席にする"}`}
+            title={absent ? "欠席（押すと出席に戻す）" : "欠席にする"}
+          >
+            欠
+          </button>
         </span>
       </td>
       {assignments.map((a) => {
         const st = toStatus(dayStates?.[a.id]);
         const meta = STATUS_META[st];
+        if (absent && st === "none")
+          return (
+            <td key={a.id} className="px-1 py-0.5 text-center">
+              <div className="flex items-center justify-center">
+                <span className="teacher-absent-cell grid h-9 w-9 shrink-0 place-content-center rounded-lg text-sm font-bold" title="欠席">
+                  欠
+                </span>
+              </div>
+            </td>
+          );
         return (
           <td key={a.id} className="px-1 py-0.5 text-center">
             <div className="flex items-center justify-center">
@@ -272,14 +297,16 @@ function ScanPage() {
   const day = state.records[todayKey()] ?? {};
   const rank = useMemo(() => ranking(state, classFilter), [state, classFilter]);
 
-  const total = students.length * todayAssignments.length;
-  const done = students.reduce(
+  const absentIds = useMemo(() => new Set(state.absences?.[todayKey()] ?? []), [state.absences]);
+  const present = students.filter((s) => !absentIds.has(s.id));
+  const total = present.length * todayAssignments.length;
+  const done = present.reduce(
     (acc, s) => acc + todayAssignments.filter((a) => isSubmitted(day[s.id]?.[a.id])).length,
     0,
   );
   const pct = total ? Math.round((done / total) * 100) : 0;
 
-  const pendingCount = students.filter((s) =>
+  const pendingCount = present.filter((s) =>
     todayAssignments.some((a) => !isSubmitted(day[s.id]?.[a.id])),
   ).length;
 
@@ -500,7 +527,7 @@ function ScanPage() {
     });
   };
 
-  const doneStudents = students.filter(
+  const doneStudents = present.filter(
     (s) =>
       todayAssignments.length > 0 && todayAssignments.every((a) => isSubmitted(day[s.id]?.[a.id])),
   ).length;
@@ -519,6 +546,7 @@ function ScanPage() {
     const after = snapshotCell(getAppState(), s.id, a.id, before.date);
     if (cellChanged(before, after)) setLastOp({ before, after, label: `${s.name}／${a.name}` });
   };
+  const handleAbsent = useCallback((s: Student) => toggleAbsent(s.id), []);
   const handleCell = useCallback((s: Student, a: Assignment) => cellActionRef.current(s, a), []);
 
   return (
@@ -547,7 +575,7 @@ function ScanPage() {
             <span className="text-xs font-bold text-muted-foreground"> / {total} 件</span>
           </p>
           <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold text-primary">
-            全部そろった人 {doneStudents} / {students.length} 人
+            全部そろった人 {doneStudents} / {present.length} 人{absentIds.size > 0 ? `（欠席 ${students.length - present.length}）` : ""}
           </span>
           <span className="rounded-full bg-destructive/10 px-2.5 py-0.5 text-xs font-bold text-destructive">
             未提出 {total - done} 件・{pendingCount} 人
@@ -923,6 +951,8 @@ function ScanPage() {
                       locked={locked}
                       markMode={markMode}
                       onCell={handleCell}
+                      absent={absentIds.has(s.id)}
+                      onAbsent={handleAbsent}
                     />
                   ))}
                 </tbody>
