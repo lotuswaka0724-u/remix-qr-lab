@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { jstDay } from "@/lib/daily-play";
 
 import type { AppState, PointRules, Status } from "@/lib/homework-store";
+import { pastPending, type PastPending } from "@/lib/past-pending";
 
 /** 児童用：ログイン番号（年度＋学年＋クラス＋出席番号）でログインし、自分のぶんだけを見る */
 
@@ -10,6 +11,9 @@ export type StudentView = {
   className: string;
   date: string;
   items: { id: string; name: string; status: Status }[];
+  /** 前日以前の未解決の直し・わすれ */
+  past?: PastPending[];
+  absent?: boolean;
   available: number;
   earned: number;
   spent: number;
@@ -68,6 +72,8 @@ function project(state: Partial<AppState>, studentId: string): StudentView | nul
     className: student.className,
     date,
     items,
+    past: pastPending(state, studentId, date),
+    absent: !!state.absences?.[date]?.includes(studentId),
     earned,
     spent,
     available: earned - spent,

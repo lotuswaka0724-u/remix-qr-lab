@@ -185,3 +185,29 @@
     .teacher-scan-page .tcfx-bar, .teacher-scan-page .tcfx-badge, .teacher-scan-page .tcfx-pct { animation: none; }
   }
 }
+
+@media screen {
+  .teacher-scan-page .teacher-absent-btn {
+    display: inline-grid; place-content: center;
+    width: 1.25rem; height: 1.25rem; border-radius: 0.4rem;
+    font-size: 10px; font-weight: 800; line-height: 1;
+    color: color-mix(in oklab, var(--muted-foreground) 80%, transparent);
+    border: 1px dashed color-mix(in oklab, var(--muted-foreground) 45%, transparent);
+    background: transparent; opacity: 0.55;
+    transition: opacity .2s, transform .2s, background .2s, color .2s;
+  }
+  .teacher-scan-page .teacher-absent-btn:hover { opacity: 1; transform: scale(1.08); }
+  .teacher-scan-page .teacher-absent-btn.is-on {
+    opacity: 1; border-style: solid; color: var(--primary-foreground);
+    border-color: color-mix(in oklab, var(--destructive) 70%, var(--primary));
+    background: linear-gradient(135deg, color-mix(in oklab, var(--destructive) 75%, var(--primary)), color-mix(in oklab, var(--primary) 60%, var(--destructive)));
+    box-shadow: 0 0 10px color-mix(in oklab, var(--destructive) 45%, transparent);
+  }
+  .teacher-scan-page .teacher-absent-row > td { opacity: 0.55; filter: saturate(0.4); }
+  .teacher-scan-page .teacher-absent-row > td:nth-child(2) { opacity: 1; filter: none; }
+  .teacher-scan-page .teacher-absent-cell {
+    color: var(--muted-foreground);
+    border: 1px dashed color-mix(in oklab, var(--muted-foreground) 50%, transparent);
+    background: color-mix(in oklab, var(--muted) 70%, transparent);
+  }
+}

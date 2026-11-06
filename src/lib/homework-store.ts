@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { getClassState, saveClassState } from "@/lib/class-sync.functions";
 import { DEFAULT_GAME_SETTINGS, type GameSettings } from "@/lib/game-settings";
+import { pastPending } from "@/lib/past-pending";
 import { completeBonusId, completeStats, jstDay, normalizeUsageRules, reachedMilestones, type UsageRules } from "@/lib/daily-play";
 
 export type Assignment = { id: string; name: string; inToday: boolean };
@@ -293,6 +294,8 @@ export type AppState = {
   usageRules: UsageRules;
   /** 宿題コンプリート 5回ごとボーナスの確定記録（付与時の金額で固定。1児童×1到達回数につき1件） */
   completeBonusLog?: CompleteBonusEntry[];
+  /** date -> 欠席した児童ID（ポイント・記録は変えない。提出率の分母から外すだけ） */
+  absences?: Record<string, string[]>;
 };
 
 export type CompleteBonusEntry = { id: string; studentId: string; milestone: number; amount: number; at: number };
@@ -527,6 +530,15 @@ export const setRecord = (studentId: string, assignmentId: string, status: Statu
     forStudent[assignmentId] = status;
     day[studentId] = forStudent;
     return { ...s, records: { ...s.records, [todayKey()]: day } };
+  });
+
+/** 今日の欠席を切り替える（記録・ポイントは変えない） */
+export const toggleAbsent = (studentId: string) =>
+  setState((s) => {
+    const date = todayKey();
+    const cur = s.absences?.[date] ?? [];
+    const next = cur.includes(studentId) ? cur.filter((id) => id !== studentId) : [...cur, studentId];
+    return { ...s, absences: { ...(s.absences ?? {}), [date]: next } };
   });
 
 export const cycleRecord = (studentId: string, assignmentId: string) =>
@@ -783,7 +795,7 @@ export function cancelCellRecord(
 /* ---------- 宿題じょうたいQRの処理 ---------- */
 
 export type HwApplyResult =
-  | { ok: true; delta: number; total: number; state: HwState }
+  | { ok: true; delta: number; total: number; state: HwState; pastDate?: string }
   | { ok: false; reason: "duplicate" | "order"; message: string };
 
 /** その日・その宿題で、すでに読み取った状態の一覧 */
@@ -941,9 +953,27 @@ export function applyMaterialScan(
 ): HwApplyResult {
   const date = opts.date ?? todayKey();
   const already = hwStatesFor(state, date, studentId, assignmentId);
+  const todayStatus = toStatus(state.records[date]?.[studentId]?.[assignmentId]);
 
-  if (already.includes("REDO") && !already.includes("RESUBMIT")) {
+  if (todayStatus === "redo" || (already.includes("REDO") && !already.includes("RESUBMIT"))) {
     return applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date });
+  }
+  // 前日以前に残っている直し・わすれがあれば、古いものから解決する
+  if (!opts.date) {
+    const past = pastPending(state, studentId, date).find((p) => p.assignmentId === assignmentId);
+    if (past) {
+      if (past.status === "redo") {
+        const r = applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date: past.date });
+        return r.ok ? { ...r, pastDate: past.date } : r;
+      }
+      // わすれた → あとから提出（ポイントは動かさず、記録だけ提出済みにする）
+      setState((s) => {
+        const day = { ...(s.records[past.date] ?? {}) };
+        day[studentId] = { ...(day[studentId] ?? {}), [assignmentId]: "submitted" };
+        return { ...s, records: { ...s.records, [past.date]: day } };
+      });
+      return { ok: true, delta: 0, total: earnedPoints(state, studentId), state: "SUBMIT", pastDate: past.date };
+    }
   }
   if (already.length) {
     return {
