@@ -400,6 +400,12 @@ function ScanPage() {
     const before = rankOf(state, student.id);
     const res = applyMaterialScan(student.id, target.id);
     if (!res.ok) return fail(student, target, res);
+    if (res.pastDate) {
+      const md = res.pastDate.slice(5).replace("-", "/");
+      toast.success(`${md} の${res.state === "RESUBMIT" ? "直し" : "わすれもの"}を完了にしました`, {
+        description: `${student.name}／${target.name}`,
+      });
+    }
     // 教材QRの経路では直前に playBadgeFx で設定音を鳴らしている
     afterRecord(student, target, res, before, true);
   };

@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 
 import { getClassState, saveClassState } from "@/lib/class-sync.functions";
 import { DEFAULT_GAME_SETTINGS, type GameSettings } from "@/lib/game-settings";
+import { pastPending } from "@/lib/past-pending";
 import { completeBonusId, completeStats, jstDay, normalizeUsageRules, reachedMilestones, type UsageRules } from "@/lib/daily-play";
 
 export type Assignment = { id: string; name: string; inToday: boolean };
