@@ -946,10 +946,25 @@ export function resolvePastRedo(
   assignmentId: string,
   date: string,
 ): HwApplyResult {
-  const ok = pastPending(state, studentId, todayKey()).some(
-    (p) => p.date === date && p.assignmentId === assignmentId && p.status === "redo",
+  const item = pastPending(state, studentId, todayKey()).find(
+    (p) => p.date === date && p.assignmentId === assignmentId,
   );
-  if (!ok) return { ok: false, reason: "duplicate", message: "この直しは、もう完了しています" };
+  if (!item) return { ok: false, reason: "duplicate", message: "この直しは、もう完了しています" };
+  if (item.status === "declared") {
+    // わすれ → その日付で提出済みに（ポイントは動かさない）
+    setState((s) => ({
+      ...s,
+      records: {
+        ...s.records,
+        [date]: {
+          ...(s.records[date] ?? {}),
+          [studentId]: { ...(s.records[date]?.[studentId] ?? {}), [assignmentId]: "submitted" },
+        },
+      },
+    }));
+    const hw = state.hwStates?.[date]?.[studentId]?.[assignmentId] as HwState;
+    return { ok: true, delta: 0, total: earnedPoints(state, studentId), state: hw ?? "SUBMIT", pastDate: date };
+  }
   const r = applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date });
   return r.ok ? { ...r, pastDate: date } : r;
 }

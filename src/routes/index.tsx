@@ -320,7 +320,7 @@ function ScanPage() {
     const today = todayKey();
     const m: Record<string, PastPending[]> = {};
     for (const st of state.students) {
-      const list = pastPending(state, st.id, today).filter((p) => p.status === "redo");
+      const list = pastPending(state, st.id, today);
       if (list.length) m[st.id] = list.reverse();
     }
     return m;
@@ -549,7 +549,7 @@ function ScanPage() {
       setPastTarget(null);
       if (!res.ok) return fail(student, assignment, res);
       playBadgeFx(student.id);
-      toast.success(`${Number(item.date.slice(5, 7))}/${Number(item.date.slice(8, 10))} の直しを完了にしました`, {
+      toast.success(`${Number(item.date.slice(5, 7))}/${Number(item.date.slice(8, 10))} の${item.status === "redo" ? "直しを完了" : "わすれを提出済み"}にしました`, {
         description: `${student.name}／${assignment.name}`,
       });
       afterRecord(student, assignment, res, before, true);
@@ -629,6 +629,9 @@ function ScanPage() {
                   >
                     <span className="teacher-past-date shrink-0 rounded-lg px-2 py-1 text-sm tabular-nums">
                       {Number(p.date.slice(5, 7))}/{Number(p.date.slice(8, 10))}
+                    </span>
+                    <span className={`shrink-0 rounded-md px-1.5 py-0.5 text-xs ${p.status === "redo" ? "teacher-past-tag-redo" : "teacher-past-tag-forgot"}`}>
+                      {p.status === "redo" ? "直し" : "わすれ"}
                     </span>
                     <span className="min-w-0 flex-1 truncate">{p.name}</span>
                     <span className="shrink-0 text-xs opacity-80">選ぶ ›</span>
