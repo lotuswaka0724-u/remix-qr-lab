@@ -940,6 +940,20 @@ export function correctHwState(
   return { ok: true, delta: delta - removed, total, state: hw };
 }
 
+/** 先生が選んだ前日以前の直しを、その日付で「直し完了」にする */
+export function resolvePastRedo(
+  studentId: string,
+  assignmentId: string,
+  date: string,
+): HwApplyResult {
+  const ok = pastPending(state, studentId, todayKey()).some(
+    (p) => p.date === date && p.assignmentId === assignmentId && p.status === "redo",
+  );
+  if (!ok) return { ok: false, reason: "duplicate", message: "この直しは、もう完了しています" };
+  const r = applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date });
+  return r.ok ? { ...r, pastDate: date } : r;
+}
+
 /**
  * 教材QRを1回読み取ったときの処理。
  * ・まだ何もない → 提出済み（通常提出のポイント）
@@ -957,23 +971,6 @@ export function applyMaterialScan(
 
   if (todayStatus === "redo" || (already.includes("REDO") && !already.includes("RESUBMIT"))) {
     return applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date });
-  }
-  // 前日以前に残っている直し・わすれがあれば、古いものから解決する
-  if (!opts.date) {
-    const past = pastPending(state, studentId, date).find((p) => p.assignmentId === assignmentId);
-    if (past) {
-      if (past.status === "redo") {
-        const r = applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date: past.date });
-        return r.ok ? { ...r, pastDate: past.date } : r;
-      }
-      // わすれた → あとから提出（ポイントは動かさず、記録だけ提出済みにする）
-      setState((s) => {
-        const day = { ...(s.records[past.date] ?? {}) };
-        day[studentId] = { ...(day[studentId] ?? {}), [assignmentId]: "submitted" };
-        return { ...s, records: { ...s.records, [past.date]: day } };
-      });
-      return { ok: true, delta: 0, total: earnedPoints(state, studentId), state: "SUBMIT", pastDate: past.date };
-    }
   }
   if (already.length) {
     return {
