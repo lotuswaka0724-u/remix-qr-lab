@@ -431,34 +431,6 @@ function MyPage() {
     </section>
   );
 
-  const pastCard =
-    view && view.past && view.past.length > 0 ? (
-      <section className="stu-past-card rounded-3xl border border-border bg-card p-4">
-        <div className="mb-2 flex items-center gap-2">
-          <h2 className="mr-auto font-display text-base font-bold">⚠️ 前の なおし・わすれもの</h2>
-          <span className="stu-past-count rounded-full px-3 py-1 text-xs font-bold">{view.past.length} こ</span>
-        </div>
-        <p className="mb-2 text-xs text-muted-foreground">できたら、教材のQRを先生のカメラにかざしてね</p>
-        <ul className="grid gap-2 sm:grid-cols-2">
-          {view.past.map((p, i) => (
-            <li
-              key={`${p.date}-${p.assignmentId}`}
-              className={`stu-past-item flex items-center gap-2 rounded-2xl px-3 py-2.5 ${p.status === "redo" ? "is-redo" : "is-forgot"}`}
-              style={{ animationDelay: `${i * 60}ms` }}
-            >
-              <span className="stu-past-date shrink-0 rounded-lg px-2 py-1 text-xs font-bold tabular-nums">
-                {Number(p.date.slice(5, 7))}/{Number(p.date.slice(8, 10))}
-              </span>
-              <span className="min-w-0 flex-1 truncate font-bold">{p.name}</span>
-              <span className="stu-past-tag shrink-0 rounded-full px-2.5 py-0.5 text-xs font-bold">
-                {p.status === "redo" ? "なおし" : "わすれ"}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
-    ) : null;
-
   const progress = (variant: "full" | "rank" | "streak") =>
     coll.view ? (
       <StudentProgress
@@ -612,7 +584,6 @@ function MyPage() {
 
         {screen === "homework" && (
           <>
-            {pastCard}
             <PushOptIn api={push} />
             {progress("streak")}
             {homeworkCard}
