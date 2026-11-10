@@ -617,7 +617,7 @@ function ScanPage() {
           </DialogHeader>
           {pastOpen && (pastRedos[pastOpen.id]?.length ?? 0) > 0 ? (
             <ul className="grid max-h-[60vh] gap-2 overflow-y-auto">
-              {pastRedos[pastOpen.id].map((p) => (
+              {(pastRedos[pastOpen.id] ?? []).map((p) => (
                 <li key={`${p.date}-${p.assignmentId}`}>
                   <button
                     type="button"
