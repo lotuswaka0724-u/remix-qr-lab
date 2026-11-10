@@ -962,8 +962,7 @@ export function resolvePastRedo(
         },
       },
     }));
-    const hw = state.hwStates?.[date]?.[studentId]?.[assignmentId] as HwState;
-    return { ok: true, delta: 0, total: earnedPoints(state, studentId), state: hw ?? "SUBMIT", pastDate: date };
+    return { ok: true, delta: 0, total: earnedPoints(state, studentId), state: "SUBMIT", pastDate: date };
   }
   const r = applyHwState(studentId, assignmentId, "RESUBMIT", { force: true, date });
   return r.ok ? { ...r, pastDate: date } : r;
