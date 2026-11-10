@@ -211,3 +211,28 @@
     background: color-mix(in oklab, var(--muted) 70%, transparent);
   }
 }
+
+@media screen {
+  .teacher-scan-page .teacher-name-btn { cursor: pointer; }
+  .teacher-scan-page .teacher-name-btn:focus-visible { outline: 2px solid hsl(38 95% 60%); }
+  .teacher-scan-page .teacher-past-badge {
+    background: linear-gradient(135deg, hsl(32 95% 55%), hsl(18 90% 52%));
+    color: hsl(0 0% 100%);
+    box-shadow: 0 0 8px hsl(32 95% 55% / .55);
+  }
+  .teacher-scan-page .teacher-past-wait {
+    background: linear-gradient(135deg, hsl(30 92% 52%), hsl(16 88% 48%));
+    color: hsl(0 0% 100%);
+    animation: teacher-past-pulse 1.6s ease-in-out infinite;
+  }
+  @keyframes teacher-past-pulse {
+    50% { box-shadow: 0 0 0 6px hsl(30 92% 52% / .25), 0 10px 30px hsl(220 60% 5% / .5); }
+  }
+}
+.teacher-past-dialog .teacher-past-item {
+  background: hsl(30 92% 52% / .12);
+  border: 1px solid hsl(30 92% 52% / .45);
+  transition: transform .15s, background .15s;
+}
+.teacher-past-dialog .teacher-past-item:hover { background: hsl(30 92% 52% / .22); transform: translateY(-1px); }
+.teacher-past-dialog .teacher-past-date { background: hsl(30 92% 52%); color: hsl(0 0% 100%); }

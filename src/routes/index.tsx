@@ -37,6 +37,7 @@ import {
 import {
   applyHwState,
   applyMaterialScan,
+  resolvePastRedo,
   toggleAbsent,
   clearToday,
   correctHwState,
@@ -68,6 +69,8 @@ import {
 } from "@/lib/homework-store";
 import { verifyForgotToken } from "@/lib/hwqr.functions";
 import { RANK_STYLE } from "@/lib/rank-style";
+import { pastPending, type PastPending } from "@/lib/past-pending";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import teacherCss from "@/teacher-page.css?url";
 import teacherWorld from "@/assets/collection/student-crystal-world.asset.json";
 
@@ -104,6 +107,8 @@ const StudentRow = memo(function StudentRow({
   onCell,
   absent,
   onAbsent,
+  pastCount,
+  onName,
 }: {
   s: Student;
   assignments: Assignment[];
@@ -115,6 +120,8 @@ const StudentRow = memo(function StudentRow({
   onCell: (s: Student, a: Assignment) => void;
   absent: boolean;
   onAbsent: (s: Student) => void;
+  pastCount: number;
+  onName: (s: Student) => void;
 }) {
   const allDone =
     assignments.length > 0 && assignments.every((a) => isSubmitted(dayStates?.[a.id]));
@@ -132,9 +139,19 @@ const StudentRow = memo(function StudentRow({
       <td className={`whitespace-nowrap px-1.5 py-0.5 font-bold ${allDone ? "text-primary" : ""}`}>
         <span className="flex min-w-0 items-center gap-1">
           <CollectionIcon iconId={badge?.icon} frameId={badge?.frame} size={20} />
-          <NamePlate plateId={badge?.background} lite className="text-[15px]">
-            {s.name}
-          </NamePlate>
+          <button
+            type="button"
+            onClick={() => onName(s)}
+            className="teacher-name-btn flex min-w-0 items-center gap-1 rounded-md text-left"
+            aria-label={`${s.name} の前の直しを見る`}
+          >
+            <NamePlate plateId={badge?.background} lite className="text-[15px]">
+              {s.name}
+            </NamePlate>
+            {pastCount > 0 && (
+              <span className="teacher-past-badge shrink-0 rounded-full px-1.5 text-[11px] font-bold">直{pastCount}</span>
+            )}
+          </button>
           {allDone && !absent && <span className="shrink-0 text-xs font-bold text-primary">✓</span>}
           <button
             type="button"
@@ -297,6 +314,18 @@ function ScanPage() {
   const day = state.records[todayKey()] ?? {};
   const rank = useMemo(() => ranking(state, classFilter), [state, classFilter]);
 
+  const [pastOpen, setPastOpen] = useState<Student | null>(null);
+  const [pastTarget, setPastTarget] = useState<{ student: Student; item: PastPending } | null>(null);
+  const pastRedos = useMemo(() => {
+    const today = todayKey();
+    const m: Record<string, PastPending[]> = {};
+    for (const st of state.students) {
+      const list = pastPending(state, st.id, today).filter((p) => p.status === "redo");
+      if (list.length) m[st.id] = list.reverse();
+    }
+    return m;
+  }, [state]);
+  const handleName = useCallback((s: Student) => setPastOpen(s), []);
   const absentIds = useMemo(() => new Set(state.absences?.[todayKey()] ?? []), [state.absences]);
   const present = students.filter((s) => !absentIds.has(s.id));
   const total = present.length * todayAssignments.length;
@@ -505,6 +534,27 @@ function ScanPage() {
       toast.error("該当する児童が見つかりません", { description: text });
       return;
     }
+    if (assignment && pastTarget) {
+      const { student: ps, item } = pastTarget;
+      if (ps.id !== student.id || item.assignmentId !== assignment.id) {
+        playError();
+        if (state.settings.vibe) vibrate([80, 60, 80]);
+        toast.error(`${ps.name} さんの「${item.name}」ではありません`, {
+          description: "選んだ直しのQRをかざしてください（取りやめは画面上の×）",
+        });
+        return;
+      }
+      const before = rankOf(state, student.id);
+      const res = resolvePastRedo(student.id, assignment.id, item.date);
+      setPastTarget(null);
+      if (!res.ok) return fail(student, assignment, res);
+      playBadgeFx(student.id);
+      toast.success(`${Number(item.date.slice(5, 7))}/${Number(item.date.slice(8, 10))} の直しを完了にしました`, {
+        description: `${student.name}／${assignment.name}`,
+      });
+      afterRecord(student, assignment, res, before, true);
+      return;
+    }
     if (assignment) {
       playBadgeFx(student.id);
       recordMaterial(student, assignment);
@@ -547,6 +597,50 @@ function ScanPage() {
     <main className="teacher-scan-page mx-auto w-full max-w-[1920px] px-3 pb-2 pt-2 lg:flex lg:h-[calc(100svh-62px)] lg:flex-col lg:overflow-hidden" style={{ "--teacher-world-image": `url("${teacherWorld.url}")` } as React.CSSProperties}>
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
+      {pastTarget && (
+        <div className="teacher-past-wait fixed inset-x-3 top-3 z-50 mx-auto flex max-w-xl items-center gap-3 rounded-2xl px-4 py-3 shadow-[var(--shadow-lift)]" role="status">
+          <span className="text-2xl">📷</span>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold opacity-80">前の直し　QR待ち</p>
+            <p className="truncate font-bold">
+              {pastTarget.student.name}／{Number(pastTarget.item.date.slice(5, 7))}/{Number(pastTarget.item.date.slice(8, 10))} {pastTarget.item.name}
+            </p>
+          </div>
+          <button type="button" onClick={() => setPastTarget(null)} className="rounded-full px-3 py-1 text-lg font-bold" aria-label="QR待ちをやめる">×</button>
+        </div>
+      )}
+      <Dialog open={!!pastOpen} onOpenChange={(o) => !o && setPastOpen(null)}>
+        <DialogContent className="teacher-past-dialog max-w-md">
+          <DialogHeader>
+            <DialogTitle>{pastOpen?.name} さんの前の直し</DialogTitle>
+            <DialogDescription>出す直しを選んで、その宿題のQRをかざしてください。</DialogDescription>
+          </DialogHeader>
+          {pastOpen && (pastRedos[pastOpen.id]?.length ?? 0) > 0 ? (
+            <ul className="grid max-h-[60vh] gap-2 overflow-y-auto">
+              {pastRedos[pastOpen.id].map((p) => (
+                <li key={`${p.date}-${p.assignmentId}`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPastTarget({ student: pastOpen, item: p });
+                      setPastOpen(null);
+                    }}
+                    className="teacher-past-item flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left font-bold"
+                  >
+                    <span className="teacher-past-date shrink-0 rounded-lg px-2 py-1 text-sm tabular-nums">
+                      {Number(p.date.slice(5, 7))}/{Number(p.date.slice(8, 10))}
+                    </span>
+                    <span className="min-w-0 flex-1 truncate">{p.name}</span>
+                    <span className="shrink-0 text-xs opacity-80">選ぶ ›</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="py-6 text-center text-muted-foreground">前の直しはありません 🎉</p>
+          )}
+        </DialogContent>
+      </Dialog>
       <CollectionFx
         fx={collFx?.fx ?? null}
         rank={
@@ -947,6 +1041,8 @@ function ScanPage() {
                       onCell={handleCell}
                       absent={absentIds.has(s.id)}
                       onAbsent={handleAbsent}
+                      pastCount={pastRedos[s.id]?.length ?? 0}
+                      onName={handleName}
                     />
                   ))}
                 </tbody>
