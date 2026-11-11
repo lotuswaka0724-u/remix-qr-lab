@@ -540,7 +540,7 @@ function ScanPage() {
         playError();
         if (state.settings.vibe) vibrate([80, 60, 80]);
         toast.error(`${ps.name} さんの「${item.name}」ではありません`, {
-          description: "選んだ直しのQRをかざしてください（取りやめは画面上の×）",
+          description: "選んだ直しのQRをかざしてください（取りやめは「やめる」）",
         });
         return;
       }
@@ -598,15 +598,18 @@ function ScanPage() {
       <h1 className="sr-only">宿題チェッカー スキャン画面</h1>
       <SuccessFx hit={hit} />
       {pastTarget && (
-        <div className="teacher-past-wait fixed inset-x-3 top-3 z-50 mx-auto flex max-w-xl items-center gap-3 rounded-2xl px-4 py-3 shadow-[var(--shadow-lift)]" role="status">
-          <span className="text-2xl">📷</span>
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold opacity-80">前の直し　QR待ち</p>
-            <p className="truncate font-bold">
-              {pastTarget.student.name}／{Number(pastTarget.item.date.slice(5, 7))}/{Number(pastTarget.item.date.slice(8, 10))} {pastTarget.item.name}
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="teacher-past-wait pointer-events-auto w-full max-w-sm rounded-3xl px-5 py-5 text-center shadow-[var(--shadow-lift)]" role="dialog" aria-live="polite" aria-label="前の直し QR待ち">
+            <div className="text-4xl">📷</div>
+            <p className="mt-1 text-sm font-bold opacity-90">前の直し　QR待ち</p>
+            <p className="mt-2 text-lg font-bold">{pastTarget.student.name} さん</p>
+            <p className="font-bold">
+              {Number(pastTarget.item.date.slice(5, 7))}/{Number(pastTarget.item.date.slice(8, 10))}　{pastTarget.item.name}
+              <span className="ml-1 text-sm opacity-90">（{pastTarget.item.status === "redo" ? "直し" : "わすれ"}）</span>
             </p>
+            <p className="mt-2 text-sm opacity-90">この宿題のQRをカメラにかざしてください</p>
+            <button type="button" onClick={() => setPastTarget(null)} className="mt-4 w-full rounded-full bg-background/25 px-4 py-2 font-bold">やめる</button>
           </div>
-          <button type="button" onClick={() => setPastTarget(null)} className="rounded-full px-3 py-1 text-lg font-bold" aria-label="QR待ちをやめる">×</button>
         </div>
       )}
       <Dialog open={!!pastOpen} onOpenChange={(o) => !o && setPastOpen(null)}>
